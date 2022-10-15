@@ -5,7 +5,7 @@
 .TSA_container td 
 {	/* CSS Reset */
 	all: initial;
-    display: block;
+	display: block;
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -21,7 +21,7 @@
 	border-collapse: collapse;
 	border-spacing: 0;
 	-webkit-border-horizontal-spacing: 0;
-    -webkit-border-vertical-spacing: 0;
+	-webkit-border-vertical-spacing: 0;
 	cursor: inherit;
 }
 
@@ -54,7 +54,7 @@
 	cursor: pointer;
 	box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
 	display:flex;
-    margin: 10px;
+	margin: 10px;
 	font-size: 14px;
 	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;		
 	opacity: 0;
