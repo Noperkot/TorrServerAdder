@@ -1,0 +1,158 @@
+{
+	"extension_description": {
+		"message": "This extension allows you to add torrents from torrent trackers to TorrServer and play them using the system media player."
+	},
+	"settings_message": {
+		"message": "Settings"
+	},
+	"help_message": {
+		"message": "Help"
+	},
+	"torrServer_address": {
+		"message": "TorrServer Address"
+	},
+	"torrServer_version": {
+		"message": "server version"
+	},	
+	"clearing": {
+		"message": "Clear download list"
+	},
+	"clearing_warning": {
+		"message": "(enable only after checking playback)"
+	},
+	"save_button_label": {
+		"message": "Save"
+	},	
+	"saved_message": {
+		"message": "Profiles saved"
+	},
+	"add_to_torrserver": {
+		"message": "Add to TorrServer"
+	},
+	"add_and_play": {
+		"message": "Add and play"
+	},
+	"play": {
+		"message": "Play without adding"
+	},
+	"play_file": {
+		"message": "Play"
+	},
+	"the_link_is_not_a_torrent": {
+		"message": "The link is not a torrent"
+	},
+	"the_link_is_not_a_magnet": {
+		"message": "The link is not a magnet"
+	},
+	"torrserver_address_not_specified": {
+		"message": "Torrserver address not specified"
+	},
+	"request_rejected": {
+		"message": "The server rejected the request"
+	},
+	"torrent_successfully_added": {
+		"message": "The torrent has been successfully sent"
+	},
+	"failed_send_to": {
+		"message": "Failed send to "
+	},
+	"playlist_ready": {
+		"message": "The playlist is ready"
+	},
+	"TorrServer_is_not_responding": {
+		"message": "TorrServer is not responding"
+	},
+	"Unsupported_version_of_TorrServer": {
+		"message": "Unsupported version of TorrServer"
+	},
+	"catch_link_label": {
+		"message": "Catch the magnet link"
+	},	
+	"no_catching": {
+		"message": "No"
+	},
+	"help": {
+		"message": "Help"
+	},
+	"help_file": {
+		"message": "help_en.html"
+	},
+	"donate": {
+		"message": "Donate"
+	},
+	"timeout": {
+		"message": "The waiting time is over"
+	},
+	"title_ok": {
+		"message": "Ok"
+	},
+	"title_cancel": {
+		"message": "Cancel"
+	},
+	"cant_delete_single_profile": {
+		"message": "You can't delete a single profile"
+	},
+	"title_add_profile": {
+		"message": "Add new profile"
+	},
+	"title_remove_profile": {
+		"message": "Remove profile"
+	},
+	"title_edit_profile_name": {
+		"message": "Change profile name"
+	},
+	"title_edit_profile_color": {
+		"message": "Profile color"
+	},
+	"title_profile": {
+		"message": "Profile"
+	},
+	"title_save_all_profiles": {
+		"message": "Save all profiles"
+	},
+	"title_tsaddress": {
+		"message": "Server network address (IP or name)"
+	},
+	"title_catch_links": {
+		"message": "The action performed by the LMB on the magnet link"
+	},	
+	"title_clearing": {
+		"message": "Downloaded playlists will not clog up the download history"
+	},
+	"connection": {
+		"message": "Connection..."
+	},
+	"resource_is_unavailable": {
+		"message": "Resource is unavailable"
+	},
+	"title_ts_web": {
+		"message": "Open TorrServer"
+	},
+	"Speed": {
+		"message": "Speed"
+	},
+	"Loaded": {
+		"message": "Loaded"
+	},
+	"Peers": {
+		"message": "Peers"
+	},
+	"Stat0": {
+		"message": "Torrent added"
+	},
+	"Stat1": {
+		"message": "Torrent getting info"
+	},
+	"Stat2": {
+		"message": "Torrent preload"
+	},
+	"Stat3": {
+		"message": "Torrent working"
+	},
+	"Stat4": {
+		"message": "Torrent closed"
+	},
+	"Stat5": {
+		"message": "Torrent in db"
+	}
+}

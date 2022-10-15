@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+		<title>__MSG_help_message__ — __MNF_name__</title>
+		<link type="image/png" rel="icon" sizes="48x48" href="../icons/icon48.png">
+		<link rel="stylesheet" type="text/css" href="help.css"/>
+		<script src="localization.js"></script>
+		<script src="../trackers.js"></script>
+		<script src="help.js"></script>
+	</head>
+	<body>
+		<header>__MNF_name__ __MNF_version__ - __MSG_help_message__</header>	
+		<div class="main">
+			<div style="width: 100%; display: flex;">
+				<img src="../icons/icon48.png">
+				<h3>This extension allows you to add torrents from torrent trackers to <a target="_blank" rel="noopener noreferrer" href="https://github.com/YouROK/TorrServer">TorrServer</a> and play them using the system media player.</h3>
+			</div>
+			<br>
+			<div>
+				<h3>Features</h3>
+				<ul>
+					<li>Functions of the context menu (RIGHT click on the torrent or the magnet link):</li>
+					<ul> 
+						<li><b>Add to TorrServer</b> — the torrent will be added to the server and will be available for playback by clients.</li>
+						<li><b>Add and play</b> — the torrent is also added to the server, after which the browser downloads a playlist of the added torrent from the server and opens it in the PC media player for playback.</li>
+						<li><b>Play without adding</b> — similar to the previous command, but after playing the torrent will be deleted from the server.</li>
+					</ul> 
+					<li>Catch a magnet links (by clicking on the link, the action specified in the add-on settings is performed)</li>
+					<li>A poster is passed along with the torrent (only for <a href="##" id="toggle_lnk">specific torrent trackers</a>)<br>
+						<div id="poster_info">
+							To send a poster you need to add a torrent from the <b>torrent page</b>. TorrServer 1.1 accepts posters sent only by MAGNET link.<br>
+							The poster will be visible from clients (TorrServe, Kodi TorrServer Client), and in the TorrServer MatriX(1.2) web interface.<br>
+							If the <b>Ctrl</b> key was pressed at the time of adding the torrent, the url of the page from which it was taken will be added to the torrent name (Only for MatriX. The url can be seen in the "INFO" of the torrent in the web interface of the TorrServer).<br>
+							The availability of the poster depends on many factors (from changing the page layout to various locks), so <b>no guarantees</b>.
+							<p>List of trackers that support the transfer of posters:</p>
+							<ul id="trackers"></ul>
+						</div>
+					</li>
+					<li>Profile system. Ability to store multiple sets of settings. Switching profiles is performed from the menu called by left-clicking on the extension icon</li>
+					<li>Authorization support</li>
+					<li>On the torrent page in KINOZAL.TV, a magnet link is displayed (only for registered users)</li>
+					<div class="for_chrome"><li>Clearing traces in the browser's download history</li></div>
+					<li>Supported TorrServer versions: <b>MatriX, 1.2, 1.1</b></li>		
+				</ul>		
+				<h3>Settings</h3>
+				<ul aria-label="">
+					<li>After extension installing, specify the network address of your TorrServer like <b>http://torrserver.lan:8090</b> or <b>http://localhost:8090</b> (if the server is running on the same host as the browser). You can use an IP address instead of a name (<b>http://192.168.1.123:8090</b>).</li>
+					<li>Select the action to perform when you click on the magnet link.</li>
+					<div class="for_chrome">
+						<li>Set the clear download list flag <b>only after you make sure that the player picks up the playlist without prompting the browser.</b></li>
+						<li>o that the browser does not ask for confirmation to open the playlist file every time, after the first download (playback) in the list of browser downloads, you must check the <b>"Always open files of this type"</b> box on the downloaded <b>.m3u</b> file.</li>
+					</div>
+					<div class="for_firefox">
+						<li>To prevent the browser from requesting confirmation to open the playlist file every time, you need to install the </b> 
+							<a target="_blank" rel="noopener noreferrer" href="https://addons.mozilla.org/firefox/addon/inlinedisposition-reloaded/">InlineDisposition Reloaded</a> add-on. The first couple of times when starting playback, the browser may still ask for confirmation-to agree. Or ask in which application to open the file — choose your media player.</li>
+						<br>
+						<b>Additional settings for Tor Browser:</b>
+						<li>The TorrServer address must be an IP address.</li>
+						<li>You need to disable the proxy for the server — about:config -> insert <b>network.proxy.no_proxies_on</b> in the search bar - > set the IP address of your TorrServer (<b>x.x.x.x</b> for the address on the network or <b>127.0.0.1</b> if the server is running on the same host as the browser). After this operation, the server page should be available in the browser (<b>http://x.x.x.x:8090</b>)</li>
+					</div>
+				</ul> 
+			</div>
+		</div>
+	</body>
+</html>

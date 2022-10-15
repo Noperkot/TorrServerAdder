@@ -1,0 +1,189 @@
+.TSA_container div,
+.TSA_container fieldset,
+.TSA_container table,
+.TSA_container tr,
+.TSA_container td 
+{	/* CSS Reset */
+	all: initial;
+    display: block;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background:none;
+	background-image:none;
+	font-size: inherit;
+	font-weight: inherit;
+	font-family: inherit;
+	text-align: left;
+	font: inherit;
+	color: inherit;
+	vertical-align: baseline;
+	border-collapse: collapse;
+	border-spacing: 0;
+	-webkit-border-horizontal-spacing: 0;
+    -webkit-border-vertical-spacing: 0;
+	cursor: inherit;
+}
+
+.TSA_container tr {
+	display: table-row;
+}
+
+.TSA_container td {
+	display: table-cell;
+}
+
+.TSA_container{
+	all: initial;
+	right: 50px;
+	bottom: 50px;
+	position: fixed;
+	min-width: 350px;
+	/* max-width: 550px; */
+	z-index: 2147483647;
+	box-sizing: content-box;
+}
+
+.TSA_container .TSA_base{
+	width: 100%;
+	border-radius: 10px;
+	border-width: 2px;
+	border-style: solid;
+	box-sizing: border-box;
+	padding: 15px;
+	cursor: pointer;
+	box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+	display:flex;
+    margin: 10px;
+	font-size: 14px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;		
+	opacity: 0;
+	transition-property: opacity;
+	transition: 0.2s linear;
+}
+
+.TSA_container .TSA_info{
+	background-color: #dff8d3;
+	border-color: #a7d590;
+	color: #40871d;
+}
+
+.TSA_container .TSA_warning{
+	background-color: #ffe7cc;
+	border-color: #ffc480;
+	color: #c26700;
+}
+
+.TSA_container .TSA_connection{
+	background-color: #E0E0E0;
+	border-color: #B0B0B0;
+	color: #606060;
+}
+
+.TSA_container .TSA_status{
+	background-color: #d3ebf8;
+	border-color: #9fd3ef;
+	color: #1c76a6;
+}
+
+.TSA_container .TSA_content{
+	width: 100%;
+	line-height: 2;
+	padding-right: 10px;
+}
+
+.TSA_container .TSA_icon{
+	margin-left: auto;
+	width: 28px;
+	height: 28px;
+}
+
+.TSA_container .TSA_info_title{
+	padding-bottom: 6px;
+	text-align: center;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.TSA_container .TSA_info_body{
+	/* display: flex; */
+	/* justify-content: center; */
+	text-align: center;
+	color: DimGrey;
+}
+
+.TSA_container .TSA_status_title{
+	text-align: center;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.TSA_container .TSA_status_table{
+	width: 100%;
+	padding-top: 10px;
+}
+
+.TSA_container .TSA_status_label{
+	width: 0;
+	color: #a86b00;	
+}
+
+.TSA_container .TSA_status_value{
+	padding-left: 5px;
+	width: 100%;
+	color: DimGrey;
+}
+
+.TSA_container .TSA_progress-bar{
+	height: 2px; 
+	width: 100%;
+	background-color: #9fd3ef;
+}
+
+.TSA_container .TSA_progress-bar div{
+	height: 100%; 
+	width: 0%;
+	/* margin: 0 auto; */
+	/* margin: auto;	 */
+	background-color: #1c76a6;
+	transition-property: width;
+	transition: 0.5s;
+	/* animation: TSA_animation_preload 2s infinite;	 */
+	/* animation: TSA_animation_countdown 30s linear forwards;	 */
+}
+
+@keyframes TSA_animation_preload {
+	0%		{width: 10%;}
+	50%		{width: 100%;}	
+	100%	{width: 10%;}			
+}
+
+@keyframes TSA_animation_countdown {
+	0%		{width: 100%;}
+	100%	{width: 0%;}			
+}
+
+.TSA_container .TSA_base legend{
+	background-color: inherit;
+	border-color: inherit;
+	border-radius: 5px;
+	border-width:  inherit;
+	border-style: solid;
+	font-style: italic;
+	font-size: 80%;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.TSA_container .TSA_info legend{
+	color: #a7d590;
+}
+
+.TSA_container .TSA_warning legend{
+	color: #ffc480;
+}
+
+.TSA_container .TSA_connection legend{
+	color: #B0B0B0;
+}
+.TSA_container .TSA_status legend{
+	color: #9fd3ef;
+}
