@@ -116,12 +116,6 @@ class tWorkerSrv {
 				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));
 			})
 			.catch((e) => reject(new tsaError('TorrServer_is_not_responding', this.TS_address )));
-/* 			.catch((e) => {
-
-				console.log(e, chrome.runtime.lastError);
-
-				reject(new tsaError('TorrServer_is_not_responding', e.message ));
-			}); */
 		});
 	}
 	
