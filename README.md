@@ -41,6 +41,9 @@
 		-   Нужно отключить прокси для торрсервера (иначе браузер будет пытаться подключиться к серверу через tor). В браузере перейти на страницу **about:config** (вставить в адресную строку), в строку поиска вставить **network.proxy.no_proxies_on** -> задать IP-адрес вашего TorrServer (**x.x.x.x** для адреса в сети или **127.0.0.1** если сервер работает на том же хосте, что и браузер). После этой операции в браузере должен стать доступен веб-интерфейс сервера (**http:<area>//x.x.x.x:8090**)
 	</details>	
 	</details>
+#### Установка/обновление из магазинов браузеров:
+-   [**Chrome**](https://chrome.google.com/webstore/detail/torrserver-adder/ihphookhabmjbgccflngglmidjloeefg)  
+-   [**Firefox**](https://addons.mozilla.org/firefox/addon/torrserver-adder)
 ***
 #### Обсуждение TorrServer'а и всего, что с ним связано:
 
