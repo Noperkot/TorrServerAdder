@@ -1,5 +1,5 @@
 ## TorrServer Adder
-Расширение для десктопных браузеров Google Chrome и Mozilla Firefox позволяющее добавлять торренты с торрент-трекеров на [TorrServer](https://github.com/YouROK/TorrServer) и воспроизводить их с помощью системного медиаплеера.
+Расширение для десктопных браузеров **Google Chrome** и **Mozilla Firefox** позволяющее добавлять торренты с торрент-трекеров на [TorrServer](https://github.com/YouROK/TorrServer) и воспроизводить их с помощью системного медиаплеера.
 > Для работы расширения **!!! НЕОБХОДИМ TORRSERVER !!!** запущенный на локальной машине или в сети (в том числе из клиентского приложения [TorrServe](https://github.com/YouROK/TorrServe) под Android или с использованием [TorrServer Launcher](https://github.com/Noperkot/TSL) под Windows).
 
 #### Функционал
