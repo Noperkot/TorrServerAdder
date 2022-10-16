@@ -1,7 +1,4 @@
-## ![alt text](https://github.com/Noperkot/TorrServerAdder/raw/develop/src/icons/icon48.png) TorrServer Adder
-
-<img align="center" height="32" src="https://github.com/Noperkot/TorrServerAdder/raw/develop/src/icons/icon128.png">
-
+## TorrServer Adder
 Расширение для десктопных браузеров Google Chrome и Mozilla Firefox позволяющее добавлять торренты с торрент-трекеров на [TorrServer](https://github.com/YouROK/TorrServer) и воспроизводить их с помощью системного медиаплеера.
 > Для работы расширения **!!! НЕОБХОДИМ TORRSERVER !!!** запущенный на локальной машине или в сети (в том числе из клиентского приложения [TorrServe](https://github.com/YouROK/TorrServe) под Android или с использованием [TorrServer Launcher](https://github.com/Noperkot/TSL) под Windows).
 
