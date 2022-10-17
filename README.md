@@ -62,8 +62,10 @@
 Видео [как это работает](https://www.youtube.com/watch?v=7e5mwleqxvM)
 
 <details><summary>Скриншоты</summary>  
-
-![](https://raw.githubusercontent.com/Noperkot/TorrServerAdder/master/img/screen1.JPG)  
-
-![](https://raw.githubusercontent.com/Noperkot/TorrServerAdder/master/img/screen2.png)  
+<br \>
+	
+![](https://github.com/Noperkot/TorrServerAdder/raw/master/images/screen1.JPG)
+<br \>
+	
+![](https://github.com/Noperkot/TorrServerAdder/raw/master/images/screen2.png)  
 </details>
