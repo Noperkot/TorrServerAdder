@@ -1,0 +1,1 @@
+Copy the manifest file for the corresponding browser to the extension directory and rename it to manifest.json

@@ -20,7 +20,7 @@ div{
 	background-color: #FFFFFF;
 	height: 100vh;
 	line-height: 1.5;
-    border-radius: 10px;
+	border-radius: 10px;
 	overflow: hidden;
 }
 
@@ -35,7 +35,7 @@ div{
 }
 
 .header, .footer, a{
-    color: #E0FFFF;	
+	color: #E0FFFF;	
 	text-decoration: none;
 }
 
@@ -54,23 +54,23 @@ div{
 }
 
 input[type=text], input[type=button], select{
-    height: 100%;
-    width: 100%;
-    -webkit-transition: all 0.30s ease-in-out;
-    color: #393939;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 5px;
-    border:1px solid #a0a0a0;
-    font-size: 15px;
-    outline: none;
+	height: 100%;
+	width: 100%;
+	-webkit-transition: all 0.30s ease-in-out;
+	color: #393939;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 5px;
+	border:1px solid #a0a0a0;
+	font-size: 15px;
+	outline: none;
 	box-sizing: border-box;	
 	background-color: #ffffff;
 }
 
 select{
-    padding-left: 6px;
-    padding-right: 6px;	
+	padding-left: 6px;
+	padding-right: 6px;	
 }
 
 input[type=button]{
@@ -85,18 +85,18 @@ input[type=button]:active{
 }
 
 input:hover, select:hover{
-    box-shadow: 0 0 5px #464646;
+	box-shadow: 0 0 5px #464646;
 }
 
 input[type=text]:focus{
-    box-shadow: 0 0 8px rgb(74, 183, 215);
-    color: #000;
-    border:1px solid #2f748a;
-    outline: none;	
+	box-shadow: 0 0 8px rgb(74, 183, 215);
+	color: #000;
+	border:1px solid #2f748a;
+	outline: none;	
 }
 
 input::-webkit-input-placeholder{
-    color: #a1a1a1;
+	color: #a1a1a1;
 }
 
 .options_body{
@@ -112,7 +112,7 @@ input::-webkit-input-placeholder{
 	padding-right: 10px;
 	justify-content: flex-end;
 	font-size: 15px;
-    line-height: 35px;
+	line-height: 35px;
 	font-family: Arial, Helvetica, sans-serif;
 	color: #333333;
 }

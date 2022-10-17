@@ -31,7 +31,7 @@ async function Install(){ // инициализация, выполняется 
 	
 	await chrome.storage.local.get(['profiles','selected_profile'],  async (stor_items) => {
 		// stor_items = {};
-		if(!('profiles' in stor_items) || !('selected_profile' in stor_items)){// перенести в onInstall???
+		if(!('profiles' in stor_items) || !('selected_profile' in stor_items)){// инициализация хранилища
 			stor_items = {
 				'profiles': {
 					'1': {	// дефолтный профиль
@@ -108,11 +108,11 @@ function MessageListener(request, sender, sendResponse){ // may be only magnet-c
 	/** Downloads listener - clearing downloads history */
 function DownloadsListener({id,state}){
 	if (state && ( state.current === 'complete' || state.current === 'interrupted')) { 
-	    chrome.downloads.search({ id: id }, (dItems) => {
-	        if (dItems[0].filename.endsWith(PLAYLIST_NAME_C)) { // если имя файла === PLAYLIST_NAME_C - удаляем запись из списка закачек
-	            chrome.downloads.erase({ id: id });
-	        }
-	    });
+		chrome.downloads.search({ id: id }, (dItems) => {
+			if (dItems[0].filename.endsWith(PLAYLIST_NAME_C)) { // если имя файла === PLAYLIST_NAME_C - удаляем запись из списка закачек
+				chrome.downloads.erase({ id: id });
+			}
+		});
 	}
 }
 

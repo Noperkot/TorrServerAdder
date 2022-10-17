@@ -58,11 +58,11 @@ header{
 }
 
 a:link, a:visited {
-    color: gray;
+	color: gray;
 }
 
 /* #toggle_lnk:link, #toggle_lnk:visited {
-    color: blue;
+	color: blue;
 } */
 
 #poster_info{
