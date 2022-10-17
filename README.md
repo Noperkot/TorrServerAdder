@@ -54,15 +54,14 @@
 -   [**Chrome**](https://chrome.google.com/webstore/detail/torrserver-adder/ihphookhabmjbgccflngglmidjloeefg)  
 -   [**Firefox**](https://addons.mozilla.org/firefox/addon/torrserver-adder)
 
-Видео [как это работает](https://www.youtube.com/watch?v=7e5mwleqxvM)
-
 #### Обсуждение TorrServer'а и всего, что с ним связано:
 
 -   [на 4PDA](https://4pda.to/forum/index.php?showtopic=889960)
 -   [в Telegram](https://t.me/TorrServe)
 
-<details>
-<summary>Скриншоты</summary>  
+Видео [как это работает](https://www.youtube.com/watch?v=7e5mwleqxvM)
+
+<details><summary>Скриншоты</summary>  
 
 ![](https://raw.githubusercontent.com/Noperkot/TorrServerAdder/master/img/screen1.JPG)  
 
