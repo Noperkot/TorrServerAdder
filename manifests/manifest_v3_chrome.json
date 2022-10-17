@@ -1,0 +1,70 @@
+{
+    "version": "1.11.0",
+    "name": "TorrServer Adder",
+    "short_name": "TSA",
+    "description": "__MSG_extension_description__",
+    "default_locale": "en",
+    "author": "Noperkot",
+    "homepage_url": "https://github.com/Noperkot/TorrServerAdder",
+    "icons": {
+        "128": "icons/icon128.png",
+        "48": "icons/icon48.png",
+        "16": "icons/icon16.png"
+    },
+    "manifest_version": 3,
+    "action": {
+        "default_icon": {
+            "128": "icons/icon128.png",
+            "48": "icons/icon48.png",
+            "16": "icons/icon16.png"
+        },
+        "default_popup": "options/popup.html"
+    },
+    "background": {
+        "service_worker": "background_M3.js"
+    },
+    "content_scripts": [
+        {
+            "all_frames": false,
+            "matches": [
+                "http://*/*",
+                "https://*/*"
+            ],
+            "run_at": "document_end",
+            "css": [
+                "notifier.css",
+                "wa/fontawesome/css/all_chm.css"
+            ],
+            "js": [
+                "notifier.js",
+                "trackers.js",
+                "content_scr.js"
+            ]
+        }
+    ],
+    "host_permissions": [
+        "http://*/*",
+        "https://*/*"
+    ],
+    "permissions": [
+        "contextMenus",
+        "downloads",
+        "storage",
+        "tabs",
+        "declarativeNetRequest",
+        "scripting"
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "wa/*",
+                "wa/fontawesome/webfonts/*"
+            ],
+            "matches": [
+                "*://*/*"
+            ]
+        }
+    ],
+    "options_page": "options/options.html",
+    "minimum_chrome_version": "88"
+}

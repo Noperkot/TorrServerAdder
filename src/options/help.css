@@ -1,0 +1,97 @@
+body{
+	min-width: 400px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 15px;
+	background-color: #FFFFFF;
+	overflow-x: hidden;
+	line-height: 1.5;
+	overflow-y:scroll;
+	top: 50px;
+}
+
+.main{
+	display: inline-block;
+	margin-left: 10%;
+	margin-right: 10%;
+	margin-top: 50px;
+	margin-bottom: 50px;
+}
+
+li{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.for_chrome, .for_firefox{				
+	display: none;
+}
+
+.vis{				
+	display: block;
+}
+
+img {
+	float:left; 
+	margin: 15px 15px 15px 15px;
+	width:48px;
+	height:48px;
+}
+
+h3{
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+header{
+	background-color: #008000;
+	color: #E0FFFF;	
+	font-size: 20px;
+	font-family: Arial, Helvetica, sans-serif;
+	padding-bottom: 5px;
+	padding-top: 5px;
+	padding-left: 50px;
+	text-shadow: 1px 1px 2px black, 0 0 1em red; 
+	position: fixed;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+
+a:link, a:visited {
+	color: gray;
+}
+
+/* #toggle_lnk:link, #toggle_lnk:visited {
+	color: blue;
+} */
+
+#poster_info{
+	padding-left: 50px;
+	max-height: 0;
+	overflow-y: hidden;
+	transition-property: height;
+	transition: 0.3s;
+}
+
+.center{
+	width: 100%;
+	text-align: center;
+}
+
+.tracker_name{
+	font-weight: bold;
+	padding-right: 8px;
+}
+
+.tracker_url{
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+blockquote {
+    padding: 0 1em;
+    color: var(--color-fg-muted);
+	border-left-color: rgb(208, 215, 222);
+	border-left-style: solid;
+	border-left-width: 4px;
+}
