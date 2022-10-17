@@ -87,3 +87,11 @@ a:link, a:visited {
 	padding-left: 3px;
 	padding-right: 3px;
 }
+
+blockquote {
+    padding: 0 1em;
+    color: var(--color-fg-muted);
+	border-left-color: rgb(208, 215, 222);
+	border-left-style: solid;
+	border-left-width: 4px;
+}

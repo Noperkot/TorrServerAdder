@@ -1,6 +1,6 @@
 'use strict';
 
-const tsa_trackers = {
+var tsa_trackers = {
 	trackers: {
 		_rutor:			[ /^(?:http(s)?:\/\/(.*\.)?(rutor|([0-9]+)tor\.).*\/torrent\/([0-9]+))/i,		'RUTOR',		[ 'rutor.info', 'rutor.is', 'rutorc6mqdinc4cz.onion' ] ],
 		_rutracker:		[ /^(?:http(s)?:\/\/(.*\.)?rutracker\..*\/forum\/viewtopic\.php\?t=([0-9]+))/i,	'RuTracker',	[ 'rutracker.org', 'rutracker.net', 'rutracker.nl' ] ],
