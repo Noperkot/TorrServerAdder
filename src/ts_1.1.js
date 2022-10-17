@@ -23,7 +23,7 @@ addTorrent["1.1."] = (tr) => {
 	};
 	return new Promise((resolve, reject) => {
 		const torrInfo = tr.torrInfo;
-		if (torrInfo.protocol == 'magnet:') {
+		if (torrInfo.flags.isMagnet) {
 			const body = JSON.stringify({
 				'Link' : torrInfo.linkUrl,
 				'Info' : JSON.stringify( (torrInfo.poster) ? {'poster_path': torrInfo.poster} : {} ),			

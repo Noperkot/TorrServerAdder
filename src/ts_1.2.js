@@ -28,7 +28,7 @@ addTorrent['MatriX.'] = (tr) => {
 			tr.hash = (Array.isArray(jsn)) ? jsn[0]['hash'] : jsn['hash']; // before/after TS 1.2.80_beta3
 			if (!tr.hash) throw new tsaError(chrome.i18n.getMessage('request_rejected'));
 		};			
-		if (torrInfo.protocol == 'magnet:') {
+		if (torrInfo.flags.isMagnet) {
 			const body = JSON.stringify({
 				'action': 'add',
 				'link': torrInfo.linkUrl,

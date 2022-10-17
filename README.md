@@ -64,10 +64,10 @@
 <details><summary>Скриншоты</summary>  
 
 ***
-![](/images/screen1.jpg?raw=true)  
+![](/screenshots/screen1.jpg?raw=true)  
 ***
-![](/images/screen2.jpg?raw=true)  
+![](/screenshots/screen2.jpg?raw=true)  
 ***
-![](/images/screen3.png?raw=true)  
+![](/screenshots/screen3.png?raw=true)  
 ***
 </details>

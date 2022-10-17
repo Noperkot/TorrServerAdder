@@ -208,24 +208,23 @@ if (document.body) {
 			break;
 
 		case 'torrAdd':
-			request.protocol = new URL(request.linkUrl).protocol;
-			request.srcUrl = document.location.href;
-			
-			switch (request.protocol) {
+			switch (new URL(request.linkUrl).protocol) {
+			case 'magnet:':
+				request.flags.isMagnet = true;
 			case 'http:':
 			case 'https:':
-			case 'magnet:':
+				request.srcUrl = document.location.href;			
 				tsa_trackers.TorrInfo(document, (torrInfo) => {									// собираем информацию о торренте на текущей странице
 					request.title = torrInfo.title;
 					request.poster = torrInfo.poster;
 					// request.title = request.title.substring( 0, 150 );						// обрезка слишком длинного названия
 					request.title = request.title.replaceAll('езон', 'eзон');					// меняем первую 'е' в словах 'сезон' и 'серия' с кирилицы на латиницу. Чтобы веб торрсервера не выкидывал инормацию о сериях. В основном для лостфильма и анимедии при добавлении одной серии/сезона
 					request.title = request.title.replaceAll('ери', 'eри');
-					if(modKeys.ctrl) request.title += ` \/\/ ${document.location.href} \/\/ `;	// если нажата ctrl добавляем к названию адрес страницы
-					if (request.protocol === 'magnet:') {
+					if(modKeys.ctrl) request.title += ` \/\/ ${request.srcUrl} \/\/ `;			// если нажата ctrl добавляем к названию адрес страницы
+					if (request.flags.isMagnet) {
 						let link_obj = new URL(request.linkUrl);
 						link_obj.searchParams.set('dn', request.title);
-						request.linkUrl = link_obj.toString();//????????? unescape??????
+						request.linkUrl = link_obj.toString();
 					}
 				});
 				tWorkerCli.stop()
