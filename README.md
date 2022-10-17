@@ -47,6 +47,7 @@
 		</details>
 		
 	</details>
+
 #### Установка/обновление из магазинов браузеров:
 -   [**Chrome**](https://chrome.google.com/webstore/detail/torrserver-adder/ihphookhabmjbgccflngglmidjloeefg)  
 -   [**Firefox**](https://addons.mozilla.org/firefox/addon/torrserver-adder)
