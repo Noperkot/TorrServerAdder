@@ -208,7 +208,8 @@ if (document.body) {
 			break;
 
 		case 'torrAdd':
-			switch (new URL(request.linkUrl).protocol) {
+			let url = new URL(request.linkUrl);
+			switch (url.protocol) {
 			case 'magnet:':
 				request.flags.isMagnet = true;
 			case 'http:':
@@ -222,9 +223,8 @@ if (document.body) {
 					request.title = request.title.replaceAll('ери', 'eри');
 					if(modKeys.ctrl) request.title += ` \/\/ ${request.srcUrl} \/\/ `;			// если нажата ctrl добавляем к названию адрес страницы
 					if (request.flags.isMagnet) {
-						let link_obj = new URL(request.linkUrl);
-						link_obj.searchParams.set('dn', request.title);
-						request.linkUrl = link_obj.toString();
+						url.searchParams.set('dn', request.title);
+						request.linkUrl = url.toString();
 					}
 				});
 				tWorkerCli.stop()
