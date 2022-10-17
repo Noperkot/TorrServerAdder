@@ -60,3 +60,12 @@
 
 -   [на 4PDA](https://4pda.to/forum/index.php?showtopic=889960)
 -   [в Telegram](https://t.me/TorrServe)
+
+***
+<details>
+<summary>Скриншоты</summary>  
+
+![](https://raw.githubusercontent.com/Noperkot/TorrServerAdder/master/img/screen1.JPG)  
+
+![](https://raw.githubusercontent.com/Noperkot/TorrServerAdder/master/img/screen2.png)  
+</details>
