@@ -61,12 +61,13 @@
 
 Видео [как это работает](https://www.youtube.com/watch?v=7e5mwleqxvM)
 
-<details><summary>Скриншоты</summary><br \>
-	
+<details><summary>Скриншоты</summary>  
+
+***
 ![](/images/screen1.jpg?raw=true)  
-
+***
 ![](/images/screen2.jpg?raw=true)  
-
+***
 ![](/images/screen3.png?raw=true)  
-
+***
 </details>
