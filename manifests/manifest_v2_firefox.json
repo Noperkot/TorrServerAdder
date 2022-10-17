@@ -5,7 +5,7 @@
     "description": "__MSG_extension_description__",
     "default_locale": "en",
     "author": "Noperkot",
-    "homepage_url": "https://4pda.ru/forum/index.php?showtopic=889960",
+    "homepage_url": "https://github.com/Noperkot/TorrServerAdder",
     "icons": {
         "128": "icons/icon128.png",
         "48": "icons/icon48.png",
