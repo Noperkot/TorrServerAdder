@@ -65,7 +65,7 @@
 <br \>
 	
 ![](https://github.com/Noperkot/TorrServerAdder/raw/master/images/screen1.JPG)  
-<br \>
-	
+
 ![](https://github.com/Noperkot/TorrServerAdder/raw/master/images/screen2.png)  
+	
 </details>
