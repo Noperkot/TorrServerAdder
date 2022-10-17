@@ -40,7 +40,7 @@
 
 	-   Чтобы при воспроизведении браузер каждый раз не запрашивал подтверждение на открытие файла плейлиста **необходимо установить дополнение [InlineDisposition Reloaded](https://addons.mozilla.org/firefox/addon/inlinedisposition-reloaded/)**. Первые пару раз браузер все же может запросить подтверждение — согласиться. Или спросить в каком приложении открыть файл — выбрать ваш медиаплеер.
 	
-		<details><summary>для Tor Browser</summary>
+		<details><summary>только для Tor Browser</summary>
 	
 		-   В качестве адреса TorrServer необходимо указывать **IP-адрес**.
 		
