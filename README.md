@@ -63,7 +63,7 @@
 
 <details><summary>Скриншоты</summary>  
 
-![](https://raw.githubusercontent.com/Noperkot/TorrServerAdder/master/img/screen1.JPG)  
+![](https://github.com/Noperkot/TorrServerAdder/raw/master/images/screen1.JPG)
 
-![](https://raw.githubusercontent.com/Noperkot/TorrServerAdder/master/img/screen2.png)  
+![](https://github.com/Noperkot/TorrServerAdder/raw/master/images/screen2.png)  
 </details>
