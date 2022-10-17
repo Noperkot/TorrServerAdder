@@ -55,7 +55,7 @@
 -   [**Firefox**](https://addons.mozilla.org/firefox/addon/torrserver-adder)
 
 Видео [как это работает](https://www.youtube.com/watch?v=7e5mwleqxvM)
-***
+
 #### Обсуждение TorrServer'а и всего, что с ним связано:
 
 -   [на 4PDA](https://4pda.to/forum/index.php?showtopic=889960)
