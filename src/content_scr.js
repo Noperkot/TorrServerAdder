@@ -126,7 +126,6 @@ if (document.body) {
 			
 			createWindow()
 			.then(()=>{
-				console.log('Connect');
 				this.tmp.msgPort = chrome.runtime.connect();				// создаем новый канал для обмена сообщениями. Пока порт открыт воркер не отвалится(5мин макс). Для мертвых раздач, где прелоад может затянуться.
 				this.tmp.stop = this.stop.bind(this);		
 				
@@ -182,7 +181,6 @@ if (document.body) {
 		},
 		
 		stop(){
-			console.log('Stop');
 			clearInterval(this.tmp.statTimer);	
 			try{ this.tmp.msgPort.disconnect(); } catch {}	// по дисконнекту на сервере дропается текущий торрент	
 			// снимаем слушатели //
