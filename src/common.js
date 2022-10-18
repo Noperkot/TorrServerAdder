@@ -67,5 +67,6 @@ function setIcon(options) {
 }
 
 function isChrome(){
-	return (typeof chrome.runtime.getManifest().options_ui === "undefined");
+	// return (typeof chrome.runtime.getManifest().options_ui === "undefined");
+    return (typeof browser === "undefined");
 }

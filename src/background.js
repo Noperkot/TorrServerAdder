@@ -18,8 +18,6 @@ class tsaError extends Error {
 	}
 }
 
-console.log('TSA activated');
-
 /** здесь навешиваютя все служатели(при каждом пробуждении) */
 chrome.contextMenus.onClicked.addListener(contextMenusListener);
 chrome.runtime.onConnect.addListener(ConnectListener);
@@ -27,8 +25,6 @@ chrome.runtime.onMessage.addListener(MessageListener);
 if (isChrome()) chrome.downloads.onChanged.addListener(DownloadsListener);
 
 async function Install(){ // инициализация, выполняется один раз при старте(рестарте, установке, включении) расширения. вызывается из background_M2(3).js
-	console.log('TSA Init');
-	
 	await chrome.storage.local.get(['profiles','selected_profile'],  async (stor_items) => {
 		// stor_items = {};
 		if(!('profiles' in stor_items) || !('selected_profile' in stor_items)){// инициализация хранилища
