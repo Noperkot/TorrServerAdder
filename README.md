@@ -61,7 +61,7 @@
 
 Видео [**как это работает**](https://www.youtube.com/watch?v=7e5mwleqxvM)
 
-<details><summary>Скриншоты</summary>  
+<details><summary><b>Скриншоты</b></summary>  
 
 ***
 ![](/screenshots/screen1.jpg?raw=true)  
