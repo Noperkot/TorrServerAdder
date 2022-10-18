@@ -19,7 +19,7 @@
 - Поддерживаемые версии TorrServer: **MatriX, 1.2, 1.1**  
 
 #### Настройка  
--   Убедитесь, что **TorrServer запущен** и в браузере открывается его веб-итерфейс. Последнюю версию сервера под вашу платформу можно взять  [здесь](https://github.com/YouROK/TorrServer/releases/latest).  
+-   Убедитесь, что **TorrServer запущен** и в браузере открывается его веб-итерфейс. Последнюю версию сервера под вашу платформу можно взять  [**здесь**](https://github.com/YouROK/TorrServer/releases/latest).  
 -   Для воспроизведения необходимо, чтобы ваш медиаплеер был ассоциирован с файлами **\*.m3u**  
 -   После установки расширения в его настройках укажите сетевой адрес вашего TorrServer'а. Например  **http:<area>//torrserver.lan:8090**  или  **http:<area>//localhost:8090**  (если сервер запущен на том же хосте, что и браузер).  
     Вместо имени можно использовать IP-адрес ( пример -  **http:<area>//192.168.1.123:8090**  ).  
@@ -56,10 +56,10 @@
 
 #### Обсуждение TorrServer'а и всего, что с ним связано:
 
--   [на 4PDA](https://4pda.to/forum/index.php?showtopic=889960)
--   [в Telegram](https://t.me/TorrServe)
+-   [**на 4PDA**](https://4pda.to/forum/index.php?showtopic=889960)
+-   [**в Telegram**](https://t.me/TorrServe)
 
-Видео [как это работает](https://www.youtube.com/watch?v=7e5mwleqxvM)
+Видео [**как это работает**](https://www.youtube.com/watch?v=7e5mwleqxvM)
 
 <details><summary>Скриншоты</summary>  
 
