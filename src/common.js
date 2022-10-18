@@ -1,3 +1,5 @@
+'use strict';
+
 function nrmlzUrl(url){	
 	const regexp = /^((?<schema>.+?):\/\/)?((?<user>.+?)(:(?<pswd>.*?))?@)?(?<host>.*?)(:(?<port>\d+?))?(?<path>\/.*?)?(?<query>[?].*?)?$/;
 	const m = regexp.exec(url.replace(/\s/g, '')).groups;
