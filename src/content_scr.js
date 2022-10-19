@@ -3,40 +3,50 @@
 if (document.body) {
 	let observer;
 	const modKeys = { ctrl: false, shift: false, alt: false };
+	const cleanupEventName = 'tsaCleanup';
 	
-	window.dispatchEvent(new Event("tsaCleanup"));				// генерируем событие дезактивации внедренного ранее скрипта
-	window.addEventListener("tsaCleanup", Cleanup, false);		// и сами подписываемся на это событие
-	document.addEventListener('keydown', keyListener );			// отслеживание ctrl/shift/alt (по ctrl к имени торрента добавляется адрес страницы с которой он взят)
+	document.dispatchEvent(new Event(cleanupEventName));					// генерируем событие деактивации ранее внедренного скрипта
+	document.addEventListener(cleanupEventName, Cleanup);					// и сами подписываемся на это событие
+	document.addEventListener('keydown', keyListener );						// отслеживание ctrl/shift/alt (по ctrl к имени торрента добавляется адрес страницы с которой он взят)
 	document.addEventListener('keyup', keyListener );
-	for (let a_obj of document.getElementsByTagName('A')) {		// Навешиваем онклики на все магнет-ссылки на странице
-		if (a_obj.href.startsWith('magnet:')) a_obj.addEventListener('click', magnetClickListener);
-	}
-	observer = new MutationObserver((mutations) => {			// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
-		mutations.forEach((mutation) => {
-			mutation.addedNodes.forEach((node) => {  // console.log(node.tagName);
-				if(node.tagName === 'A' && node.href.startsWith('magnet:'))  node.onclick = magnetClickListener;
+	chrome.runtime.onMessage.addListener(messageListener);					// слушатель сообщений из фоноваго скрипта	
+	observer = new MutationObserver((mutations) => {						// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
+		mutations.forEach((mutation) => {	// console.log(mutation);
+			mutation.addedNodes.forEach((node) => {  // 
+				if(node.nodeType === 1){ //console.log(node.tagName);
+					if(node.tagName === 'A'){
+						if(node.href.startsWith('magnet:')) node.onclick = magnetClickListener;	
+					} else {
+						for (let a_obj of node.querySelectorAll('A[href^="magnet:"]')){	
+							a_obj.onclick = magnetClickListener;
+						}
+					}
+				}
+
 			});
 		});
 	});
 	observer.observe(document, {childList: true, subtree:true});
-	chrome.runtime.onMessage.addListener(messageListener);		// слушатель сообщений из фоноваго скрипта
-	tsa_trackers.onPageLoaded(document);						// если это кинозал - генерируется магнет-ссылка	
+	for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){		// Навешиваем онклики на все магнет-ссылки на странице
+		a_obj.addEventListener('click', magnetClickListener);
+	}
+	tsa_trackers.onPageLoaded(document);									// если это кинозал - генерируется магнет-ссылка	
 	
 	
 	/*************************************************************************************************************************/
 	
 	
-	function Cleanup(ev) {											// дезактивация скрипта - снимаем слушатели
+	function Cleanup(ev) {													// деактивация скрипта - снимаем слушатели
 		console.log('Cleanup');
 		
-		window.removeEventListener("tsaCleanup", Cleanup);			// отключаем слушатель события дезактивации скрипта
-		document.removeEventListener('keydown',keyListener );		// отключаем слушатели клавиш
-		document.removeEventListener('keyup', keyListener );	
-		for (let a_obj of document.getElementsByTagName('A')) {		// Снимаем свои онклики со всех магнет-ссылок на странице
-			if (a_obj.href.startsWith('magnet:')) a_obj.removeEventListener('click', magnetClickListener);
+		document.removeEventListener(cleanupEventName, Cleanup);			// отключаем слушатель события деактивации скрипта
+		document.removeEventListener('keydown',keyListener );				// отключаем слушатели клавиш
+		document.removeEventListener('keyup', keyListener );
+		chrome.runtime.onMessage.removeListener(messageListener);			// отключаем слушатель сообщений		
+		observer.disconnect();												// отключаем отслеживание динамических magnet
+		for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){	// Снимаем свои онклики со всех магнет-ссылок
+			a_obj.removeEventListener('click', magnetClickListener);
 		}
-		observer.disconnect();										// отключаем отслеживание динамических magnet
-		chrome.runtime.onMessage.removeListener(messageListener);	// отключаем слушатель сообщений
 	}	
 
 	function keyListener(e) {
