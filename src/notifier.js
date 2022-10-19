@@ -110,3 +110,32 @@ function tsa_elementCreate( element, options ){
 	}
 	return obj;
 }
+
+function tsa_Alert(contents, className, hide_delay = 5000) {
+	return new Promise((resolve, reject) => {
+		tsa_message_box.hide()
+		.then(() => tsa_message_box.show(contents, {
+				'className': className,
+				'delay': hide_delay
+		}))
+		.then(resolve);
+	});
+}
+
+/** Notification init */
+var tsa_message_container;
+var tsa_message_box;
+{
+	function tsa_NotificationInit(){
+		document.body.querySelectorAll(':scope > .TSA_container').forEach((elm) => document.body.removeChild(elm));
+		tsa_message_container = tsa_elementCreate('div');
+		document.body.append(tsa_elementCreate('div', {
+				'classList': ['TSA_container'],
+				'append': [tsa_message_container],
+			}));
+		tsa_message_box = new TSA_NTF_stat(tsa_message_container, {  'className': 'TSA_info'  });
+	}
+	
+	if(document.body) tsa_NotificationInit();
+	else document.addEventListener('DOMContentLoaded', tsa_NotificationInit);
+}

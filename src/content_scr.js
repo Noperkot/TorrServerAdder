@@ -1,79 +1,58 @@
 'use strict';
 
 if (document.body) {
-
+	let observer;
 	const modKeys = { ctrl: false, shift: false, alt: false };
-
-	document.addEventListener('keydown', (e) => {
-		modKeys.ctrl  = e.ctrlKey;
-		modKeys.shift = e.shiftKey;
-		modKeys.alt   = e.altKey;
-	});
 	
-	document.addEventListener('keyup', (e) => {
+	window.dispatchEvent(new Event("tsaCleanup"));				// генерируем событие дезактивации внедренного ранее скрипта
+	window.addEventListener("tsaCleanup", Cleanup, false);		// и сами подписываемся на это событие
+	document.addEventListener('keydown', keyListener );			// отслеживание ctrl/shift/alt (по ctrl к имени торрента добавляется адрес страницы с которой он взят)
+	document.addEventListener('keyup', keyListener );
+	for (let a_obj of document.getElementsByTagName('A')) {		// Навешиваем онклики на все магнет-ссылки на странице
+		if (a_obj.href.startsWith('magnet:')) a_obj.addEventListener('click', magnetClickListener);
+	}
+	observer = new MutationObserver((mutations) => {			// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
+		mutations.forEach((mutation) => {
+			mutation.addedNodes.forEach((node) => {  // console.log(node.tagName);
+				if(node.tagName === 'A' && node.href.startsWith('magnet:'))  node.onclick = magnetClickListener;
+			});
+		});
+	});
+	observer.observe(document, {childList: true, subtree:true});
+	chrome.runtime.onMessage.addListener(messageListener);		// слушатель сообщений из фоноваго скрипта
+	tsa_trackers.onPageLoaded(document);						// если это кинозал - генерируется магнет-ссылка	
+	
+	
+	/*************************************************************************************************************************/
+	
+	
+	function Cleanup(ev) {											// дезактивация скрипта - снимаем слушатели
+		console.log('Cleanup');
+		
+		window.removeEventListener("tsaCleanup", Cleanup);			// отключаем слушатель события дезактивации скрипта
+		document.removeEventListener('keydown',keyListener );		// отключаем слушатели клавиш
+		document.removeEventListener('keyup', keyListener );	
+		for (let a_obj of document.getElementsByTagName('A')) {		// Снимаем свои онклики со всех магнет-ссылок на странице
+			if (a_obj.href.startsWith('magnet:')) a_obj.removeEventListener('click', magnetClickListener);
+		}
+		observer.disconnect();										// отключаем отслеживание динамических magnet
+		chrome.runtime.onMessage.removeListener(messageListener);	// отключаем слушатель сообщений
+	}	
+
+	function keyListener(e) {
 		modKeys.ctrl  = e.ctrlKey;
 		modKeys.shift = e.shiftKey;
 		modKeys.alt   = e.altKey;
-	});
-
+	}
+	
 	function magnetClickListener(e){
-		const magnet = e.target.closest("a").href;
-		try{
+		const magnet = e.target.closest('A').href;
+		try{														// try на случай если фоновый скрипт будет отключен
 			chrome.runtime.sendMessage({ 'linkUrl': magnet }, (response) => { if (!response) location.href = magnet; });
 			e.preventDefault();
 		} catch {}
 	}
 
-	/** Adding click listener to magnet links */
-	for (let a_obj of document.getElementsByTagName('a')) {
-		try {
-			if (a_obj.href.startsWith('magnet:')) a_obj.addEventListener('click', magnetClickListener);
-		} catch {}
-	}
-	
-	/** перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной) */
-	document.addEventListener("DOMNodeInsertedIntoDocument",(event)=>{// в жакете при генерации ссылки происходит несколько событий???
-		if(event.srcElement.nodeName ==='A' && event.srcElement.href.startsWith('magnet:')){
-			event.srcElement.onclick = magnetClickListener;
-		}
-	}, true);	
-	
-	/** page loaded handlers */
-	tsa_trackers.onPageLoaded(document);	// если нужно генерируем магнет-ссылку (пока только для кинозала)
-
-	/** Notification init */
-	document.body.querySelectorAll(':scope > .TSA_container').forEach((elm) => document.body.removeChild(elm));
-	let tsa_message_container = tsa_elementCreate('div');
-	document.body.append(tsa_elementCreate('div', {
-			'classList': ['TSA_container'],
-			'append': [tsa_message_container],
-		}));
-	let tsa_message_box = new TSA_NTF_stat(tsa_message_container, {
-		'className': 'TSA_info',
-	});
-	
-	const tsa_Alert = (contents, className, hide_delay = 5000) => {
-		return new Promise((resolve, reject) => {
-			tsa_message_box.hide()
-			.then(() => tsa_message_box.show(contents, {
-					'className': className,
-					'delay': hide_delay
-				}))
-			.then(resolve);
-		});
-	}
-
-	const formatSize = (val) => {
-		if (val === undefined) return '';
-		if (val === 0) return '0';
-		let i = 0;
-		const measurement = ['ʙ', 'ᴋʙ', 'ᴍʙ', 'ɢʙ', 'ᴛʙ'];
-		for (; val > 1023 && i < measurement.length; i++) {
-			val /= 1024;
-		}
-		return `${val.toFixed((i>2)?2:0)} ${measurement[i]}`;
-	}
-	
 	const tWorkerCli = {
 
 		start(request){
@@ -112,7 +91,7 @@ if (document.body) {
 							'classList': ['TSA_status_table'],
 							'append': [tbdy]
 						})
-					], 'TSA_status', 0);
+				], 'TSA_status', 0);
 			}
 			
 			const CreateConnectionWindow = () => {
@@ -158,7 +137,7 @@ if (document.body) {
 						break;
 						
 					case 'Play':			// Предзагрузка завершена, началось воспроизведение				
-						this.tmp.fields.prgrss.style.animation = `TSA_animation_countdown ${msg.val}s linear forwards`;		// запускаем градусник закрытия окна(в msg.val - время, через которое порт будет закрыт)
+						this.tmp.fields.prgrss.style.animation = `TSA_animation_countdown ${msg.val}s linear forwards`;		// запускаем убывающий градусник закрытия окна(в msg.val - время, через которое порт будет закрыт)
 						tsa_message_container.querySelector('i').className = 'TSAfa-play-circle TSAfa TSAfa-2x TSA_icon';	// меняем иконку окна на "плей"					
 						break;
 					
@@ -167,7 +146,7 @@ if (document.body) {
 							let prgrss = msg.val.LoadedSize / msg.val.PreloadSize * 100;
 							if (prgrss > 100) prgrss = 100;
 							this.tmp.fields.prgrss.style.width = `${prgrss}%`;
-							this.tmp.fields.title.textContent = chrome.i18n.getMessage(`Stat${msg.val.TorrentStatus}`) || msg.val.TorrentStatusString; // ??? firefox ????
+							this.tmp.fields.title.textContent = chrome.i18n.getMessage(`Stat${msg.val.TorrentStatus}`) || msg.val.TorrentStatusString;
 							this.tmp.fields.torrSpeed.textContent = `${(msg.val.DownloadSpeed/1048576).toFixed(2)} ᴍʙ/s`;
 							this.tmp.fields.torrLoaded.textContent = `${formatSize(msg.val.LoadedSize)} / ${formatSize(msg.val.PreloadSize)}`;
 							this.tmp.fields.torrPeers.textContent = `[${msg.val.ConnectedSeeders}] ${msg.val.ActivePeers} / ${msg.val.TotalPeers}`;
@@ -196,9 +175,9 @@ if (document.body) {
 		
 		tmp: {},				// чистится по окончанию
 	};
-	
+
 	/** Messages listener */
-	chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	function messageListener(request, sender, sendResponse) {
 		switch (request.action) {
 		
 		case 'torrStop':
@@ -236,7 +215,19 @@ if (document.body) {
 			}
 			break;
 		}
-	});	
+	}
+	
+	function formatSize(val) {
+		if (val === undefined) return '';
+		if (val === 0) return '0';
+		let i = 0;
+		const measurement = ['ʙ', 'ᴋʙ', 'ᴍʙ', 'ɢʙ', 'ᴛʙ'];
+		for (; val > 1023 && i < measurement.length; i++) {
+			val /= 1024;
+		}
+		return `${val.toFixed((i>2)?2:0)} ${measurement[i]}`;
+	}
+
 }
 
 

@@ -63,8 +63,7 @@ async function Install(){ // инициализация, выполняется 
 		chrome.tabs.query({ url: manifest.content_scripts[0].matches }, (tabs) => {
 			tabs.forEach((tab) => cs_inject( tab.id, manifest.content_scripts[0])); 
 		});
-	}	
-
+	}
 }
 
 	/** Port connection listener */
