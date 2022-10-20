@@ -1,33 +1,67 @@
 'use strict';
 
-class TSA_NTF{
+var tsa_MessageBox = {
 
-	constructor( container, opt={} ){
-		this.container=container;
-		this.options = Object.assign ( { // default options
-			'className'	: 'TSA_info',
-			'delay'	: 5000,	
-		}, opt );	
-	}
+	tsa_ntf_styles: {
+		'TSA_info':			['TSAfa-info-circle'],
+		'TSA_warning':		['TSAfa-exclamation-circle'],
+		'TSA_status':		['TSAfa-spinner', 'TSAfa-spin'],
+		'TSA_connection':	['TSAfa-spinner', 'TSAfa-spin'],
+	},
 	
-	_body( contents, options ){
-		const tsa_ntf_styles = {
-			'TSA_info':			['TSAfa-info-circle'],
-			'TSA_warning':		['TSAfa-exclamation-circle'],
-			'TSA_status':		['TSAfa-spinner', 'TSAfa-spin'],
-			'TSA_connection':	['TSAfa-spinner', 'TSAfa-spin'],
-		};	
-		return tsa_elementCreate('fieldset', {
-			'classList'	: [ 'TSA_base', options.className ],
-			'onclick'	: options.onclick,
-			'append'	: [
-				// tsa_elementCreate( 'legend', { 'append': 'TSA' }),	// 'TorrServer Adder' Логотип в левом верхнем углу окна. Только отвлекает внимание
-				tsa_elementCreate( 'div', { 'classList': ['TSA_content'], 'append': contents }),
-				tsa_elementCreate( 'i', { 'classList': tsa_ntf_styles[options.className].concat(['TSAfa', 'TSAfa-2x', 'TSA_icon']) }),			
-			]
+	show( contents, options={} ){
+		return new Promise(( resolve, reject ) => {	
+			this.hide()
+			.then(() => {
+				options = Object.assign({'className':'TSA_info','onclick':this.hide.bind(this),'delay':5000}, options);	
+				this.ntf =  tsa_elementCreate('fieldset', {
+					'classList'	: [ 'TSA_base', options.className ],
+					'onclick'	: options.onclick,
+					'append'	: [
+						// tsa_elementCreate( 'legend', { 'append': 'TSA' }),	// Логотип в левом верхнем углу окна. Только отвлекает внимание
+						tsa_elementCreate( 'div', { 'classList': ['TSA_content'], 'append': contents }),
+						tsa_elementCreate( 'i', { 'classList': this.tsa_ntf_styles[options.className].concat(['TSAfa', 'TSAfa-2x', 'TSA_icon']) }),			
+					]
+				});	
+				document.body.append(this.ntf);
+				clearTimeout( this.timer );	
+				clearTimeout( this.fadetimer );	
+				this._fade( this.ntf, true )
+				.then(()=>{
+					if(options.delay) this.timer = setTimeout(()=>{ this.hide(); }, options.delay);
+					resolve( this.ntf );				
+				});
+			});
 		});
-	}
+	},
 	
+	hide(){
+		clearTimeout( this.timer );
+		clearTimeout( this.fadetimer );
+		return new Promise(( resolve, reject ) => {
+			if(this.ntf) {
+				this._fade( this.ntf, false )
+				.then(() => this.ntf.remove())
+				.then(() => delete this.ntf)
+				.then(resolve);
+			} else resolve();
+		});
+	},
+	
+	message(message, submessage, options){
+		let contents = [tsa_elementCreate('div', {
+			'className': 'TSA_message_title',
+			'append': [message],
+		})];
+		if (submessage) {
+			contents.push(tsa_elementCreate('div', {
+				'className': 'TSA_message_body',
+				'append': [submessage],
+			}));
+		}
+		return this.show(contents, options);
+	},
+
 	_fade( obj, direction ){
 		return new Promise(( resolve, reject ) => {
 			this.fadetimer = setTimeout(()=>{ 
@@ -35,57 +69,10 @@ class TSA_NTF{
 				this.fadetimer = setTimeout( resolve, 200 );
 			}, 50 );
 		});
-	}
-	
-	_remove( obj ){
-		return new Promise(( resolve, reject ) => {
-			if(obj) {
-				this._fade( obj, false )
-				.then( ()=>{
-					obj.remove();
-					resolve();
-				});
-			} else resolve();
-		});
-	}	
+	},
+
 }
 
-class TSA_NTF_dyn extends TSA_NTF{
-	show( contents, opt={} ){
-		let options = Object.assign( {}, this.options, opt );
-		let ntf = this._body( contents, options );
-		ntf.addEventListener( 'click', (evnt)=>{ this._remove(evnt.currentTarget); } );
-		this.container.append( ntf );
-		this._fade( ntf, true );
-		if(options.delay) setTimeout( ()=>{ this._remove(ntf); }, options.delay );		
-		return ntf;
-	}
-}
-
-class TSA_NTF_stat extends TSA_NTF{
-	show( contents, opt={} ){
-		return new Promise(( resolve, reject ) => {
-			let options = Object.assign( {}, this.options, opt );
-			this.ntf = this._body( contents, options );
-			this.container.replaceChildren();		
-			this.container.append(this.ntf);
-			clearTimeout( this.timer );	
-			clearTimeout( this.fadetimer );
-			this._fade( this.ntf, true )
-			.then(()=>{
-				if(options.delay) this.timer = setTimeout(()=>{ this.hide(); }, options.delay);
-				resolve( this.ntf );				
-			});
-		});
-	}
-	hide(){
-		clearTimeout( this.timer );
-		clearTimeout( this.fadetimer );
-		let tmp = this.ntf;
-		delete this.ntf;
-		return this._remove( tmp );
-	}
-}
 
 function tsa_elementCreate( element, options ){
 	let obj = document.createElement(element);
@@ -111,31 +98,6 @@ function tsa_elementCreate( element, options ){
 	return obj;
 }
 
-function tsa_Alert(contents, className, hide_delay = 5000) {
-	return new Promise((resolve, reject) => {
-		tsa_message_box.hide()
-		.then(() => tsa_message_box.show(contents, {
-				'className': className,
-				'delay': hide_delay
-		}))
-		.then(resolve);
-	});
-}
 
-/** Notification init */
-var tsa_message_container;
-var tsa_message_box;
-{
-	function tsa_NotificationInit(){
-		document.body.querySelectorAll(':scope > .TSA_container').forEach((elm) => document.body.removeChild(elm));
-		tsa_message_container = tsa_elementCreate('div');
-		document.body.append(tsa_elementCreate('div', {
-				'classList': ['TSA_container'],
-				'append': [tsa_message_container],
-			}));
-		tsa_message_box = new TSA_NTF_stat(tsa_message_container, {  'className': 'TSA_info'  });
-	}
-	
-	if(document.body) tsa_NotificationInit();
-	else document.addEventListener('DOMContentLoaded', tsa_NotificationInit);
-}
+
+

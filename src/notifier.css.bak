@@ -1,8 +1,8 @@
-.TSA_base div,
-.TSA_base fieldset,
-.TSA_base table,
-.TSA_base tr,
-.TSA_base td 
+.TSA_container div,
+.TSA_container fieldset,
+.TSA_container table,
+.TSA_container tr,
+.TSA_container td 
 {	/* CSS Reset */
 	all: initial;
 	display: block;
@@ -25,17 +25,15 @@
 	cursor: inherit;
 }
 
-.TSA_base tr {
+.TSA_container tr {
 	display: table-row;
 }
 
-.TSA_base td {
+.TSA_container td {
 	display: table-cell;
 }
 
-
-
-.TSA_base{
+.TSA_container{
 	all: initial;
 	right: 50px;
 	bottom: 50px;
@@ -43,7 +41,11 @@
 	min-width: 350px;
 	/* max-width: 550px; */
 	z-index: 2147483647;
+	box-sizing: content-box;
+}
 
+.TSA_container .TSA_base{
+	width: 100%;
 	border-radius: 10px;
 	border-width: 2px;
 	border-style: solid;
@@ -60,83 +62,83 @@
 	transition: 0.2s linear;
 }
 
-.TSA_info{
+.TSA_container .TSA_info{
 	background-color: #dff8d3;
 	border-color: #a7d590;
 	color: #40871d;
 }
 
-.TSA_warning{
+.TSA_container .TSA_warning{
 	background-color: #ffe7cc;
 	border-color: #ffc480;
 	color: #c26700;
 }
 
-.TSA_connection{
+.TSA_container .TSA_connection{
 	background-color: #E0E0E0;
 	border-color: #B0B0B0;
 	color: #606060;
 }
 
-.TSA_status{
+.TSA_container .TSA_status{
 	background-color: #d3ebf8;
 	border-color: #9fd3ef;
 	color: #1c76a6;
 }
 
-.TSA_base .TSA_content{
+.TSA_container .TSA_content{
 	width: 100%;
 	line-height: 2;
 	padding-right: 10px;
 }
 
-.TSA_base .TSA_icon{
+.TSA_container .TSA_icon{
 	margin-left: auto;
 	width: 28px;
 	height: 28px;
 }
 
-.TSA_base .TSA_message_title{
+.TSA_container .TSA_info_title{
 	padding-bottom: 6px;
 	text-align: center;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 
-.TSA_base .TSA_message_body{
+.TSA_container .TSA_info_body{
 	/* display: flex; */
 	/* justify-content: center; */
 	text-align: center;
 	color: DimGrey;
 }
 
-.TSA_base .TSA_status_title{
+.TSA_container .TSA_status_title{
 	text-align: center;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 
-.TSA_base .TSA_status_table{
+.TSA_container .TSA_status_table{
 	width: 100%;
 	padding-top: 10px;
 }
 
-.TSA_base .TSA_status_label{
+.TSA_container .TSA_status_label{
 	width: 0;
 	color: #a86b00;	
 }
 
-.TSA_base .TSA_status_value{
+.TSA_container .TSA_status_value{
 	padding-left: 5px;
 	width: 100%;
 	color: DimGrey;
 }
 
-.TSA_base .TSA_progress-bar{
+.TSA_container .TSA_progress-bar{
 	height: 2px; 
 	width: 100%;
 	background-color: #9fd3ef;
 }
 
-.TSA_base .TSA_progress-bar div{
+.TSA_container .TSA_progress-bar div{
 	height: 100%; 
 	width: 0%;
 	/* margin: 0 auto; */
@@ -159,7 +161,7 @@
 	100%	{width: 0%;}			
 }
 
-.TSA_base legend{
+.TSA_container .TSA_base legend{
 	background-color: inherit;
 	border-color: inherit;
 	border-radius: 5px;
@@ -171,18 +173,17 @@
 	padding-right: 10px;
 }
 
-.TSA_info legend{
+.TSA_container .TSA_info legend{
 	color: #a7d590;
 }
 
-.TSA_warning legend{
+.TSA_container .TSA_warning legend{
 	color: #ffc480;
 }
 
-.TSA_connection legend{
+.TSA_container .TSA_connection legend{
 	color: #B0B0B0;
 }
-
-.TSA_status legend{
+.TSA_container .TSA_status legend{
 	color: #9fd3ef;
 }

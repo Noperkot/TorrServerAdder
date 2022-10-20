@@ -1,42 +1,29 @@
 'use strict';
 
 if (document.body) {
+
 	let observer;
 	const modKeys = { ctrl: false, shift: false, alt: false };
 	const cleanupEventName = 'tsaCleanup';
-	
+	/*********************************************** навешиваем слушатели ****************************************************/
 	document.dispatchEvent(new Event(cleanupEventName));					// генерируем событие деактивации ранее внедренного скрипта
 	document.addEventListener(cleanupEventName, Cleanup);					// и сами подписываемся на это событие
 	document.addEventListener('keydown', keyListener );						// отслеживание ctrl/shift/alt (по ctrl к имени торрента добавляется адрес страницы с которой он взят)
 	document.addEventListener('keyup', keyListener );
-	chrome.runtime.onMessage.addListener(messageListener);					// слушатель сообщений из фоноваго скрипта	
-	observer = new MutationObserver((mutations) => {						// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
-		mutations.forEach((mutation) => {	// console.log(mutation);
-			mutation.addedNodes.forEach((node) => {  // 
-				if(node.nodeType === 1){ //console.log(node.tagName);
-					if(node.tagName === 'A'){
-						if(node.href.startsWith('magnet:')) node.onclick = magnetClickListener;	
-					} else {
-						for (let a_obj of node.querySelectorAll('A[href^="magnet:"]')){	
-							a_obj.onclick = magnetClickListener;
-						}
-					}
-				}
-
-			});
-		});
-	});
-	observer.observe(document, {childList: true, subtree:true});
+	chrome.runtime.onMessage.addListener(messageListener);					// слушатель сообщений из фонового скрипта	
 	for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){		// Навешиваем онклики на все магнет-ссылки на странице
 		a_obj.addEventListener('click', magnetClickListener);
-	}
-	tsa_trackers.onPageLoaded(document);									// если это кинозал - генерируется магнет-ссылка	
+	}	
+	observer = new MutationObserver(mutaHandler);							// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
+	observer.observe(document, {childList: true, subtree:true});	
+	tsa_trackers.onPageLoaded(document);									// если это кинозал - генерируется магнет-ссылка
 	
 	
+	// tsa_MessageBox.message('connection', null, {className: 'TSA_connection', delay: 0});
 	/*************************************************************************************************************************/
 	
 	
-	function Cleanup(ev) {													// деактивация скрипта - снимаем слушатели
+	function Cleanup(ev) {													/******** снимаем слушатели *********/
 		console.log('Cleanup');
 		
 		document.removeEventListener(cleanupEventName, Cleanup);			// отключаем слушатель события деактивации скрипта
@@ -47,8 +34,24 @@ if (document.body) {
 		for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){	// Снимаем свои онклики со всех магнет-ссылок
 			a_obj.removeEventListener('click', magnetClickListener);
 		}
-	}	
-
+	}
+	
+	function mutaHandler(mutations) {
+		mutations.forEach((mutation) => {	// console.log(mutation);
+			mutation.addedNodes.forEach((node) => {  // 
+				if(node.nodeType === Node.ELEMENT_NODE){ //console.log(node.tagName);
+					if(node.tagName === 'A'){
+						if(node.href.startsWith('magnet:')) node.onclick = magnetClickListener;	
+					} else {
+						for (let a_obj of node.querySelectorAll('A[href^="magnet:"]')){	
+							a_obj.onclick = magnetClickListener;
+						}
+					}
+				}
+			});
+		});
+	}
+	
 	function keyListener(e) {
 		modKeys.ctrl  = e.ctrlKey;
 		modKeys.shift = e.shiftKey;
@@ -57,7 +60,7 @@ if (document.body) {
 	
 	function magnetClickListener(e){
 		const magnet = e.target.closest('A').href;
-		try{														// try на случай если фоновый скрипт будет отключен
+		try{																// try на случай если фоновый скрипт будет отключен
 			chrome.runtime.sendMessage({ 'linkUrl': magnet }, (response) => { if (!response) location.href = magnet; });
 			e.preventDefault();
 		} catch {}
@@ -91,24 +94,21 @@ if (document.body) {
 					'torrLoaded': tblAppend(chrome.i18n.getMessage('Loaded')),
 					'torrPeers': tblAppend(chrome.i18n.getMessage('Peers')),
 				};
-				return tsa_Alert([
-						this.tmp.fields.title,
-						tsa_elementCreate('div', {
-							'className': 'TSA_progress-bar',
-							'append': [this.tmp.fields.prgrss]
-						}),
-						tsa_elementCreate('table', {
-							'classList': ['TSA_status_table'],
-							'append': [tbdy]
-						})
-				], 'TSA_status', 0);
+				return tsa_MessageBox.show([
+					this.tmp.fields.title,
+					tsa_elementCreate('div', {
+						'className': 'TSA_progress-bar',
+						'append': [this.tmp.fields.prgrss]
+					}),
+					tsa_elementCreate('table', {
+						'classList': ['TSA_status_table'],
+						'append': [tbdy]
+					})
+				], {className:'TSA_status', delay: 0});
 			}
 			
 			const CreateConnectionWindow = () => {
-				return tsa_Alert([tsa_elementCreate('div', {
-					'className': 'TSA_info_title',
-					'append': [chrome.i18n.getMessage('connection')],
-				})], 'TSA_connection', 0)	
+				return tsa_MessageBox.message(chrome.i18n.getMessage('connection'), null, {className: 'TSA_connection', delay: 0});
 			}
 
 			const createWindow = (request.flags.play) ? CreatePreloadWindow : CreateConnectionWindow;
@@ -119,24 +119,14 @@ if (document.body) {
 				this.tmp.stop = this.stop.bind(this);		
 				
 				this.tmp.msgPort.onDisconnect.addListener(this.tmp.stop);	// вешаем обработчик на дисконнект,
-				tsa_message_container.onclick = this.tmp.stop;				// и клик по окну предзагрузки,
+				tsa_MessageBox.ntf.onclick = this.tmp.stop;				// и клик по окну предзагрузки,
 				window.addEventListener("beforeunload", this.tmp.stop);		// и на закрытие/обновление/уход со страницы
 				
 				this.tmp.msgPort.onMessage.addListener((msg) => {
 					switch (msg.action) {
 
-					case 'message':
-						let contents = [tsa_elementCreate('div', {
-							'className': 'TSA_info_title',
-							'append': [msg.val.title],
-						})];
-						if (msg.val.submessage) {
-							contents.push(tsa_elementCreate('div', {
-								'className': 'TSA_info_body',
-								'append': [msg.val.submessage],
-							}));
-						}
-						tsa_Alert(contents, msg.val.style || 'TSA_warning', 0);
+					case 'alert':
+						tsa_MessageBox.message(msg.val.message, msg.val.submessage, {className: msg.val.className, delay: 0});
 						break;
 
 					case 'Preloading':		// началась предзагрузка
@@ -147,8 +137,8 @@ if (document.body) {
 						break;
 						
 					case 'Play':			// Предзагрузка завершена, началось воспроизведение				
-						this.tmp.fields.prgrss.style.animation = `TSA_animation_countdown ${msg.val}s linear forwards`;		// запускаем убывающий градусник закрытия окна(в msg.val - время, через которое порт будет закрыт)
-						tsa_message_container.querySelector('i').className = 'TSAfa-play-circle TSAfa TSAfa-2x TSA_icon';	// меняем иконку окна на "плей"					
+						this.tmp.fields.prgrss.style.animation = `TSA_animation_countdown ${msg.val}s linear forwards`;	// запускаем убывающий градусник закрытия окна(в msg.val - время, через которое порт будет закрыт)
+						tsa_MessageBox.ntf.querySelector('i').className = 'TSAfa-play-circle TSAfa TSAfa-2x TSA_icon';	// меняем иконку окна на "плей"					
 						break;
 					
 					case 'Stat':			// пришел статус торрента, выводим в окно
@@ -165,19 +155,16 @@ if (document.body) {
 						
 					}	
 				});
-				this.tmp.msgPort.postMessage(request); // начинаем цепочку обработки торрента
+				this.tmp.msgPort.postMessage(request); // запускаем цепочку обработки торрента
 			});
 		},
 		
 		stop(){
 			clearInterval(this.tmp.statTimer);	
 			try{ this.tmp.msgPort.disconnect(); } catch {}	// по дисконнекту на сервере дропается текущий торрент	
-			// снимаем слушатели //
-			// this.tmp.msgPort.onDisconnect.removeListener(this.tmp.stop);
-			tsa_message_container.onclick = null;
 			window.removeEventListener("beforeunload", this.tmp.stop);			
 			return new Promise((resolve,reject)=>{
-				tsa_message_box.hide()
+				tsa_MessageBox.hide()
 				.then(() => Object.keys(this.tmp).forEach(key => delete this.tmp[key]))	// чистим this.tmp от мусора
 				.then(resolve);
 			});
@@ -218,10 +205,7 @@ if (document.body) {
 				.then(()=>tWorkerCli.start(request));
 				break;
 			default:
-				tsa_Alert([tsa_elementCreate('div', {
-					'className': 'TSA_info_title',
-					'append': [chrome.i18n.getMessage('the_link_is_not_a_torrent')],
-				})], 'TSA_warning');
+				tsa_MessageBox.message(chrome.i18n.getMessage('the_link_is_not_a_torrent'), null, { className: 'TSA_warning' });
 			}
 			break;
 		}

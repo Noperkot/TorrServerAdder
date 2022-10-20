@@ -34,10 +34,10 @@ class tWorkerSrv {
 			.then(() => setTimeout(this.Disconnect, HIDE_DELAY * 1000))			// закрываем порт через HIDE_DELAY секунд (задержка гашения окна предзагрузки)	
 			.catch((e) => {														// если в цепочке случилось исключение - выводим сообщение
 				this.preventDrop();												// предотвращаем дроп после успешного добавлении
-				this.pstMsg('message', {
-					'title': chrome.i18n.getMessage(e.message) || e.message,
+				this.pstMsg('alert', {
+					'message': chrome.i18n.getMessage(e.message) || e.message,
 					'submessage': e.submessage,
-					'style': e.style,
+					'className': e.className || 'TSA_warning',
 				});
 				setTimeout(this.Disconnect, 5000);								// задержка гашения сообщения
 			});

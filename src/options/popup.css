@@ -2,7 +2,7 @@ body {
 	margin: 1px;
 	max-width: 400px;
 	min-width: 200px;
-	background-color: #eee;  
+	background-color: #eee; 
 }
 
 a {
@@ -19,7 +19,7 @@ a {
 a:hover {
 	background-color: #ddd;
 	border-radius: 5px;
-}
+	}
 
 a.active {
 	border-style: solid;  

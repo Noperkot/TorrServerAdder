@@ -10,11 +10,11 @@ const PLAYLIST_NAME_S = 'tsa_playlist.m3u';		// этот файл будет с�
 const PLAYLIST_NAME_C = 'tsa_playlist..m3u';	// этот файл будет очищаться из списка загрузок
 
 class tsaError extends Error {
-	constructor(message, submessage = undefined, style = undefined) {
+	constructor(message, submessage = undefined, className = undefined) {
 		super(message);
 		this.name = 'tsaError';
 		this.submessage = submessage;
-		this.style = style;
+		this.className = className;
 	}
 }
 
