@@ -34,7 +34,7 @@ function on_page_loaded() {
 	document.getElementById('save').addEventListener('click', ()=>{
 		apply_form(storage.selected_profile);
 		setIcon(storage.profiles[storage.selected_profile]);
-		chrome.storage.local.set( storage, () => tsa_MessageBox.message(chrome.i18n.getMessage("saved_message")) );
+		chrome.storage.local.set( storage, () => tsa_MessageBox.notify(chrome.i18n.getMessage("saved_message")) );
 	});
 	
 	document.getElementById('add_profile_btn').addEventListener('click', ()=>{
@@ -57,7 +57,7 @@ function on_page_loaded() {
 	
 	document.getElementById('remove_profile_btn').addEventListener('click', ()=>{
 		if( Object.keys(storage.profiles).length === 1 ){
-			tsa_MessageBox.message(chrome.i18n.getMessage('cant_delete_single_profile'), null, {className:'TSA_warning'});
+			tsa_MessageBox.notify(chrome.i18n.getMessage('cant_delete_single_profile'), null, {className:'TSA_warning'});
 			return;
 		}
 		delete storage.profiles[storage.selected_profile];

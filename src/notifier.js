@@ -2,13 +2,6 @@
 
 var tsa_MessageBox = {
 
-	tsa_ntf_styles: {
-		'TSA_info':			['TSAfa-info-circle'],
-		'TSA_warning':		['TSAfa-exclamation-circle'],
-		'TSA_status':		['TSAfa-spinner', 'TSAfa-spin'],
-		'TSA_connection':	['TSAfa-spinner', 'TSAfa-spin'],
-	},
-	
 	show( contents, options={} ){
 		return new Promise(( resolve, reject ) => {	
 			this.hide()
@@ -26,7 +19,7 @@ var tsa_MessageBox = {
 				document.body.append(this.ntf);
 				clearTimeout( this.timer );	
 				clearTimeout( this.fadetimer );	
-				this._fade( this.ntf, true )
+				this._fade( true )
 				.then(()=>{
 					if(options.delay) this.timer = setTimeout(()=>{ this.hide(); }, options.delay);
 					resolve( this.ntf );				
@@ -40,15 +33,24 @@ var tsa_MessageBox = {
 		clearTimeout( this.fadetimer );
 		return new Promise(( resolve, reject ) => {
 			if(this.ntf) {
-				this._fade( this.ntf, false )
+				this._fade( false )
 				.then(() => this.ntf.remove())
 				.then(() => delete this.ntf)
 				.then(resolve);
 			} else resolve();
 		});
 	},
+
+	_fade( direction ){
+		return new Promise(( resolve, reject ) => {
+			this.fadetimer = setTimeout(()=>{ 
+				this.ntf.style.opacity = (direction) ? 1 : 0; 
+				this.fadetimer = setTimeout( resolve, 200 );
+			}, 50 );
+		});
+	},
 	
-	message(message, submessage, options){
+	notify( message, submessage, options ){
 		let contents = [tsa_elementCreate('div', {
 			'className': 'TSA_message_title',
 			'append': [message],
@@ -62,15 +64,12 @@ var tsa_MessageBox = {
 		return this.show(contents, options);
 	},
 
-	_fade( obj, direction ){
-		return new Promise(( resolve, reject ) => {
-			this.fadetimer = setTimeout(()=>{ 
-				obj.style.opacity = (direction) ? 1 : 0; 
-				this.fadetimer = setTimeout( resolve, 200 );
-			}, 50 );
-		});
+	tsa_ntf_styles: {
+		'TSA_info':			['TSAfa-info-circle'],
+		'TSA_warning':		['TSAfa-exclamation-circle'],
+		'TSA_status':		['TSAfa-spinner', 'TSAfa-spin'],
+		'TSA_connection':	['TSAfa-spinner', 'TSAfa-spin'],
 	},
-
 }
 
 

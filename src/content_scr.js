@@ -19,7 +19,7 @@ if (document.body) {
 	tsa_trackers.onPageLoaded(document);									// если это кинозал - генерируется магнет-ссылка
 	
 	
-	// tsa_MessageBox.message('connection', null, {className: 'TSA_connection', delay: 0});
+	// tsa_MessageBox.notify('connection', null, {className: 'TSA_connection', delay: 0});
 	/*************************************************************************************************************************/
 	
 	
@@ -108,7 +108,7 @@ if (document.body) {
 			}
 			
 			const CreateConnectionWindow = () => {
-				return tsa_MessageBox.message(chrome.i18n.getMessage('connection'), null, {className: 'TSA_connection', delay: 0});
+				return tsa_MessageBox.notify(chrome.i18n.getMessage('connection'), null, {className: 'TSA_connection', delay: 0});
 			}
 
 			const createWindow = (request.flags.play) ? CreatePreloadWindow : CreateConnectionWindow;
@@ -119,14 +119,14 @@ if (document.body) {
 				this.tmp.stop = this.stop.bind(this);		
 				
 				this.tmp.msgPort.onDisconnect.addListener(this.tmp.stop);	// вешаем обработчик на дисконнект,
-				tsa_MessageBox.ntf.onclick = this.tmp.stop;				// и клик по окну предзагрузки,
+				tsa_MessageBox.ntf.onclick = this.tmp.stop;					// и клик по окну предзагрузки,
 				window.addEventListener("beforeunload", this.tmp.stop);		// и на закрытие/обновление/уход со страницы
 				
 				this.tmp.msgPort.onMessage.addListener((msg) => {
 					switch (msg.action) {
 
-					case 'alert':
-						tsa_MessageBox.message(msg.val.message, msg.val.submessage, {className: msg.val.className, delay: 0});
+					case 'Notify':
+						tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className: msg.val.className, delay: 0});
 						break;
 
 					case 'Preloading':		// началась предзагрузка
@@ -205,7 +205,7 @@ if (document.body) {
 				.then(()=>tWorkerCli.start(request));
 				break;
 			default:
-				tsa_MessageBox.message(chrome.i18n.getMessage('the_link_is_not_a_torrent'), null, { className: 'TSA_warning' });
+				tsa_MessageBox.notify(chrome.i18n.getMessage('the_link_is_not_a_torrent'), null, { className: 'TSA_warning' });
 			}
 			break;
 		}

@@ -103,10 +103,9 @@
 }
 
 .TSA_base .TSA_message_body{
-	/* display: flex; */
-	/* justify-content: center; */
 	text-align: center;
-	color: DimGrey;
+	color: Gray;
+	/* color: DimGray; */
 }
 
 .TSA_base .TSA_status_title{
