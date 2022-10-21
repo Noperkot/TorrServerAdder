@@ -84,7 +84,7 @@ class tWorkerSrv {
 		this.abortCtrl = new AbortController();	
 		if(this.torrInfo.flags.play){											// останавливаем прелоад на всех страницах кроме текущей
 			chrome.tabs.query({active: false}, (tabs) => {
-				tabs.forEach((tab) => chrome.tabs.sendMessage( tab.id, { 'action': 'torrStop' }, () => chrome.runtime.lastError ) );
+				tabs.forEach((tab) => chrome.tabs.sendMessage( tab.id, { 'action': 'torrStop' }, () => void chrome.runtime.lastError ) );
 			} );
 		}
 		return new Promise((resolve, reject) => {	

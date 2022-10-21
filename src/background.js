@@ -18,12 +18,13 @@ class tsaError extends Error {
 	}
 }
 
-/** здесь навешиваютя все служатели(при каждом пробуждении) */
+/*********** здесь навешиваютя все служатели(при каждом пробуждении) ************/
 chrome.contextMenus.onClicked.addListener(contextMenusListener);
 chrome.runtime.onConnect.addListener(ConnectListener);
 chrome.runtime.onMessage.addListener(MessageListener);
 if (isChrome()) chrome.downloads.onChanged.addListener(DownloadsListener);
-
+/********************************************************************************/
+		
 async function Install(){ // инициализация, выполняется один раз при старте(рестарте, установке, включении) расширения. вызывается из background_M2(3).js
 	await chrome.storage.local.get(['profiles','selected_profile'],  async (stor_items) => {
 		// stor_items = {};
@@ -73,18 +74,18 @@ function ConnectListener(msgPort){		// при создании нового по
 
 	/** Context menu listener */
 async function contextMenusListener(info, tab){
-	if (tab) {	
+	try {	// try на случай если на страницу не был внедрен контент-скрипт (не http:/https:)
 		chrome.tabs.sendMessage(tab.id, { // request additional info (poster, title)
 			'action': 'torrAdd',
 			'options': await LoadOpt(),
 			'flags': CONTEXT_MENU[info.menuItemId],
 			'linkUrl': info.linkUrl,
-		});
-	}
+		}, () => void chrome.runtime.lastError);
+	} catch {}
 }
 
 	/** Messages listener */
-function MessageListener(request, sender, sendResponse){ // may be only magnet-click 
+function MessageListener(request, sender, sendResponse){ // message action may be only magnet-click
 	LoadOpt().then((options) => {		
 		if (options.catch_links === 0) sendResponse(false);
 		else {
