@@ -11,16 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			let item = document.createElement('div');
 			item.className = 'item';
 			item.title = chrome.i18n.getMessage('title_profile');
+			let markerBox = document.createElement('div');
+			markerBox.className = 'markerbox';
 			let marker = document.createElement('i');
 			marker.className = ('TSAfa TSAfa-circle');
-			marker.style.color = profiles[profile].profile_color;
-			// item.append(marker);
-			
-			let s = document.createElement('div');
-			s.className = 'marker';
-			s.append(marker);
-			item.append(s);
-			
+			marker.style.color = profiles[profile].profile_color;			
+			markerBox.append(marker);
+			item.append(markerBox);
 			let label = document.createElement('span');
 			label.textContent = profiles[profile].profile_name;
 			item.append(label);
