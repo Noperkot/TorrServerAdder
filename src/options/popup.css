@@ -5,46 +5,58 @@ body {
 	background-color: #eee; 
 }
 
-a {
-	font-size: 14px;
-	/* font-weight: bold; */
-	color: black; 
+.item {
 	display: flex;
-	align-items: center;
 	padding: 14px;
-	text-decoration: none;
-	white-space: nowrap;
+	font-size: 14px;
+	cursor: pointer;
+	/* color: gray; */
 }
 
-a:hover {
-	background-color: #ddd;
-	border-radius: 5px;
-	}
-
-a.active {
-	border-style: solid;  
-	border-radius: 5px;
-	border-width: 2px;
-	border-color: gray;
-	background-color: #ddd;
-}
-
-#menu {
-	padding-top: 2px;
-	padding-bottom: 2px;
-}
-
-#TS_link, #options{
-	/* justify-content: center; */
+.header {
 	color: #E0FFFF;	
 	background-color: #008000;
 	text-shadow: 1px 1px 2px black, 0 0 1em red; 
 }
 
-i{
-	padding-right: 10px;
+.selected {
+	border-style: solid;  
+	border-radius: 5px;
+	border-width: 2px;
+	border-color: gray;
+	background-color: #ddd;
+	/* font-size: 16px; */
+	/* font-weight: 500;	 */
 }
 
-.menu_item i{
+.profiles {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.item:hover {
+	border-radius: 5px;
+}
+
+.profiles .item:hover {
+	background-color: #ddd;
+}
+
+.profiles  i{
 	font-size: 8px;
+}
+
+.profiles .selected i{
+	font-size: 14px;
+}
+
+.marker{
+	width: 16px;
+	display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.item span{
+	padding-left: 10px;
 }
