@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			markerBox.className = 'markerbox';
 			let marker = document.createElement('i');
 			marker.className = ('TSAfa TSAfa-circle');
-			marker.style.color = profiles[profile].profile_color;			
+			marker.style.color = profiles[profile].profile_color;
 			markerBox.append(marker);
 			item.append(markerBox);
 			let label = document.createElement('span');

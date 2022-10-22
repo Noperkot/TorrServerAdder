@@ -53,8 +53,8 @@ body {
 .markerbox{
 	width: 14px;
 	display: flex;
-    justify-content: center;
-    align-items: center;
+	justify-content: center;
+	align-items: center;
 }
 
 .item span{
