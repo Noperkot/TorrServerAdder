@@ -24,7 +24,7 @@ chrome.runtime.onConnect.addListener(ConnectListener);
 chrome.runtime.onMessage.addListener(MessageListener);
 if (isChrome()) chrome.downloads.onChanged.addListener(DownloadsListener);
 /********************************************************************************/
-		
+
 async function Install(){ // инициализация, выполняется один раз при старте(рестарте, установке, включении) расширения. вызывается из background_M2(3).js
 	await chrome.storage.local.get(['profiles','selected_profile'],  async (stor_items) => {
 		// stor_items = {};
@@ -49,9 +49,8 @@ async function Install(){ // инициализация, выполняется 
 		setIcon(stor_items.profiles[stor_items.selected_profile]);		
 	});
 	
-	// создаем контекстное меню одно для всех вкладок(без заморочек с проигрыванием одной серии) //
-	chrome.contextMenus.removeAll();
-	for (let id in CONTEXT_MENU) {
+	chrome.contextMenus.removeAll();	// удаляем старое контекстнле меню (на всякий)
+	for (let id in CONTEXT_MENU) {		// создаем новое
 		chrome.contextMenus.create({
 			id: id,
 			title: chrome.i18n.getMessage(id),

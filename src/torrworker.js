@@ -12,8 +12,8 @@ class tWorkerSrv {
 	constructor(msgPort) {
 		this.msgPort = msgPort;	
 		this.msgPort.onMessage.addListener(this.onMessage);		
-		this.msgPort.onDisconnect.addListener(this.Abort);						// дисконнект происходит при уходе/обновлении/закрытии вкладки или по клику по окну предзагрузки
-		this.timeoutTimer = setTimeout(this.Abort, 270000);						// таймаут на 30 сек меньше времени жизни сервис-воркера(5мин) = 4.5мин = 270сек
+		this.msgPort.onDisconnect.addListener(this.Abort);						// дисконнект инициируется контент-скриптом при уходе/обновлении/закрытии вкладки или по клику по окну предзагрузки
+		this.timeoutTimer = setTimeout(this.Abort, 270000);						// таймаут на 30 сек меньше максимального времени жизни сервис-воркера(5мин) = 4.5мин = 270сек
 	}
 	
 	onMessage = (request) => {		
@@ -53,7 +53,7 @@ class tWorkerSrv {
 	}
 	
 	pstMsg(action, val){
-		try{																	// на случай если порт уже закрыт (аборт вызванный дисконнектом)
+		try{																	// try на случай если порт уже закрыт (аборт вызванный дисконнектом)
 			this.msgPort.postMessage( { 'action': action, 'val': val } );
 		} catch{}
 	}

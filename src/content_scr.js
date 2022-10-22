@@ -17,15 +17,9 @@ if (document.body) {
 	observer = new MutationObserver(mutaHandler);							// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
 	observer.observe(document, {childList: true, subtree:true});	
 	tsa_trackers.onPageLoaded(document);									// если это кинозал - генерируется магнет-ссылка
-	
-	
-	// tsa_MessageBox.notify('connection', null, {className: 'TSA_connection', delay: 0});
 	/*************************************************************************************************************************/
 	
-	
 	function Cleanup(ev) {													/******** снимаем слушатели *********/
-		console.log('Cleanup');
-		
 		document.removeEventListener(cleanupEventName, Cleanup);			// отключаем слушатель события деактивации скрипта
 		document.removeEventListener('keydown',keyListener );				// отключаем слушатели клавиш
 		document.removeEventListener('keyup', keyListener );
@@ -36,10 +30,10 @@ if (document.body) {
 		}
 	}
 	
-	function mutaHandler(mutations) {
-		mutations.forEach((mutation) => {	// console.log(mutation);
-			mutation.addedNodes.forEach((node) => {  // 
-				if(node.nodeType === Node.ELEMENT_NODE){ //console.log(node.tagName);
+	function mutaHandler(mutations) {	// отслеживаем появление динамических magnet
+		mutations.forEach((mutation) => {
+			mutation.addedNodes.forEach((node) => {
+				if(node.nodeType === Node.ELEMENT_NODE){
 					if(node.tagName === 'A'){
 						if(node.href.startsWith('magnet:')) node.onclick = magnetClickListener;	
 					} else {

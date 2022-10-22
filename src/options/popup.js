@@ -5,12 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			chrome.runtime.openOptionsPage();
 			window.close();
 		}
+		let profile_title = chrome.i18n.getMessage('title_profile');
 		let profilesFrame = document.querySelector('.profiles');
 		for (let profile in profiles) {
-			let TS_address = nrmlzUrl(profiles[profile].TS_address).url; // нормализация адреса
+			let TS_address = nrmlzUrl(profiles[profile].TS_address).url;
 			let item = document.createElement('div');
 			item.className = 'item';
-			item.title = chrome.i18n.getMessage('title_profile');
+			item.title = profile_title;
 			let markerBox = document.createElement('div');
 			markerBox.className = 'markerbox';
 			let marker = document.createElement('i');

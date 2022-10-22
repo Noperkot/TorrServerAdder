@@ -16,8 +16,6 @@ function on_page_loaded() {
 	elm.saved_msg = document.getElementById("saved_msg");
 	elm.cover = document.getElementById('cover');
 	elm.marker = document.querySelector('#marker div');
-	
-	// chrome.storage.local.get((items)=>{ alert(JSON.stringify(items)); });
 
 	/** request profiles */
 	chrome.storage.local.get(['profiles','selected_profile'], (response)=>{
@@ -153,6 +151,7 @@ function profile_editor_enable( profile_name, profile_id  ){
 	elm.profile_editor.focus();
 	
 }
+
 function profile_editor_disable(){
 	elm.cover.style.zIndex=-1;
 	elm.profile_selector_box.style.display = 'flex';
