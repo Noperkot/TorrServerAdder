@@ -21,7 +21,7 @@ class tsaError extends Error {
 /*********** здесь навешиваютя все служатели(при каждом пробуждении) ************/
 chrome.contextMenus.onClicked.addListener(contextMenusListener);
 chrome.runtime.onConnect.addListener(ConnectListener);
-chrome.runtime.onMessage.addListener(MessageListener);
+chrome.runtime.onMessage.addListener(MessageListener);a
 if (isChrome()) chrome.downloads.onChanged.addListener(DownloadsListener);
 /********************************************************************************/
 		
