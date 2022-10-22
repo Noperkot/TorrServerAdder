@@ -2,6 +2,10 @@
 Расширение для десктопных браузеров **Google Chrome** и **Mozilla Firefox** позволяющее добавлять торренты с торрент-трекеров на [**TorrServer**](https://github.com/YouROK/TorrServer) и воспроизводить их с помощью системного медиаплеера.
 > Для работы расширения **!!! НЕОБХОДИМ TORRSERVER !!!** запущенный на локальной машине или в сети (например из клиентского приложения [**TorrServe**](https://github.com/YouROK/TorrServe) в Android или с использованием [**TorrServer Launcher**](https://github.com/Noperkot/TSL) в Windows).  
 
+#### Установка/обновление из магазинов браузеров:
+-   [**Chrome**](https://chrome.google.com/webstore/detail/torrserver-adder/ihphookhabmjbgccflngglmidjloeefg)  
+-   [**Firefox**](https://addons.mozilla.org/firefox/addon/torrserver-adder)
+
 #### Функционал
 - Команды контекстного меню (ПКМ на торрент- или магнет-ссылке):  
   - **Добавить на TorrServer** — торрент будет добавлен на сервер и станет доступен для воспроизведения клиентами  
@@ -40,11 +44,6 @@
 	-   Нужно отключить прокси для торрсервера (иначе браузер будет пытаться подключиться к серверу через tor). В браузере перейти на страницу **about:config** (вставить в адресную строку), в строке поиска ввести **network.proxy.no_proxies_on** -> задать IP-адрес вашего TorrServer (**x.x.x.x** для адреса в сети или **127.0.0.1** если сервер работает на том же хосте, что и браузер). После этой операции в браузере должен стать доступен веб-интерфейс сервера (**http:<area>//x.x.x.x:8090**)
 		
 </details>
-
-
-#### Установка/обновление из магазинов браузеров:
--   [**Chrome**](https://chrome.google.com/webstore/detail/torrserver-adder/ihphookhabmjbgccflngglmidjloeefg)  
--   [**Firefox**](https://addons.mozilla.org/firefox/addon/torrserver-adder)
 
 #### Обсуждение TorrServer'а и всего, что с ним связано:
 
