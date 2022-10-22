@@ -10,25 +10,22 @@ const PLAYLIST_NAME_S = 'tsa_playlist.m3u';		// этот файл будет с�
 const PLAYLIST_NAME_C = 'tsa_playlist..m3u';	// этот файл будет очищаться из списка загрузок
 
 class tsaError extends Error {
-	constructor(message, submessage = undefined, style = undefined) {
+	constructor(message, submessage = undefined, className = undefined) {
 		super(message);
 		this.name = 'tsaError';
 		this.submessage = submessage;
-		this.style = style;
+		this.className = className;
 	}
 }
 
-console.log('TSA activated');
-
-/** здесь навешиваютя все служатели(при каждом пробуждении) */
+/*********** здесь навешиваютя все служатели(при каждом пробуждении) ************/
 chrome.contextMenus.onClicked.addListener(contextMenusListener);
 chrome.runtime.onConnect.addListener(ConnectListener);
 chrome.runtime.onMessage.addListener(MessageListener);
 if (isChrome()) chrome.downloads.onChanged.addListener(DownloadsListener);
+/********************************************************************************/
 
 async function Install(){ // инициализация, выполняется один раз при старте(рестарте, установке, включении) расширения. вызывается из background_M2(3).js
-	console.log('TSA Init');
-	
 	await chrome.storage.local.get(['profiles','selected_profile'],  async (stor_items) => {
 		// stor_items = {};
 		if(!('profiles' in stor_items) || !('selected_profile' in stor_items)){// инициализация хранилища
@@ -52,9 +49,8 @@ async function Install(){ // инициализация, выполняется 
 		setIcon(stor_items.profiles[stor_items.selected_profile]);		
 	});
 	
-	// создаем контекстное меню одно для всех вкладок(без заморочек с проигрыванием одной серии) //
-	chrome.contextMenus.removeAll();
-	for (let id in CONTEXT_MENU) {
+	chrome.contextMenus.removeAll();	// удаляем старое контекстнле меню (на всякий)
+	for (let id in CONTEXT_MENU) {		// создаем новое
 		chrome.contextMenus.create({
 			id: id,
 			title: chrome.i18n.getMessage(id),
@@ -67,8 +63,7 @@ async function Install(){ // инициализация, выполняется 
 		chrome.tabs.query({ url: manifest.content_scripts[0].matches }, (tabs) => {
 			tabs.forEach((tab) => cs_inject( tab.id, manifest.content_scripts[0])); 
 		});
-	}	
-
+	}
 }
 
 	/** Port connection listener */
@@ -78,18 +73,18 @@ function ConnectListener(msgPort){		// при создании нового по
 
 	/** Context menu listener */
 async function contextMenusListener(info, tab){
-	if (tab) {	
+	try {	// try на случай если на страницу не был внедрен контент-скрипт (не http:/https:)
 		chrome.tabs.sendMessage(tab.id, { // request additional info (poster, title)
 			'action': 'torrAdd',
 			'options': await LoadOpt(),
 			'flags': CONTEXT_MENU[info.menuItemId],
 			'linkUrl': info.linkUrl,
-		});
-	}
+		}, () => void chrome.runtime.lastError);
+	} catch {}
 }
 
 	/** Messages listener */
-function MessageListener(request, sender, sendResponse){ // may be only magnet-click 
+function MessageListener(request, sender, sendResponse){ // message action may be only magnet-click
 	LoadOpt().then((options) => {		
 		if (options.catch_links === 0) sendResponse(false);
 		else {

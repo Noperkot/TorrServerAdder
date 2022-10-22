@@ -2,7 +2,6 @@
 let elm={};
 let storage;
 let new_profile_id;
-let tsa_message_box;
 const colors = [ '#3cb44b','#f58231','#911eb4','#ffe119','#e6194b','#46f0f0','#f032e6','#bcf60c','#fabebe','#008080','#e6beff','#9a6324','#fffac8','#800000','#aaffc3','#808000','#ffd8b1','#4363d8' ];
 
 function on_page_loaded() {
@@ -17,20 +16,7 @@ function on_page_loaded() {
 	elm.saved_msg = document.getElementById("saved_msg");
 	elm.cover = document.getElementById('cover');
 	elm.marker = document.querySelector('#marker div');
-	
-	// chrome.storage.local.get((items)=>{ alert(JSON.stringify(items)); });
-	
-	/** Notification init */
-	let tsa_container = tsa_elementCreate( 'div' );
-	document.querySelector('body').append( tsa_elementCreate( 'div', {
-		'classList': ['TSA_container'],
-		'append': [ tsa_container ]
-	}));
-	tsa_message_box = new TSA_NTF_stat ( tsa_container, { 
-		'className': 'TSA_info',
-		'onclick': () => { tsa_message_box.hide(); },
-	});
-	
+
 	/** request profiles */
 	chrome.storage.local.get(['profiles','selected_profile'], (response)=>{
 		storage = response;
@@ -46,7 +32,7 @@ function on_page_loaded() {
 	document.getElementById('save').addEventListener('click', ()=>{
 		apply_form(storage.selected_profile);
 		setIcon(storage.profiles[storage.selected_profile]);
-		chrome.storage.local.set( storage, () => notify( chrome.i18n.getMessage("saved_message")) );			
+		chrome.storage.local.set( storage, () => tsa_MessageBox.notify(chrome.i18n.getMessage("saved_message")) );
 	});
 	
 	document.getElementById('add_profile_btn').addEventListener('click', ()=>{
@@ -69,7 +55,7 @@ function on_page_loaded() {
 	
 	document.getElementById('remove_profile_btn').addEventListener('click', ()=>{
 		if( Object.keys(storage.profiles).length === 1 ){
-			notify( chrome.i18n.getMessage('cant_delete_single_profile'), true );
+			tsa_MessageBox.notify(chrome.i18n.getMessage('cant_delete_single_profile'), null, {className:'TSA_warning'});
 			return;
 		}
 		delete storage.profiles[storage.selected_profile];
@@ -165,16 +151,11 @@ function profile_editor_enable( profile_name, profile_id  ){
 	elm.profile_editor.focus();
 	
 }
+
 function profile_editor_disable(){
 	elm.cover.style.zIndex=-1;
 	elm.profile_selector_box.style.display = 'flex';
 	elm.profile_editor_box.style.display = 'none';	
 }
-
-function notify( message, error=false ){
-	let content = [ tsa_elementCreate( 'div', { 'className'	: 'TSA_info_title', 'append': [ document.createTextNode( message ) ]})];
-	tsa_message_box.show( content, { 'className': (error)?'TSA_warning':'TSA_info' } );
-}
-
 
 document.addEventListener('DOMContentLoaded', on_page_loaded);

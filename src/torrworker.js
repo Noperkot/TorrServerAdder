@@ -12,8 +12,8 @@ class tWorkerSrv {
 	constructor(msgPort) {
 		this.msgPort = msgPort;	
 		this.msgPort.onMessage.addListener(this.onMessage);		
-		this.msgPort.onDisconnect.addListener(this.Abort);						// дисконнект происходит при уходе/обновлении/закрытии вкладки или по клику по окну предзагрузки
-		this.timeoutTimer = setTimeout(this.Abort, 270000);						// таймаут на 30 сек меньше времени жизни сервис-воркера(5мин) = 4.5мин = 270сек
+		this.msgPort.onDisconnect.addListener(this.Abort);						// дисконнект инициируется контент-скриптом при уходе/обновлении/закрытии вкладки или по клику по окну предзагрузки
+		this.timeoutTimer = setTimeout(this.Abort, 270000);						// таймаут на 30 сек меньше максимального времени жизни сервис-воркера(5мин) = 4.5мин = 270сек
 	}
 	
 	onMessage = (request) => {		
@@ -34,10 +34,10 @@ class tWorkerSrv {
 			.then(() => setTimeout(this.Disconnect, HIDE_DELAY * 1000))			// закрываем порт через HIDE_DELAY секунд (задержка гашения окна предзагрузки)	
 			.catch((e) => {														// если в цепочке случилось исключение - выводим сообщение
 				this.preventDrop();												// предотвращаем дроп после успешного добавлении
-				this.pstMsg('message', {
-					'title': chrome.i18n.getMessage(e.message) || e.message,
+				this.pstMsg('Notify', {
+					'message': chrome.i18n.getMessage(e.message) || e.message,
 					'submessage': e.submessage,
-					'style': e.style,
+					'className': e.className || 'TSA_warning',
 				});
 				setTimeout(this.Disconnect, 5000);								// задержка гашения сообщения
 			});
@@ -53,7 +53,7 @@ class tWorkerSrv {
 	}
 	
 	pstMsg(action, val){
-		try{																	// на случай если порт уже закрыт (аборт вызванный дисконнектом)
+		try{																	// try на случай если порт уже закрыт (аборт вызванный дисконнектом)
 			this.msgPort.postMessage( { 'action': action, 'val': val } );
 		} catch{}
 	}
@@ -84,7 +84,7 @@ class tWorkerSrv {
 		this.abortCtrl = new AbortController();	
 		if(this.torrInfo.flags.play){											// останавливаем прелоад на всех страницах кроме текущей
 			chrome.tabs.query({active: false}, (tabs) => {
-				tabs.forEach((tab) => chrome.tabs.sendMessage( tab.id, { 'action': 'torrStop' }, () => chrome.runtime.lastError ) );
+				tabs.forEach((tab) => chrome.tabs.sendMessage( tab.id, { 'action': 'torrStop' }, () => void chrome.runtime.lastError ) );
 			} );
 		}
 		return new Promise((resolve, reject) => {	
