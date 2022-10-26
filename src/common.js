@@ -1,6 +1,6 @@
 'use strict';
 
-function nrmlzUrl(url){	
+function normTSaddr(url){
 	const regexp = /^((?<schema>.+?):\/\/)?((?<user>.+?)(:(?<pswd>.*?))?@)?(?<host>.*?)(:(?<port>\d+?))?(?<path>\/.*?)?(?<query>[?].*?)?$/;
 	const m = regexp.exec(url.replace(/\s/g, '')).groups;
 	return {
@@ -36,14 +36,14 @@ function setIcon(options) {
 				let canvas = document.createElement("canvas");
 				canvas.width = width;
 				canvas.height = height;
-				return canvas;	
+				return canvas;
 			}
-		}		
-		const logo = await loadImageData('/icons/tsa48.png'); // 48x48		
+		}
+		const logo = await loadImageData('/icons/tsa48.png'); // 48x48
 		const icon = new ImageData( new Uint8ClampedArray(logo.data), logo.width, logo.height );
-		const color = hex_color_to_rgb(options.profile_color);		
+		const color = hex_color_to_rgb(options.profile_color);
 		for (let i = 0, end = icon.data.length; i < end; i +=4){
-			if(icon.data[i + 3] === 255){	// пиксель непрозрачен
+			if(icon.data[i + 3] === 255){	// если пиксель непрозрачен
 				switch(icon.data[i + 0] + icon.data[i + 1] + icon.data[i + 2]){
 				case 0:	// черный - заменяем цветом профиля
 					icon.data[i + 0] = color.r;
@@ -60,13 +60,12 @@ function setIcon(options) {
 		}
 		const BrowserAction = chrome.action || chrome.browserAction;
 		BrowserAction.setIcon({ imageData: icon });
-		const manifest = chrome.runtime.getManifest();		
-		BrowserAction.setTitle({ 'title': `${manifest.name} ${manifest.version}\n${options.profile_name} => ${nrmlzUrl(options.TS_address).url}\n` });
+		const manifest = chrome.runtime.getManifest();
+		BrowserAction.setTitle({ 'title': `${manifest.name} ${manifest.version}\n${options.profile_name} => ${normTSaddr(options.TS_address).url}\n` });
 		resolve();
 	});
 }
 
 function isChrome(){
-	// return (typeof chrome.runtime.getManifest().options_ui === "undefined");
-    return (typeof browser === "undefined");
+	return (typeof browser === "undefined");
 }

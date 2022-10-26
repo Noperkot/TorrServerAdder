@@ -22,11 +22,11 @@ li{
 	margin-bottom: 10px;
 }
 
-.for_chrome, .for_firefox{				
+.for_chrome, .for_firefox{
 	display: none;
 }
 
-.vis{				
+.vis{
 	display: block;
 }
 
@@ -38,13 +38,13 @@ img {
 }
 
 h3{
-  margin-top: auto;
-  margin-bottom: auto;
+	margin-top: auto;
+	margin-bottom: auto;
 }
 
 header{
 	background-color: #008000;
-	color: #E0FFFF;	
+	color: #E0FFFF;
 	font-size: 20px;
 	font-family: Arial, Helvetica, sans-serif;
 	padding-bottom: 5px;
@@ -89,8 +89,8 @@ a:link, a:visited {
 }
 
 blockquote {
-    padding: 0 1em;
-    color: var(--color-fg-muted);
+	padding: 0 1em;
+	color: var(--color-fg-muted);
 	border-left-color: rgb(208, 215, 222);
 	border-left-style: solid;
 	border-left-width: 4px;

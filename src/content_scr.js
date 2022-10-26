@@ -10,34 +10,34 @@ if (document.body) {
 	document.addEventListener(cleanupEventName, Cleanup);					// и сами подписываемся на это событие
 	document.addEventListener('keydown', keyListener );						// отслеживание ctrl/shift/alt (по ctrl к имени торрента добавляется адрес страницы с которой он взят)
 	document.addEventListener('keyup', keyListener );
-	chrome.runtime.onMessage.addListener(messageListener);					// слушатель сообщений из фонового скрипта	
+	chrome.runtime.onMessage.addListener(messageListener);					// слушатель сообщений из фонового скрипта
 	for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){		// Навешиваем онклики на все магнет-ссылки на странице
 		a_obj.addEventListener('click', magnetClickListener);
-	}	
+	}
 	observer = new MutationObserver(mutaHandler);							// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
-	observer.observe(document, {childList: true, subtree:true});	
+	observer.observe(document, {childList: true, subtree:true});
 	tsa_trackers.onPageLoaded(document);									// если это кинозал - генерируется магнет-ссылка
 	/*************************************************************************************************************************/
-	
+
 	function Cleanup(ev) {													/******** снимаем слушатели *********/
 		document.removeEventListener(cleanupEventName, Cleanup);			// отключаем слушатель события деактивации скрипта
 		document.removeEventListener('keydown',keyListener );				// отключаем слушатели клавиш
 		document.removeEventListener('keyup', keyListener );
-		chrome.runtime.onMessage.removeListener(messageListener);			// отключаем слушатель сообщений		
+		chrome.runtime.onMessage.removeListener(messageListener);			// отключаем слушатель сообщений
 		observer.disconnect();												// отключаем отслеживание динамических magnet
 		for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){	// Снимаем свои онклики со всех магнет-ссылок
 			a_obj.removeEventListener('click', magnetClickListener);
 		}
 	}
-	
+
 	function mutaHandler(mutations) {	// отслеживаем появление динамических magnet
 		mutations.forEach((mutation) => {
 			mutation.addedNodes.forEach((node) => {
 				if(node.nodeType === Node.ELEMENT_NODE){
 					if(node.tagName === 'A'){
-						if(node.href.startsWith('magnet:')) node.onclick = magnetClickListener;	
+						if(node.href.startsWith('magnet:')) node.onclick = magnetClickListener;
 					} else {
-						for (let a_obj of node.querySelectorAll('A[href^="magnet:"]')){	
+						for (let a_obj of node.querySelectorAll('A[href^="magnet:"]')){
 							a_obj.onclick = magnetClickListener;
 						}
 					}
@@ -45,13 +45,13 @@ if (document.body) {
 			});
 		});
 	}
-	
+
 	function keyListener(e) {
 		modKeys.ctrl  = e.ctrlKey;
 		modKeys.shift = e.shiftKey;
 		modKeys.alt   = e.altKey;
 	}
-	
+
 	function magnetClickListener(e){
 		const magnet = e.target.closest('A').href;
 		try{																// try на случай если фоновый скрипт будет отключен
@@ -100,22 +100,22 @@ if (document.body) {
 					})
 				], {className:'TSA_status', delay: 0});
 			}
-			
+
 			const CreateConnectionWindow = () => {
 				return tsa_MessageBox.notify(chrome.i18n.getMessage('connection'), null, {className: 'TSA_connection', delay: 0});
 			}
 
 			const createWindow = (request.flags.play) ? CreatePreloadWindow : CreateConnectionWindow;
-			
+
 			createWindow()
 			.then(()=>{
 				this.tmp.msgPort = chrome.runtime.connect();				// создаем новый канал для обмена сообщениями. Пока порт открыт воркер не отвалится(5мин макс). Для мертвых раздач, где прелоад может затянуться.
-				this.tmp.stop = this.stop.bind(this);		
-				
+				this.tmp.stop = this.stop.bind(this);
+
 				this.tmp.msgPort.onDisconnect.addListener(this.tmp.stop);	// вешаем обработчик на дисконнект,
 				tsa_MessageBox.ntf.onclick = this.tmp.stop;					// и клик по окну предзагрузки,
 				window.addEventListener("beforeunload", this.tmp.stop);		// и на закрытие/обновление/уход со страницы
-				
+
 				this.tmp.msgPort.onMessage.addListener((msg) => {
 					switch (msg.action) {
 
@@ -129,12 +129,12 @@ if (document.body) {
 							this.tmp.msgPort.postMessage({ 'action': 'Stat' });
 						}, 1000);
 						break;
-						
-					case 'Play':			// Предзагрузка завершена, началось воспроизведение				
+
+					case 'Play':			// Предзагрузка завершена, началось воспроизведение
 						this.tmp.fields.prgrss.style.animation = `TSA_animation_countdown ${msg.val}s linear forwards`;	// запускаем убывающий градусник закрытия окна(в msg.val - время, через которое порт будет закрыт)
-						tsa_MessageBox.ntf.querySelector('i').className = 'TSAfa-play-circle TSAfa TSAfa-2x TSA_icon';	// меняем иконку окна на "плей"					
+						tsa_MessageBox.ntf.querySelector('i').className = 'TSAfa-play-circle TSAfa TSAfa-2x TSA_icon';	// меняем иконку окна на "плей"
 						break;
-					
+
 					case 'Stat':			// пришел статус торрента, выводим в окно
 						if (msg.val.TorrentStatus > 1) {
 							let prgrss = msg.val.LoadedSize / msg.val.PreloadSize * 100;
@@ -146,31 +146,31 @@ if (document.body) {
 							this.tmp.fields.torrPeers.textContent = `[${msg.val.ConnectedSeeders}] ${msg.val.ActivePeers} / ${msg.val.TotalPeers}`;
 						}
 						break;
-						
-					}	
+
+					}
 				});
 				this.tmp.msgPort.postMessage(request); // запускаем цепочку обработки торрента
 			});
 		},
-		
+
 		stop(){
-			clearInterval(this.tmp.statTimer);	
-			try{ this.tmp.msgPort.disconnect(); } catch {}	// по дисконнекту на сервере дропается текущий торрент	
-			window.removeEventListener("beforeunload", this.tmp.stop);			
+			clearInterval(this.tmp.statTimer);
+			try{ this.tmp.msgPort.disconnect(); } catch {}	// по дисконнекту на сервере дропается текущий торрент
+			window.removeEventListener("beforeunload", this.tmp.stop);
 			return new Promise((resolve,reject)=>{
 				tsa_MessageBox.hide()
 				.then(() => Object.keys(this.tmp).forEach(key => delete this.tmp[key]))	// чистим this.tmp от мусора
 				.then(resolve);
 			});
 		},
-		
+
 		tmp: {},				// чистится по окончанию
 	};
 
 	/** Messages listener */
 	function messageListener(request, sender, sendResponse) {
 		switch (request.action) {
-		
+
 		case 'torrStop':
 			tWorkerCli.stop();
 			break;
@@ -182,7 +182,7 @@ if (document.body) {
 				request.flags.isMagnet = true;
 			case 'http:':
 			case 'https:':
-				request.srcUrl = document.location.href;			
+				request.srcUrl = document.location.href;
 				tsa_trackers.TorrInfo(document, (torrInfo) => {									// собираем информацию о торренте на текущей странице
 					request.title = torrInfo.title;
 					request.poster = torrInfo.poster;
@@ -204,7 +204,7 @@ if (document.body) {
 			break;
 		}
 	}
-	
+
 	function formatSize(val) {
 		if (val === undefined) return '';
 		if (val === 0) return '0';

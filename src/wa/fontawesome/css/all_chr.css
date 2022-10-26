@@ -4201,7 +4201,7 @@
     font-family: Font Awesome\ 5 Free;
     font-style: normal;
     font-weight: 900;
-    src: url(moz-extension://__MSG_@@extension_id__/wa/fontawesome/webfonts/fa-solid-900.woff2) format("woff2");
+    src: url(chrome-extension://__MSG_@@extension_id__/wa/fontawesome/webfonts/fa-solid-900.woff2) format("woff2");
 }
 
 .TSAfa,

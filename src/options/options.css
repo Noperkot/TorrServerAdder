@@ -10,7 +10,7 @@ div{
 	display: flex;
 	flex-direction:row;
 	align-items: center;
-	box-sizing: border-box;	
+	box-sizing: border-box;
 }
 
 .main{
@@ -35,7 +35,7 @@ div{
 }
 
 .header, .footer, a{
-	color: #E0FFFF;	
+	color: #E0FFFF;
 	text-decoration: none;
 }
 
@@ -43,14 +43,14 @@ div{
 	margin: 0 0 0 0;
 	font-size: 20px;
 	padding-left: 50px;
-	padding-right:20px;	
+	padding-right:20px;
 }
 
 .footer{
 	margin: auto 0 0 0;
 	font-size: 15px;
 	padding-left: 50px;
-	padding-right:50px;		
+	padding-right:50px;
 }
 
 input[type=text], input[type=button], select{
@@ -64,13 +64,13 @@ input[type=text], input[type=button], select{
 	border:1px solid #a0a0a0;
 	font-size: 15px;
 	outline: none;
-	box-sizing: border-box;	
+	box-sizing: border-box;
 	background-color: #ffffff;
 }
 
 select{
 	padding-left: 6px;
-	padding-right: 6px;	
+	padding-right: 6px;
 }
 
 input[type=button]{
@@ -92,7 +92,7 @@ input[type=text]:focus{
 	box-shadow: 0 0 8px rgb(74, 183, 215);
 	color: #000;
 	border:1px solid #2f748a;
-	outline: none;	
+	outline: none;
 }
 
 input::-webkit-input-placeholder{
@@ -103,7 +103,7 @@ input::-webkit-input-placeholder{
 	width:100%;
 	flex-direction: column;
 	padding-top: 30px;
-	padding-bottom: 10px;	
+	padding-bottom: 10px;
 }
 
 .options_name{
@@ -125,16 +125,16 @@ input::-webkit-input-placeholder{
 
 }
 
-.options_item{				
+.options_item{
 	height: 35px;
 	margin-bottom: 15px;
 	display: flex;
 	width:100%;
-	padding-left:20px;	
+	padding-left:20px;
 	padding-right:20px;
 }
 
-.invis_options{				
+.invis_options{
 	display: none;
 }
 
@@ -142,7 +142,7 @@ input::-webkit-input-placeholder{
 	width: auto;
 	max-width: 200px;
 	height: 25px;
-	margin-left: 5px;	
+	margin-left: 5px;
 }
 
 #profile_editor{
@@ -184,7 +184,7 @@ input::-webkit-input-placeholder{
 	font-size: 16px;
 	margin-left: 3px;
 	margin-right: 3px;
-	cursor: pointer;	
+	cursor: pointer;
 }
 
 #marker{
@@ -202,14 +202,14 @@ input::-webkit-input-placeholder{
 #marker div{
 	width: 60%;
 	height: 60%;
-	position: absolute;	
+	position: absolute;
 	border-radius: 50%;
 }
 
 #marker input[type=color]{
 	width: 100%;
 	height: 100%;
-	position: absolute;	
+	position: absolute;
 	border: none;
 	padding: 0;
 	opacity: 0;

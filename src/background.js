@@ -46,9 +46,9 @@ async function Install(){ // инициализация, выполняется 
 			.catch((e)=>{});
 			chrome.storage.local.set(stor_items);
 		}
-		setIcon(stor_items.profiles[stor_items.selected_profile]);		
+		setIcon(stor_items.profiles[stor_items.selected_profile]);
 	});
-	
+
 	chrome.contextMenus.removeAll();	// удаляем старое контекстнле меню (на всякий)
 	for (let id in CONTEXT_MENU) {		// создаем новое
 		chrome.contextMenus.create({
@@ -56,8 +56,8 @@ async function Install(){ // инициализация, выполняется 
 			title: chrome.i18n.getMessage(id),
 			contexts: ["link"]
 		});
-	}	
-	
+	}
+
 	if(isChrome()){	// в хроме на все открытые вкладки внедряем стили и контент-скрипты (лиса это делает сама)
 		let manifest = chrome.runtime.getManifest();
 		chrome.tabs.query({ url: manifest.content_scripts[0].matches }, (tabs) => {
@@ -85,7 +85,7 @@ async function contextMenusListener(info, tab){
 
 	/** Messages listener */
 function MessageListener(request, sender, sendResponse){ // message action may be only magnet-click
-	LoadOpt().then((options) => {		
+	LoadOpt().then((options) => {
 		if (options.catch_links === 0) sendResponse(false);
 		else {
 			sendResponse(true);
@@ -94,7 +94,7 @@ function MessageListener(request, sender, sendResponse){ // message action may b
 				'options': options,
 				'flags': CONTEXT_MENU[Object.keys(CONTEXT_MENU)[options.catch_links - 1]],
 				'linkUrl': request.linkUrl,
-			});			
+			});
 		}
 	});
 	return true;

@@ -17,14 +17,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
 			} ) );
 		}
 		li.append( elementCreate( 'span', { textContent: ')' } ) );
-		ul.appendChild(li);	
+		ul.appendChild(li);
 	}
 	document.getElementById("toggle_lnk").addEventListener("click", ()=>{
 		let div = document.getElementById("poster_info");
 		div.style.maxHeight = (div.style.maxHeight) ? null : '1000px';
 		event.preventDefault();
-		return false;		
-	});	
+		return false;
+	});
 });
 
 function elementCreate( tag, attributes ){

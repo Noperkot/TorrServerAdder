@@ -54,7 +54,7 @@
 	display:flex;
 	margin: 10px;
 	font-size: 14px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;		
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
 	opacity: 0;
 	transition-property: opacity;
 	transition: 0.2s linear;
@@ -120,7 +120,7 @@
 
 .TSA_base .TSA_status_label{
 	width: 0;
-	color: #a86b00;	
+	color: #a86b00;
 }
 
 .TSA_base .TSA_status_value{
@@ -149,13 +149,13 @@
 
 @keyframes TSA_animation_preload {
 	0%		{width: 10%;}
-	50%		{width: 100%;}	
-	100%	{width: 10%;}			
+	50%		{width: 100%;}
+	100%	{width: 10%;}
 }
 
 @keyframes TSA_animation_countdown {
 	0%		{width: 100%;}
-	100%	{width: 0%;}			
+	100%	{width: 0%;}
 }
 
 .TSA_base legend{

@@ -10,13 +10,13 @@ class tWorkerSrv {
 	// #hash
 
 	constructor(msgPort) {
-		this.msgPort = msgPort;	
-		this.msgPort.onMessage.addListener(this.onMessage);		
+		this.msgPort = msgPort;
+		this.msgPort.onMessage.addListener(this.onMessage);
 		this.msgPort.onDisconnect.addListener(this.Abort);						// дисконнект инициируется контент-скриптом при уходе/обновлении/закрытии вкладки или по клику по окну предзагрузки
 		this.timeoutTimer = setTimeout(this.Abort, 270000);						// таймаут на 30 сек меньше максимального времени жизни сервис-воркера(5мин) = 4.5мин = 270сек
 	}
-	
-	onMessage = (request) => {		
+
+	onMessage = (request) => {
 		switch (request.action) {
 
 		case 'torrAdd':
@@ -31,7 +31,7 @@ class tWorkerSrv {
 			.then(() => this.preventDrop())										// предотвращаем дроп торрента после начала воспроизведения
 			.then(() => this.Play())											// начинаем воспроизведение - скачиваем плейлист
 			.then(() => this.pstMsg('Play', HIDE_DELAY))						// сообщаем о воспроизведении
-			.then(() => setTimeout(this.Disconnect, HIDE_DELAY * 1000))			// закрываем порт через HIDE_DELAY секунд (задержка гашения окна предзагрузки)	
+			.then(() => setTimeout(this.Disconnect, HIDE_DELAY * 1000))			// закрываем порт через HIDE_DELAY секунд (задержка гашения окна предзагрузки)
 			.catch((e) => {														// если в цепочке случилось исключение - выводим сообщение
 				this.preventDrop();												// предотвращаем дроп после успешного добавлении
 				this.pstMsg('Notify', {
@@ -48,10 +48,10 @@ class tWorkerSrv {
 			.then((stat) => this.pstMsg('Stat', stat ))
 			.catch((e) => {});
 			break;
-			
+
 		}
 	}
-	
+
 	pstMsg(action, val){
 		try{																	// try на случай если порт уже закрыт (аборт вызванный дисконнектом)
 			this.msgPort.postMessage( { 'action': action, 'val': val } );
@@ -68,27 +68,27 @@ class tWorkerSrv {
 			}).catch((e) => {});
 		}
 	}
-	
+
 	Disconnect = () => {
-		this.msgPort.onMessage.removeListener(this.onMessage);	
-		this.msgPort.disconnect();		
-	}	
-	
+		this.msgPort.onMessage.removeListener(this.onMessage);
+		this.msgPort.disconnect();
+	}
+
 	preventDrop(){
 		this.msgPort.onDisconnect.removeListener(this.Abort);
 		clearTimeout(this.timeoutTimer);
 	}
 
-	Init(request){	
+	Init(request){
 		this.torrInfo = request;
-		this.abortCtrl = new AbortController();	
+		this.abortCtrl = new AbortController();
 		if(this.torrInfo.flags.play){											// останавливаем прелоад на всех страницах кроме текущей
 			chrome.tabs.query({active: false}, (tabs) => {
 				tabs.forEach((tab) => chrome.tabs.sendMessage( tab.id, { 'action': 'torrStop' }, () => void chrome.runtime.lastError ) );
 			} );
 		}
-		return new Promise((resolve, reject) => {	
-			const nUrl = nrmlzUrl(this.torrInfo.options.TS_address);
+		return new Promise((resolve, reject) => {
+			const nUrl = normTSaddr(this.torrInfo.options.TS_address);
 			if(!nUrl.ok) throw new tsaError("torrserver_address_not_specified");
 			this.TS_address = nUrl.url;
 			this.TS_headers = (nUrl.user) ? { 'Authorization': 'Basic ' + btoa(`${nUrl.user}:${nUrl.pswd||''}`) } : {};
@@ -111,14 +111,14 @@ class tWorkerSrv {
 							return;
 						}
 					}
-					reject(new tsaError("Unsupported_version_of_TorrServer", text));					
+					reject(new tsaError("Unsupported_version_of_TorrServer", text));
 				}
 				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));
 			})
 			.catch((e) => reject(new tsaError('TorrServer_is_not_responding', this.TS_address )));
 		});
 	}
-	
+
 	Post(path, body) {
 		return new Promise((resolve, reject) => {
 			const url = `${this.TS_address}/${path}`;
@@ -194,8 +194,8 @@ class tWorkerSrv {
 
 	Load() {	// загрузчик торрент-файла
 		return new Promise((resolve, reject) => {
-			requestHeaders.add(this.torrInfo.linkUrl, { 'Referer': this.torrInfo.srcUrl }); // Подставляем заголовок Referer(без него на некоторых сайтах не отдается торрент-файл)	
-			fetch(this.torrInfo.linkUrl, {			
+			requestHeaders.add(this.torrInfo.linkUrl, { 'Referer': this.torrInfo.srcUrl }); // Подставляем заголовок Referer(без него на некоторых сайтах не отдается торрент-файл)
+			fetch(this.torrInfo.linkUrl, {
 				signal: this.abortCtrl.signal
 			})
 			.then(response => {
@@ -211,10 +211,10 @@ class tWorkerSrv {
 				reject(new tsaError("the_link_is_not_a_torrent"));
 			})
 			.then(resolve)
-			.finally(() => requestHeaders.remove())			
+			.finally(() => requestHeaders.remove())
 			.catch((e) => reject(new tsaError( "resource_is_unavailable")));
 		});
-	}	
+	}
 }
 
 
