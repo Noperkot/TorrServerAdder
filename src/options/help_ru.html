@@ -5,12 +5,12 @@
 		<title>__MSG_help_message__ — __MNF_name__</title>
 		<link type="image/png" rel="icon" sizes="48x48" href="../icons/icon48.png">
 		<link rel="stylesheet" type="text/css" href="help.css"/>
-		<script src="localization.js"></script>	
+		<script src="localization.js"></script>
 		<script src="../trackers.js"></script>
 		<script src="help.js"></script>
 	</head>
 	<body>
-		<header>__MNF_name__ __MNF_version__ — __MSG_help_message__</header>	
+		<header>__MNF_name__ __MNF_version__ — __MSG_help_message__</header>
 		<div class="main">
 			<div style="width: 100%; display: flex;">
 				<img src="../icons/icon48.png">
@@ -41,11 +41,11 @@
 						</div>
 					</li>
 					<li>Система профилей - возможность хранения нескольких независимых наборов настроек. Переключение профилей производится по ЛКМ на иконке расширения.</li>
-					<li>Поддержа авторизации</li>	
-					<li>На странице торрента в КИНОЗАЛ.ТВ отображается magnet-ссылка (только для зарегистрированных на сервисе пользователей).</li>						
+					<li>Поддержа авторизации</li>
+					<li>На странице торрента в КИНОЗАЛ.ТВ отображается magnet-ссылка (только для зарегистрированных на сервисе пользователей).</li>
 					<div class="for_chrome"><li>Очистка следов в истории загрузок браузера (не будет засоряться скачанными при воспроизведении плейлистами).</li></div>
-					<li>Поддерживаемые версии TorrServer: <b>MatriX, 1.2, 1.1</b></li>		
-				</ul>		
+					<li>Поддерживаемые версии TorrServer: <b>MatriX, 1.2, 1.1</b></li>
+				</ul>
 				<h3>Настройка</h3>
 				<ul aria-label="">
 					<li>Убедитесь, что <b>TorrServer запущен</b> и в браузере открывается его веб-итерфейс. Последнюю версию сервера под вашу платформу можно взять <a target="_blank" rel="noopener noreferrer" href="https://github.com/YouROK/TorrServer/releases/latest">здесь</a>.</li>
@@ -58,8 +58,7 @@
 					<li>Выберите действие выполняемое при клике на magnet-ссылке.</li>
 					<div class="for_chrome">
 						<li>Флаг очистки списка загрузок устанавливать <b>только после того, как вы убедитесь, что при воспроизведении плеер подхватывает плейлист без запроса браузера</b> (при включенной опции будет невозможно выполнить следующий пункт).</li>
-					</div>					
-
+					</div>
 					<li>
 						<p>Чтобы при воспроизведении браузер каждый раз не запрашивал подтверждение на открытие файла плейлиста необходимо:</p>
 						<p class="for_firefox"><i>версия Firefox ≥ 98:</i></p>
@@ -71,10 +70,10 @@
 							<ul>
 								<li>установить дополнение <b><a target="_blank" rel="noopener noreferrer" href="https://addons.mozilla.org/firefox/addon/inlinedisposition-reloaded/">InlineDisposition Reloaded</a></b>. Первые пару раз браузер все же может запросить подтверждение — согласиться. Или спросить в каком приложении открыть файл — выбрать ваш медиаплеер.</li>
 							</ul>
-						</div>	
-					</li>	
+						</div>
+					</li>
 					<br>
-					<div class="for_firefox">						
+					<div class="for_firefox">
 						<p><i>Дополнительные настройки <b>только для Tor Browser:</b></i></p>
 						<li>В качестве адреса TorrServer необходимо указывать <b>IP-адрес</b>.</li>
 						<li>Также необходимо отключить прокси для сервера (иначе браузер будет пытаться подключиться к серверу через tor) — about:config -> в строку поиска вставить <b>network.proxy.no_proxies_on</b> -> задать IP-адрес вашего TorrServer (<b>x.x.x.x</b> для адреса в сети или <b>127.0.0.1</b> если сервер работает на том же хосте, что и браузер). После этой операции в браузере должен стать доступен веб-интерфейс сервера (<b>http://x.x.x.x:8090</b>)</li>

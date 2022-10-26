@@ -3,31 +3,31 @@
 var tsa_MessageBox = {
 
 	show( contents, options={} ){
-		return new Promise(( resolve, reject ) => {	
+		return new Promise(( resolve, reject ) => {
 			this.hide()
 			.then(() => {
-				options = Object.assign({'className':'TSA_info','onclick':this.hide.bind(this),'delay':5000}, options);	
+				options = Object.assign({'className':'TSA_info','onclick':this.hide.bind(this),'delay':5000}, options);
 				this.ntf =  tsa_elementCreate('fieldset', {
 					'classList'	: [ 'TSA_base', options.className ],
 					'onclick'	: options.onclick,
 					'append'	: [
 						// tsa_elementCreate( 'legend', { 'append': 'TSA' }),	// Логотип в левом верхнем углу окна. Только отвлекает внимание
 						tsa_elementCreate( 'div', { 'classList': ['TSA_content'], 'append': contents }),
-						tsa_elementCreate( 'i', { 'classList': this.tsa_ntf_styles[options.className].concat(['TSAfa', 'TSAfa-2x', 'TSA_icon']) }),			
+						tsa_elementCreate( 'i', { 'classList': this.tsa_ntf_styles[options.className].concat(['TSAfa', 'TSAfa-2x', 'TSA_icon']) }),
 					]
-				});	
+				});
 				document.body.append(this.ntf);
-				clearTimeout( this.timer );	
-				clearTimeout( this.fadetimer );	
+				clearTimeout( this.timer );
+				clearTimeout( this.fadetimer );
 				this._fade( true )
 				.then(()=>{
 					if(options.delay) this.timer = setTimeout(()=>{ this.hide(); }, options.delay);
-					resolve( this.ntf );				
+					resolve( this.ntf );
 				});
 			});
 		});
 	},
-	
+
 	hide(){
 		clearTimeout( this.timer );
 		clearTimeout( this.fadetimer );
@@ -49,7 +49,7 @@ var tsa_MessageBox = {
 			}, 50 );
 		});
 	},
-	
+
 	notify( message, submessage, options ){
 		let contents = [tsa_elementCreate('div', {
 			'className': 'TSA_message_title',
@@ -85,13 +85,13 @@ function tsa_elementCreate( element, options ){
 			case 'append':
 				for(let object of options[o]){
 					obj.append(object);
-				}			
+				}
 				break;
 			case 'cssText':
 				obj.style.cssText = options[o];
 				break;
 			default:
-				obj[o]=options[o];			
+				obj[o]=options[o];
 		}
 	}
 	return obj;

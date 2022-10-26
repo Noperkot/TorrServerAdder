@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		let profile_title = chrome.i18n.getMessage('title_profile');
 		let profilesFrame = document.querySelector('.profiles');
 		for (let profile in profiles) {
-			let TS_address = nrmlzUrl(profiles[profile].TS_address).url;
+			let TS_address = normTSaddr(profiles[profile].TS_address).url;
 			let item = document.createElement('div');
 			item.className = 'item';
 			item.title = profile_title;

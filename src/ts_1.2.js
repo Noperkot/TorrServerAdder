@@ -27,7 +27,7 @@ addTorrent['MatriX.'] = (tr) => {
 			let jsn = JSON.parse(response.trim());
 			tr.hash = (Array.isArray(jsn)) ? jsn[0]['hash'] : jsn['hash']; // before/after TS 1.2.80_beta3
 			if (!tr.hash) throw new tsaError(chrome.i18n.getMessage('request_rejected'));
-		};			
+		};
 		if (torrInfo.flags.isMagnet) {
 			const body = JSON.stringify({
 				'action': 'add',
@@ -44,8 +44,8 @@ addTorrent['MatriX.'] = (tr) => {
 			tr.Load()	// загрузка торрент-файла в блоб
 			.then(blob => {
 				let body = new FormData();
-				if (torrInfo.title) body.append('title', torrInfo.title);	
-				if (torrInfo.poster) body.append('poster', torrInfo.poster);					
+				if (torrInfo.title) body.append('title', torrInfo.title);
+				if (torrInfo.poster) body.append('poster', torrInfo.poster);
 				if (torrInfo.flags.save) body.append('save', torrInfo.flags.save);
 				body.append('file-0', blob);
 				return(body);
@@ -54,7 +54,7 @@ addTorrent['MatriX.'] = (tr) => {
 			.then(responseHandler)
 			.then(resolve)
 			.catch(reject);
-		}					
+		}
 	});
 };
 

@@ -26,7 +26,7 @@ addTorrent["1.1."] = (tr) => {
 		if (torrInfo.flags.isMagnet) {
 			const body = JSON.stringify({
 				'Link' : torrInfo.linkUrl,
-				'Info' : JSON.stringify( (torrInfo.poster) ? {'poster_path': torrInfo.poster} : {} ),			
+				'Info' : JSON.stringify( (torrInfo.poster) ? {'poster_path': torrInfo.poster} : {} ),
 				'DontSave' : !torrInfo.flags.save,
 			});
 			tr.Post(tr.path.addMagnet, body)
@@ -53,6 +53,6 @@ addTorrent["1.1."] = (tr) => {
 			})
 			.then(resolve)
 			.catch(reject);
-		}					
+		}
 	});
 };

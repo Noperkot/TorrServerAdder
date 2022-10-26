@@ -11,11 +11,11 @@ var tsa_trackers = {
 		_megapeer:		[ /^(?:http(s)?:\/\/(.*\.)?megapeer.*\/torrent\/([0-9]+))/i,					'MegaPeer',		[ 'megapeer.ru' ] ],
 		_hdreactor:		[ /^(?:http(s)?:\/\/(.*\.)?hdreactor.*\/([0-9]+))-/i,							'',				[ 'hdreactor.club', 'hdreactor.net' ] ], // HDReactor
 		_torrentby:		[ /^(?:http(s)?:\/\/(.*\.)?torrent.by\/([0-9]+))\//i,							'torrent.by',	[ 'torrent.by' ] ],
-		_booktracker:	[ /^(?:http(s)?:\/\/(.*\.)?booktracker.*\/viewtopic\.php\?t=([0-9]+))/i,		'booktracker',	[ 'booktracker.org' ] ],	
+		_booktracker:	[ /^(?:http(s)?:\/\/(.*\.)?booktracker.*\/viewtopic\.php\?t=([0-9]+))/i,		'booktracker',	[ 'booktracker.org' ] ],
 		_fasttorrent:	[ /^(?:http(s)?:\/\/(.*\.)?fast-torrent.*\/film\/)/i,							'Fast-Torrent',	[ 'fast-torrent.ru' ] ],
 		_ultradox:		[ /^(?:http(s)?:\/\/(.*\.)?ultradox.*\/([0-9]+))-/i,							'',				[ 'ultradox.website' ] ], // ULTRADOX
 		// _bitru:		[ /^(?:http(s)?:\/\/(.*\.)?bitru.*\/details\.php.*id=([0-9]+))/i,				'',				[ 'bitru.org' ] ], // bitru.org
-		_newstudio:		[ /^(?:http(s)?:\/\/(.*\.)?newstudio.*\/viewtopic\.php\?t=([0-9]+))/i,			'NewStudio.TV',	[ 'newstudio.tv' ] ],		
+		_newstudio:		[ /^(?:http(s)?:\/\/(.*\.)?newstudio.*\/viewtopic\.php\?t=([0-9]+))/i,			'NewStudio.TV',	[ 'newstudio.tv' ] ],
 		_underverse:	[ /^(?:http(s)?:\/\/(.*\.)?underver(se)?\..*\/viewtopic\.php\?t=([0-9]+))/i,	'UNDERVERSE',	[ 'underver.se' ] ],					// 'underverse.su', 
 		_piratbit:		[ /^(?:http(s)?:\/\/(.*\.)?(pb|piratbit)\..*\/topic\/([0-9]+))/i,				'PiratBit',		[ 'piratbit.org', 'pb.wtf', '5050.piratbit.fun' ] ],
 		_dugtor:		[ /^(?:http(s)?:\/\/(.*\.)?(dugtor|gtorrent)\..*\/.*\/([0-9]+)-)/i,				'DugTor',		[ 'dugtor.ru', 'gtorrent.pro', 'gtorrent.xyz' ] ], 
@@ -46,7 +46,7 @@ var tsa_trackers = {
 	_lostfilm: (doc)=>{
 		let params = (new URL(doc.location)).searchParams;
 		let serid = params.get("c");
-		let season = params.get("s");	
+		let season = params.get("s");
 		let _title=doc.querySelector('.inner-box--title').textContent;
 		let _subtitle=doc.querySelector('.inner-box--subtitle').textContent;
 		let _text=doc.querySelector('.inner-box--text').textContent.replace(/(\s+|\s+)/g," ");
@@ -81,7 +81,7 @@ var tsa_trackers = {
 	}),
 	_ultradox: (doc)=>{
 		let _rus_title=doc.querySelector('.full-story__top__titles h1').textContent;
-		let _org_title=doc.querySelector('.full-story__top__titles .orig_name').textContent;	
+		let _org_title=doc.querySelector('.full-story__top__titles .orig_name').textContent;
 		return {
 			poster: doc.querySelector('.full-story__top__info-poster img').src,
 			title:  `${_rus_title} / ${_org_title}`
@@ -98,7 +98,7 @@ var tsa_trackers = {
 	_underverse: (doc)=>({
 		poster: doc.querySelector('.postImgAligned').title.split('=')[1],
 		title:  doc.querySelector('.maintitle').textContent
-	}),			
+	}),
 	_piratbit: (doc)=>({
 		poster: doc.querySelector('.postImgAligned').title,
 		title:  doc.querySelector('.tt-text strong').textContent
@@ -106,14 +106,14 @@ var tsa_trackers = {
 	_dugtor: (doc)=>({
 		poster: doc.querySelector('.preview img').src,
 		title:  doc.title.replace(' скачать торрент бесплатно','')
-	}),				
+	}),
 	_wriza: (doc)=>({
 		poster: doc.querySelector('#pp_996144 img').src,
 		title:  doc.querySelector('.maintitle a').textContent
-	}),					
+	}),
 	_animedia: (doc)=>{
 		let name=doc.querySelector('.media__post__title').textContent;
-		let season=doc.querySelector('.media__tabs__nav__item.active a').textContent;	
+		let season=doc.querySelector('.media__tabs__nav__item.active a').textContent;
 		return {
 			poster: doc.querySelector('.widget__post-info__poster a').href,
 			title:  `${name} [${season}]`
@@ -140,12 +140,12 @@ var tsa_trackers = {
 		}
 		return {};
 	},
-	
+
 	TorrInfo(doc,cb){	// ищет в документе doc постер и назваие торрента
 		for (let tracker in this.trackers) {
 			if (this.trackers[tracker][0].test(doc.location.href)) {
 				try {
-					cb(this[tracker](doc));					
+					cb(this[tracker](doc));
 				} catch {}
 				break;
 			};
@@ -160,18 +160,18 @@ var tsa_trackers = {
 				download_cell.querySelectorAll(':scope > .TSA_magnet').forEach((elm) => download_cell.removeChild(elm));
 				let url = new URL(doc.location.href)
 				url.pathname = 'get_srv_details.php';
-				url.searchParams.set( 'action', 2 );	
+				url.searchParams.set( 'action', 2 );
 				fetch(url)
 				.then((response) => response.text())
 				.then((text)=>{
 					let hash = text.match(/[0-9,A-F]{40}/i);
 					if(hash){
-						let torrent_lnk = download_cell.querySelector('a');	
+						let torrent_lnk = download_cell.querySelector('a');
 						let magnet_lnk = torrent_lnk.cloneNode( true );
-						magnet_lnk.querySelector('img').src = chrome.runtime.getURL('wa/mgknz.gif');	
+						magnet_lnk.querySelector('img').src = chrome.runtime.getURL('wa/mgknz.gif');
 						magnet_lnk.href = `magnet:?xt=urn:btih:${hash}`;
 						magnet_lnk.classList.add('TSA_magnet');
-						download_cell.appendChild(magnet_lnk);	
+						download_cell.appendChild(magnet_lnk);
 					}
 				})
 			}

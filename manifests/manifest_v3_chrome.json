@@ -33,7 +33,7 @@
             "run_at": "document_end",
             "css": [
                 "notifier.css",
-                "wa/fontawesome/css/all_chm.css"
+                "wa/fontawesome/css/all_chr.css"
             ],
             "js": [
                 "notifier.js",

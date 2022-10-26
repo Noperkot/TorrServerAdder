@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 	const l_attributes = ['title','value','href'];
 	const manifestData = chrome.runtime.getManifest();
 	const localize = (str)=>{
-		str = str.replace(/__MSG_(\w+)__/g, (match, v1)=>((v1) ? chrome.i18n.getMessage(v1) : ""));	
-		str = str.replace(/__MNF_(\w+)__/g, (match, v1)=>((v1) ? manifestData[v1] : ""));	
+		str = str.replace(/__MSG_(\w+)__/g, (match, v1)=>((v1) ? chrome.i18n.getMessage(v1) : ""));
+		str = str.replace(/__MNF_(\w+)__/g, (match, v1)=>((v1) ? manifestData[v1] : ""));
 		return str;
 	};
 	const all_elms = document.getElementsByTagName('*')
