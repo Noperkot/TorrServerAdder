@@ -109,6 +109,7 @@ if (document.body) {
 				switch (msg.action) {
 
 				case 'Notify':
+					clearInterval(this.tmp.statTimer);
 					clearTimeout(this.tmp.connectionTimer);
 					tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className: msg.val.className, delay: 0});
 					break;
@@ -125,7 +126,7 @@ if (document.body) {
 					tsa_MessageBox.ntf.querySelector('i').className = 'TSAfa-play-circle TSAfa TSAfa-2x TSA_icon';	// меняем иконку окна на "плей"
 					break;
 
-				case 'Stat':			// пришел статус торрента, выводим в окно
+				case 'Stat':			// пришел статус торрента, выводим в окно прелоада
 					if (msg.val.TorrentStatus > 1) {
 						let prgrss = msg.val.LoadedSize / msg.val.PreloadSize * 100;
 						if (prgrss > 100) prgrss = 100;
