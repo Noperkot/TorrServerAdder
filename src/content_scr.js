@@ -2,7 +2,6 @@
 
 if (document.body) {
 
-	let observer;
 	const modKeys = { ctrl: false, shift: false, alt: false };
 	const cleanupEventName = 'tsaCleanup';
 	/*********************************************** навешиваем слушатели ****************************************************/
@@ -14,7 +13,7 @@ if (document.body) {
 	for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){		// Навешиваем онклики на все магнет-ссылки на странице
 		a_obj.addEventListener('click', magnetClickListener);
 	}
-	observer = new MutationObserver(mutaHandler);							// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
+	const observer = new MutationObserver(mutaHandler);						// перехват динамически генерируемых магнет-ссылок(в том числе собственной кинозальной)
 	observer.observe(document, {childList: true, subtree:true});
 	tsa_trackers.onPageLoaded(document);									// если это кинозал - генерируется магнет-ссылка
 	/*************************************************************************************************************************/
@@ -62,20 +61,17 @@ if (document.body) {
 
 	const tWorkerCli = {
 
-		start(request){
+		async start(request){
 
 			const CreatePreloadWindow = () => {  // формируем окно предзагрузки
 				const tbdy = tsa_elementCreate('tbody');
 				const tblAppend = (label) => {
-					let elem = tsa_elementCreate('td', {
-						'className': 'TSA_status_value'
-					});
+					let elem = tsa_elementCreate('td', {'className': 'TSA_status_value'});
 					tbdy.append(tsa_elementCreate('tr', {
-							'append': [tsa_elementCreate('td', {
-									'className': 'TSA_status_label',
-									'append': [label + ':']
-								}), elem]
-						}));
+						'append': [tsa_elementCreate('td', {
+							'className': 'TSA_status_label',
+							'append': [label + ':']
+					}), elem]}));
 					return elem;
 				}
 				this.tmp.fields = {
@@ -98,63 +94,59 @@ if (document.body) {
 						'classList': ['TSA_status_table'],
 						'append': [tbdy]
 					})
-				], {className:'TSA_status', delay: 0});
+				], {className:'TSA_status', onclick: this.tmp.stop, delay: 0});
 			}
 
 			const CreateConnectionWindow = () => {
-				return tsa_MessageBox.notify(chrome.i18n.getMessage('connection'), null, {className: 'TSA_connection', delay: 0});
+				return tsa_MessageBox.notify(chrome.i18n.getMessage('connection'), null, {className: 'TSA_connection', onclick: this.tmp.stop, delay: 0});
 			}
 
-			const createWindow = (request.flags.play) ? CreatePreloadWindow : CreateConnectionWindow;
+			this.tmp.msgPort = chrome.runtime.connect();				// создаем новый канал для обмена сообщениями. Пока порт открыт воркер не отвалится(5мин макс). Для мертвых раздач, где прелоад может затянуться.
+			this.tmp.stop = this.stop.bind(this);
+			this.tmp.msgPort.onDisconnect.addListener(this.tmp.stop);	// вешаем обработчики на дисконнект,
+			window.addEventListener("beforeunload", this.tmp.stop);		// и на закрытие/обновление/уход со страницы
+			this.tmp.msgPort.onMessage.addListener((msg) => {
+				switch (msg.action) {
 
-			createWindow()
-			.then(()=>{
-				this.tmp.msgPort = chrome.runtime.connect();				// создаем новый канал для обмена сообщениями. Пока порт открыт воркер не отвалится(5мин макс). Для мертвых раздач, где прелоад может затянуться.
-				this.tmp.stop = this.stop.bind(this);
+				case 'Notify':
+					clearTimeout(this.tmp.connectionTimer);
+					tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className: msg.val.className, delay: 0});
+					break;
 
-				this.tmp.msgPort.onDisconnect.addListener(this.tmp.stop);	// вешаем обработчик на дисконнект,
-				tsa_MessageBox.ntf.onclick = this.tmp.stop;					// и клик по окну предзагрузки,
-				window.addEventListener("beforeunload", this.tmp.stop);		// и на закрытие/обновление/уход со страницы
+				case 'Preloading':		// началась предзагрузка
+					this.tmp.fields.title.textContent = chrome.i18n.getMessage('Stat1');
+					this.tmp.statTimer = setInterval(() => {			// основной цикл окна предзагрузки - каждую секунду запрашиваем статус
+						this.tmp.msgPort.postMessage({ 'action': 'Stat' });
+					}, 1000);
+					break;
 
-				this.tmp.msgPort.onMessage.addListener((msg) => {
-					switch (msg.action) {
+				case 'Play':			// Предзагрузка завершена, началось воспроизведение
+					this.tmp.fields.prgrss.style.animation = `TSA_animation_countdown ${msg.val}s linear forwards`;	// запускаем убывающий градусник закрытия окна(в msg.val - время, через которое порт будет закрыт)
+					tsa_MessageBox.ntf.querySelector('i').className = 'TSAfa-play-circle TSAfa TSAfa-2x TSA_icon';	// меняем иконку окна на "плей"
+					break;
 
-					case 'Notify':
-						tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className: msg.val.className, delay: 0});
-						break;
-
-					case 'Preloading':		// началась предзагрузка
-						this.tmp.fields.title.textContent = chrome.i18n.getMessage('Stat1');
-						this.tmp.statTimer = setInterval(() => {			// основной цикл окна предзагрузки - каждую секунду запрашиваем статус
-							this.tmp.msgPort.postMessage({ 'action': 'Stat' });
-						}, 1000);
-						break;
-
-					case 'Play':			// Предзагрузка завершена, началось воспроизведение
-						this.tmp.fields.prgrss.style.animation = `TSA_animation_countdown ${msg.val}s linear forwards`;	// запускаем убывающий градусник закрытия окна(в msg.val - время, через которое порт будет закрыт)
-						tsa_MessageBox.ntf.querySelector('i').className = 'TSAfa-play-circle TSAfa TSAfa-2x TSA_icon';	// меняем иконку окна на "плей"
-						break;
-
-					case 'Stat':			// пришел статус торрента, выводим в окно
-						if (msg.val.TorrentStatus > 1) {
-							let prgrss = msg.val.LoadedSize / msg.val.PreloadSize * 100;
-							if (prgrss > 100) prgrss = 100;
-							this.tmp.fields.prgrss.style.width = `${prgrss}%`;
-							this.tmp.fields.title.textContent = chrome.i18n.getMessage(`Stat${msg.val.TorrentStatus}`) || msg.val.TorrentStatusString;
-							this.tmp.fields.torrSpeed.textContent = `${(msg.val.DownloadSpeed/1048576).toFixed(2)} ᴍʙ/s`;
-							this.tmp.fields.torrLoaded.textContent = `${formatSize(msg.val.LoadedSize)} / ${formatSize(msg.val.PreloadSize)}`;
-							this.tmp.fields.torrPeers.textContent = `[${msg.val.ConnectedSeeders}] ${msg.val.ActivePeers} / ${msg.val.TotalPeers}`;
-						}
-						break;
-
+				case 'Stat':			// пришел статус торрента, выводим в окно
+					if (msg.val.TorrentStatus > 1) {
+						let prgrss = msg.val.LoadedSize / msg.val.PreloadSize * 100;
+						if (prgrss > 100) prgrss = 100;
+						this.tmp.fields.prgrss.style.width = `${prgrss}%`;
+						this.tmp.fields.title.textContent = chrome.i18n.getMessage(`Stat${msg.val.TorrentStatus}`) || msg.val.TorrentStatusString;
+						this.tmp.fields.torrSpeed.textContent = `${(msg.val.DownloadSpeed/1048576).toFixed(2)} ᴍʙ/s`;
+						this.tmp.fields.torrLoaded.textContent = `${formatSize(msg.val.LoadedSize)} / ${formatSize(msg.val.PreloadSize)}`;
+						this.tmp.fields.torrPeers.textContent = `[${msg.val.ConnectedSeeders}] ${msg.val.ActivePeers} / ${msg.val.TotalPeers}`;
 					}
-				});
-				this.tmp.msgPort.postMessage(request); // запускаем цепочку обработки торрента
+					break;
+
+				}
 			});
+			if(request.flags.play) await CreatePreloadWindow();
+			else this.tmp.connectionTimer = setTimeout(CreateConnectionWindow, 200);	// если процедура добавления торрента затягивается - показываем окно "Connection..."
+			this.tmp.msgPort.postMessage(request); // запускаем цепочку обработки торрента
 		},
 
 		stop(){
 			clearInterval(this.tmp.statTimer);
+			clearTimeout(this.tmp.connectionTimer);
 			try{ this.tmp.msgPort.disconnect(); } catch {}	// по дисконнекту на сервере дропается текущий торрент
 			window.removeEventListener("beforeunload", this.tmp.stop);
 			return new Promise((resolve,reject)=>{
