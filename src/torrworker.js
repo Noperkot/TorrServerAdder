@@ -14,6 +14,7 @@ class tWorkerSrv {
 		this.msgPort.onMessage.addListener(this.onMessage);
 		this.msgPort.onDisconnect.addListener(this.Abort);						// дисконнект инициируется контент-скриптом при уходе/обновлении/закрытии вкладки или по клику по окну предзагрузки
 		this.timeoutTimer = setTimeout(this.Abort, 270000);						// таймаут на 30 сек меньше максимального времени жизни сервис-воркера(5мин) = 4.5мин = 270сек
+		this.abortCtrl = new AbortController();
 	}
 
 	onMessage = (request) => {
@@ -81,7 +82,6 @@ class tWorkerSrv {
 
 	Init(request){
 		this.torrInfo = request;
-		this.abortCtrl = new AbortController();
 		if(this.torrInfo.flags.play){											// останавливаем прелоад на всех страницах кроме текущей
 			chrome.tabs.query({active: false}, (tabs) => {
 				tabs.forEach((tab) => chrome.tabs.sendMessage( tab.id, { 'action': 'torrStop' }, () => void chrome.runtime.lastError ) );

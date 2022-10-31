@@ -62,17 +62,19 @@ if (document.body) {
 	const tWorkerCli = {
 
 		async start(request){
-
+			
 			const CreatePreloadWindow = () => {  // формируем окно предзагрузки
-				const tbdy = tsa_elementCreate('tbody');
-				const tblAppend = (label) => {
-					let elem = tsa_elementCreate('td', {'className': 'TSA_status_value'});
-					tbdy.append(tsa_elementCreate('tr', {
-						'append': [tsa_elementCreate('td', {
-							'className': 'TSA_status_label',
-							'append': [label + ':']
-					}), elem]}));
-					return elem;
+				const tbl = tsa_elementCreate('div', {'className': 'TSA_status_table'});
+				const tblAppendRow = (label) => {
+					let valel = tsa_elementCreate('div', {'className': 'TSA_status_value'});
+					tbl.append(tsa_elementCreate('div', {
+						'className': 'TSA_status_row',
+						'append': [
+							tsa_elementCreate('div', { 'className': 'TSA_status_label', 'append': [chrome.i18n.getMessage(label) + ':'] }),
+							valel
+						]
+					}));
+					return valel;
 				}
 				this.tmp.fields = {
 					'title': tsa_elementCreate('div', {
@@ -80,9 +82,9 @@ if (document.body) {
 						'append': [chrome.i18n.getMessage('connection')],
 					}),
 					'prgrss': tsa_elementCreate('div'),
-					'torrSpeed': tblAppend(chrome.i18n.getMessage('Speed')),
-					'torrLoaded': tblAppend(chrome.i18n.getMessage('Loaded')),
-					'torrPeers': tblAppend(chrome.i18n.getMessage('Peers')),
+					'Speed': tblAppendRow('Speed'),
+					'Loaded': tblAppendRow('Loaded'),
+					'Peers': tblAppendRow('Peers'),
 				};
 				return tsa_MessageBox.show([
 					this.tmp.fields.title,
@@ -90,13 +92,10 @@ if (document.body) {
 						'className': 'TSA_progress-bar',
 						'append': [this.tmp.fields.prgrss]
 					}),
-					tsa_elementCreate('table', {
-						'classList': ['TSA_status_table'],
-						'append': [tbdy]
-					})
+					tbl
 				], {className:'TSA_status', onclick: this.tmp.stop, delay: 0});
 			}
-
+			
 			const CreateConnectionWindow = () => {
 				return tsa_MessageBox.notify(chrome.i18n.getMessage('connection'), null, {className: 'TSA_connection', onclick: this.tmp.stop, delay: 0});
 			}
@@ -132,16 +131,16 @@ if (document.body) {
 						if (prgrss > 100) prgrss = 100;
 						this.tmp.fields.prgrss.style.width = `${prgrss}%`;
 						this.tmp.fields.title.textContent = chrome.i18n.getMessage(`Stat${msg.val.TorrentStatus}`) || msg.val.TorrentStatusString;
-						this.tmp.fields.torrSpeed.textContent = `${(msg.val.DownloadSpeed/1048576).toFixed(2)} ᴍʙ/s`;
-						this.tmp.fields.torrLoaded.textContent = `${formatSize(msg.val.LoadedSize)} / ${formatSize(msg.val.PreloadSize)}`;
-						this.tmp.fields.torrPeers.textContent = `[${msg.val.ConnectedSeeders}] ${msg.val.ActivePeers} / ${msg.val.TotalPeers}`;
+						this.tmp.fields.Speed.textContent = `${(msg.val.DownloadSpeed/1048576).toFixed(2)} ᴍʙ/s`;
+						this.tmp.fields.Loaded.textContent = `${formatSize(msg.val.LoadedSize)} / ${formatSize(msg.val.PreloadSize)}`;
+						this.tmp.fields.Peers.textContent = `[${msg.val.ConnectedSeeders}] ${msg.val.ActivePeers} / ${msg.val.TotalPeers}`;
 					}
 					break;
 
 				}
 			});
 			if(request.flags.play) await CreatePreloadWindow();
-			else this.tmp.connectionTimer = setTimeout(CreateConnectionWindow, 200);	// если процедура добавления торрента затягивается - показываем окно "Connection..."
+			else await CreateConnectionWindow(); // this.tmp.connectionTimer = setTimeout(CreateConnectionWindow, 200);	// если процедура добавления торрента затягивается - показываем окно "Connection..."
 			this.tmp.msgPort.postMessage(request); // запускаем цепочку обработки торрента
 		},
 

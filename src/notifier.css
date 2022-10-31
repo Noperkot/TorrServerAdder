@@ -1,8 +1,5 @@
 .TSA_base div,
 .TSA_base fieldset,
-.TSA_base table,
-.TSA_base tr,
-.TSA_base td 
 {	/* CSS Reset */
 	all: initial;
 	display: block;
@@ -24,16 +21,6 @@
 	-webkit-border-vertical-spacing: 0;
 	cursor: inherit;
 }
-
-.TSA_base tr {
-	display: table-row;
-}
-
-.TSA_base td {
-	display: table-cell;
-}
-
-
 
 .TSA_base{
 	all: initial;
@@ -113,22 +100,6 @@
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 
-.TSA_base .TSA_status_table{
-	width: 100%;
-	padding-top: 10px;
-}
-
-.TSA_base .TSA_status_label{
-	width: 0;
-	color: #a86b00;
-}
-
-.TSA_base .TSA_status_value{
-	padding-left: 5px;
-	width: 100%;
-	color: DimGrey;
-}
-
 .TSA_base .TSA_progress-bar{
 	height: 2px; 
 	width: 100%;
@@ -138,13 +109,38 @@
 .TSA_base .TSA_progress-bar div{
 	height: 100%; 
 	width: 0%;
-	/* margin: 0 auto; */
-	/* margin: auto;	 */
 	background-color: #1c76a6;
 	transition-property: width;
 	transition: 0.5s;
 	/* animation: TSA_animation_preload 2s infinite;	 */
 	/* animation: TSA_animation_countdown 30s linear forwards;	 */
+}
+
+.TSA_base .TSA_status_table{
+	display: table;
+	margin-top: 10px;	
+}
+
+.TSA_base .TSA_status_row{
+	display: table-row;
+	width: 100%;
+}
+
+.TSA_base .TSA_status_label{
+	display: table-cell;
+	width: 0;
+	color: #a86b00;
+}
+
+.TSA_base .TSA_status_value{
+	display: table-cell;
+	width: 100%;
+	padding-left: 10px;
+	color: DimGrey;
+}
+
+.TSA_base .TSA_unimeas{
+	font-size: 80%;
 }
 
 @keyframes TSA_animation_preload {
