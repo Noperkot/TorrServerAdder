@@ -140,7 +140,8 @@ if (document.body) {
 				}
 			});
 			if(request.flags.play) await CreatePreloadWindow();
-			else await CreateConnectionWindow(); // this.tmp.connectionTimer = setTimeout(CreateConnectionWindow, 200);	// если процедура добавления торрента затягивается - показываем окно "Connection..."
+			// else await CreateConnectionWindow();
+			else this.tmp.connectionTimer = setTimeout(CreateConnectionWindow, 200);	// если процедура добавления торрента затягивается - показываем окно "Connection..."			
 			this.tmp.msgPort.postMessage(request); // запускаем цепочку обработки торрента
 		},
 

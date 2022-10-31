@@ -35,6 +35,7 @@ class tWorkerSrv {
 			.then(() => setTimeout(this.Disconnect, HIDE_DELAY * 1000))			// закрываем порт через HIDE_DELAY секунд (задержка гашения окна предзагрузки)
 			.catch((e) => {														// если в цепочке случилось исключение - выводим сообщение
 				this.preventDrop();												// предотвращаем дроп после успешного добавлении
+				if(this.abortCtrl.signal.aborted) e = new tsaError('timeout');
 				this.pstMsg('Notify', {
 					'message': chrome.i18n.getMessage(e.message) || e.message,
 					'submessage': e.submessage,
@@ -147,7 +148,7 @@ class tWorkerSrv {
 				if (response.ok) resolve();
 				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));//
 			})
-			.catch((e) => reject((e.name === 'AbortError') ? new tsaError('timeout') : new tsaError('TorrServer_is_not_responding',this.TS_address)));
+			.catch((e) => reject(new tsaError('TorrServer_is_not_responding',this.TS_address)));
 		});
 	}
 
