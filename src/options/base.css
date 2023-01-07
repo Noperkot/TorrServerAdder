@@ -1,0 +1,27 @@
+:root {
+	--base-color: #E0FFFF;
+	--base-bgcolor: #007444;
+	--base-radius: 0.5em;
+}
+
+body {
+	background-color: silver;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 15px;
+	line-height: 1.5;
+	margin: 0;
+}
+
+article {
+	background-color: #fff;
+	border-radius: var(--base-radius);
+	overflow: hidden;
+}
+
+header, footer {
+	color: var(--base-color);
+	background-color: var(--base-bgcolor);
+	text-shadow: 1px 1px 2px black;
+}
+
+

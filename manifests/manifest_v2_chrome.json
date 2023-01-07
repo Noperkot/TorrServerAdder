@@ -1,0 +1,67 @@
+{
+    "version": "2.0.0",
+    "name": "TorrServer Adder",
+    "short_name": "TSA",
+    "description": "__MSG_extension_description__",
+    "default_locale": "en",
+    "author": "Noperkot",
+    "homepage_url": "https://github.com/Noperkot/TorrServerAdder",
+    "icons": {
+        "128": "icons/icon128.png",
+        "48": "icons/icon48.png",
+        "16": "icons/icon16.png"
+    },
+    "content_scripts": [
+        {
+            "all_frames": false,
+            "matches": [
+                "http://*/*",
+                "https://*/*"
+            ],
+            "run_at": "document_end",
+            "css": [
+                "tsafont.css",
+                "notifier.css"
+            ],
+            "js": [
+                "notifier.js",
+                "trackers.js",
+                "content_scr.js"
+            ]
+        }
+    ],
+    "manifest_version": 2,
+    "browser_action": {
+        "default_icon": {
+            "128": "icons/icon128.png",
+            "48": "icons/icon48.png",
+            "16": "icons/icon16.png"
+        },
+        "default_popup": "options/popup.html"
+    },
+    "background": {
+        "scripts": [
+            "common.js",
+            "background.js",
+            "background_M2.js",
+            "torrworker.js",
+            "ts_1.1.js",
+            "ts_1.2.js"
+        ]
+    },
+    "permissions": [
+        "http://*/*",
+        "https://*/*",
+        "contextMenus",
+        "downloads",
+        "storage",
+        "tabs",
+        "webRequest",
+        "webRequestBlocking"
+    ],
+    "web_accessible_resources": [
+        "wa/*"
+    ],
+    "options_page": "options/options.html",
+    "minimum_chrome_version": "86"
+}

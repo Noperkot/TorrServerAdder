@@ -1,0 +1,242 @@
+article{
+	background-color: #00a572;
+	color: #000;
+	user-select: none;
+}
+
+[class*='tsastyle-']:before{
+	color: #007400;
+	font-size: 140%;
+}
+
+.torrItem{
+	background-color: #6dbc95;
+	border-radius: var(--base-radius);
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	overflow: hidden;
+}
+
+.torrHeader:hover,
+.torrFlList > *:hover:not(.warning) {
+	box-shadow: 0 0 50px #b5dec9 inset;
+}
+
+.torrHeader{
+	display: inline-flex;
+	align-items: center;
+	width: 100%;
+	white-space: nowrap;
+	box-sizing: border-box;
+	background-color: #74c39c;
+	min-height: 3em;
+	cursor: pointer;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+.toolbox > *:hover {
+	filter: brightness(80%);
+}
+
+.toolbox :is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-updated,.tsastyle-unlinked,.tsastyle-working):hover,
+.toolbox :is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-updated,.tsastyle-unlinked,.tsastyle-working):active {
+	box-shadow: none;
+}
+
+
+.torrHeader > :last-child {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.torrContent{
+	display: inline-flex;
+	width: 100%;
+	padding: 1em;
+	box-sizing: border-box;
+}
+
+.torrPoster{
+	width: 140px;
+	min-width: 140px;
+	height: 210px;
+	border-radius: var(--base-radius);
+	overflow:hidden;
+	background-color: #74c39c;
+}
+
+.torrPoster img{
+	width: 100%;
+	height: 100%;
+	/* display: none; */
+	/* object-fit: contain; */
+	object-fit: cover;
+}
+
+.torrFlList{
+	width: 100%;
+	overflow:hidden;
+	background-color: #74c39c;
+	border-radius: var(--base-radius);
+	margin-left: 1em;
+	padding: 1em;
+	line-height: 2em;
+	position: relative;
+}
+
+.torrFlList > * {
+	display: block;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	cursor: default;
+	border-radius: var(--base-radius);
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+.torrFlList > *:before {
+	padding-bottom: 0.2em;
+	font-size: 80%;
+	padding-right: 0.3em;
+}
+
+.total > [class*='tsastyle-']:before{
+	width: 1em;
+}
+
+.total > [class*='tsastyle-']:after{
+	content: attr(data);
+	width: auto;
+}
+
+.total{
+	color: initial;
+	text-shadow: initial;
+	white-space: nowrap;
+}
+
+.total > *{
+	cursor: default;
+	line-height: 1em;
+	padding-top: 0.35em;
+	padding-bottom: 0.35em;
+	padding-left: 0.2em;
+	padding-right: 0.2em;
+	margin-left: 0.25em;
+	margin-right: 0.25em;
+	min-width: 4.5em;
+	text-align: center;
+	background-color: #d4ece0;
+	box-shadow: 0 0 5px #555;
+	border-radius: var(--base-radius);
+	border: 2px solid #00a572;
+}
+
+.warning{
+	color: #820000;
+	font-weight: bold;
+	opacity: 0.3;
+}
+
+.tsastyle-updated:before,
+.tsastyle-updatable:before{
+	color: #0146ad;
+}
+
+.tsastyle-error:before{
+	color: #9b01ad;
+}
+
+.torrHeader > :last-child:before{
+	color: inherit;
+	font-size: 1rem;
+	margin-bottom: 0.125em;
+	width: 1.3em;
+}
+
+:is(.tsastyle-unlinked,.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working):before{
+	opacity: 0.3;
+}
+
+:is(.tsastyle-unlinked,.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working,.tsastyle-updated){
+	cursor: default;
+}
+
+.overlay {
+	display: none;
+	position: fixed;
+	width: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0,0,0,0.2);
+	z-index: 10000;
+}
+
+.popup {
+	padding: 1em;
+	border: 1px solid #ccc;
+	border-radius: var(--base-radius);
+	background: white;
+	box-shadow: 5px 5px 5px #000;
+	z-index: 10001;
+	font-size: 120%;
+}
+
+.popup > * {
+	text-align: center;
+	margin: 0.5em;
+}
+
+button{
+	font-size: 90%;
+	min-width: 5em;
+	min-height: 2.5em;
+	border-radius: var(--base-radius);
+	box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+	cursor: pointer;
+	border: 2px solid #00a572;
+	outline:none;
+}
+
+button:hover {
+	transform: scale(1.02);
+}
+
+button:active {
+	transform: scale(0.98);
+	box-shadow: none;
+}
+
+.popup .btn-ok{
+	color: #fff;
+	background-color: #00a572;
+}
+
+.popup .btn-cancel{
+	color: #00a572;
+	background-color: #fff;
+}
+
+.active{
+	cursor: pointer;
+	animation: active 1s infinite steps(8, end);
+}
+
+.active:hover {
+	transform: translate(0, -1px);
+	box-shadow: 0 2px 4px 0 #00000080;
+}
+
+.active:active {
+	transform: translate(0, 0);
+	box-shadow: none;
+}
+
+@keyframes active {
+	50% { background-color: #eefff7; }
+}

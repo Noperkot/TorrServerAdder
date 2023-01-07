@@ -1,0 +1,236 @@
+{
+	"extension_description": {
+		"message": "Позволяет добавлять торренты с торрент-трекеров на TorrServer и воспроизводить их с помощью системного медиаплеера."
+	},
+	"settings_message": {
+		"message": "Настройки"
+	},
+	"help_message": {
+		"message": "Справка"
+	},
+	"torrServer_address": {
+		"message": "Адрес TorrServer'а"
+	},
+	"torrServer_version": {
+		"message": "версия сервера"
+	},
+	"clearing": {
+		"message": "Очищать список закачек"
+	},
+	"clearing_warning": {
+		"message": "(включать только после проверки воспроизведения)"
+	},
+	"save_button_label": {
+		"message": "Сохранить"
+	},
+	"saved_message": {
+		"message": "Профили сохранены"
+	},
+	"add_to_torrserver": {
+		"message": "Добавить на TorrServer"
+	},
+	"add_and_play": {
+		"message": "Добавить и воспроизвести"
+	},
+	"play": {
+		"message": "Воспроизвести без добавления"
+	},
+	"play_file": {
+		"message": "Смотреть"
+	},
+	"the_link_is_not_a_torrent": {
+		"message": "Ссылка не является торрентом"
+	},
+	"the_link_is_not_a_magnet": {
+		"message": "Это не magnet-ссылка"
+	},
+	"torrserver_address_not_specified": {
+		"message": "В настройках не указан адрес TorrServer'а"
+	},
+	"request_rejected": {
+		"message": "TorrServer отклонил запрос"
+	},
+	"torrent_successfully_added": {
+		"message": "Торрент успешно отправлен на TorrServer"
+	},
+	"failed_send_to": {
+		"message": "Не удалось отправить на "
+	},
+	"playlist_ready": {
+		"message": "Плейлист сформирован"
+	},
+	"TorrServer_is_not_responding": {
+		"message": "TorrServer не отвечает"
+	},
+	"Unsupported_version_of_TorrServer": {
+		"message": "Неподдерживаемая версия TorrServer"
+	},
+	"catch_link_label": {
+		"message": "Перехват magnet ссылок"
+	},
+	"no_catching": {
+		"message": "Нет"
+	},
+	"help": {
+		"message": "Справка"
+	},
+	"help_file": {
+		"message": "help_ru.html"
+	},
+	"donate": {
+		"message": "Поблагодарить"
+	},
+	"timeout": {
+		"message": "Превышено время ожидания"
+	},
+	"title_ok": {
+		"message": "Ok"
+	},
+	"title_cancel": {
+		"message": "Отмена"
+	},
+	"cant_delete_single_profile": {
+		"message": "Невозможно удалить единственный профиль"
+	},
+	"title_add_profile": {
+		"message": "Новый профиль"
+	},
+	"title_remove_profile": {
+		"message": "Удалить профиль"
+	},
+	"title_edit_profile_name": {
+		"message": "Изменить имя профиля"
+	},
+	"title_edit_profile_color": {
+		"message": "Цвет порофиля"
+	},
+	"title_profile": {
+		"message": "Профиль"
+	},
+	"title_save_all_profiles": {
+		"message": "Сохранить все профили"
+	},
+	"title_tsaddress": {
+		"message": "Сетевой адрес сервера (IP или имя)"
+	},
+	"title_catch_links": {
+		"message": "Действие выполняемое по ЛКМ на magnet-ссылке"
+	},
+	"title_clearing": {
+		"message": "Скачанные для воспроизведения плейлисты не будут засорять историю закачек"
+	},
+	"connection": {
+		"message": "Соединение..."
+	},
+	"resource_is_unavailable": {
+		"message": "Ресурс недоступен"
+	},
+	"title_ts_web": {
+		"message": "Открыть TorrServer"
+	},
+	"Speed": {
+		"message": "Скорость"
+	},
+	"Loaded": {
+		"message": "Загружено"
+	},
+	"Peers": {
+		"message": "Пиры"
+	},
+	"Stat0": {
+		"message": "Торрент добавлен"
+		},
+	"Stat1": {
+		"message": "Получение информации"
+	},
+	"Stat2": {
+		"message": "Предзагрузка"
+	},
+	"Stat3": {
+		"message": "Торрент активен"
+	},
+	"Stat4": {
+		"message": "Торрент закрыт"
+	},
+	"Stat5": {
+		"message": "Торрент в базе"
+	},
+	"torrent_updates_title": {
+		"message": "Поиск обновлений"
+	},
+	"total_updatable": {
+		"message": "Обновляемых"
+	},
+	"total_non_updatable": {
+		"message": "Необновляемых"
+	},
+	"total_no_updates": {
+		"message": "Обновлений нет"
+	},
+	"total_errors": {
+		"message": "Ошибок"
+	},
+	"total_available_for_update": {
+		"message": "Доступно обновлений"
+	},
+	"total_updated": {
+		"message": "Обновлено"
+	},
+	"total_in_processing": {
+		"message": "В обработке"
+	},
+	"searching_for_updates": {
+		"message": "Поиск обновлений..."
+	},
+	"non_updatable": {
+		"message": "Необновляемый"
+	},
+	"update_available": {
+		"message": "Доступно обновление"
+	},
+	"no_updates": {
+		"message": "Обновлений нет"
+	},
+	"update_in_progress": {
+		"message": "Обновление..."
+	},
+	"updated": {
+		"message": "Обновлён"
+	},
+	"homepage_info_missing": {
+		"message": "отсутствует информация о домашней странице"
+	},
+	"homepage_not_available": {
+		"message": "Домашняя страница недоступна"
+	},
+	"homepage_read_error": {
+		"message": "Ошибка чтения домашней страницы"
+	},
+	"homepage_layout_not_as_expected": {
+		"message": "Разметка домашней страницы не соответствует ожидаемой"
+	},
+	"torrent_content": {
+		"message": "Список файлов"
+	},
+	"check_all": {
+		"message": "Искать все"
+	},
+	"update_all": {
+		"message": "Обновить все"
+	},
+	"media_files_are_missing": {
+		"message": "Медиафайлы отсутствуют"
+	},
+	"torrent_homepage": {
+		"message": "Домашняя страница торрента"
+	},
+	"remove_torrent": {
+		"message": "Удалить торрент"
+	},
+	"check_for_update": {
+		"message": "Искать обновления"
+	},
+	"no_torrents_listed": {
+		"message": "На сервере торрентов нет"
+	}
+}

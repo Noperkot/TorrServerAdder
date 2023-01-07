@@ -1,0 +1,26 @@
+a {
+	color: gray;
+}
+#poster_info{
+	max-height: 0;
+	overflow-y: hidden;
+	transition-property: height;
+	transition: 0.3s;
+}
+#poster_info a{
+	padding-left: 0.3em;
+	padding-right: 0.3em;
+}
+.for_chrome, .for_firefox{
+	display: none;
+}
+.table > div > *{
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+.top-align > div > *{
+	vertical-align: top;
+}
+h3{
+	padding-top: 1em;
+}

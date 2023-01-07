@@ -1,0 +1,85 @@
+article {
+	color: #555;
+	background-color: #eee;
+	width: max-content;
+	min-width: 200px;
+	max-width: 400px;
+	line-height: 2.5rem;
+	border-radius: unset;
+}
+
+header, footer{
+	line-height: 2rem;
+}
+
+.item, header span{
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+[class*="tsastyle-"]:before {
+	font-size: 100%;
+}
+
+.tsastyle-circle:not(.selected):before {
+	font-size: 60%;
+}
+
+.tsastyle-circle:hover {
+	background-color: #ddd;
+}
+
+.item {
+	cursor: pointer;
+	display: block;
+}
+
+.item:before{
+	display: inline-block;
+	width: 2rem;
+	text-align: center;
+	vertical-align: middle;
+	padding-bottom: 0.2em;
+	color: var(--profile-color);
+}
+
+.selected {
+	border-style: solid;
+	border-radius: var(--base-radius);
+	border-width: 2px;
+	border-color: #888;
+	background-color: #ddd;
+	margin-bottom: 2px;
+	margin-top: 2px;
+}
+
+.item:hover {
+	border-radius: var(--base-radius);
+}
+
+.tsastyle-link {
+	display: none;
+	align-items: center;
+	overflow: hidden;
+}
+
+.tsastyle-link:before {
+	flex-shrink: 0;
+}
+
+.tsastyle-search {
+	background-color: #0146adc0;
+	min-width: 2rem;
+	margin-left: auto;
+}
+
+.tsastyle-search:before {
+	width: 100%;
+	font-size: 150%;
+	padding-bottom: 0.125em;
+}
+
+.tsastyle-search:hover {
+	font-size: 110%;
+}
