@@ -3,28 +3,27 @@ document.addEventListener('DOMContentLoaded', ()=>{
 	document.querySelectorAll((isChrome()) ? '.for_chrome' : '.for_firefox')
 	.forEach((elm) => elm.className = 'vis');
 	let ul = document.getElementById("trackers");
-	for(let tracker in tsa_trackers.trackers){
-		if(tsa_trackers.trackers[tracker][1]==='') continue;
-		let li = document.createElement("li");
-		li.append( elementCreate( 'span', { textContent: tsa_trackers.trackers[tracker][1], className: 'tracker_name' } ) ); 
-		li.append( elementCreate( 'span', { textContent: '(' } ) );
- 		for( let url of tsa_trackers.trackers[tracker][2] ){
-			li.append( elementCreate( 'a', { 
-				href: `http:\/\/${url}`, 
-				textContent: url, 
-				className: 'tracker_url', 
+	for(let tracker of tsa_trackers){
+		if(!tracker.label) continue;
+		let li = document.createElement("dd");
+		li.append(elementCreate('b', { textContent: tracker.label })); 
+		if(tracker.magnet) li.append(elementCreate('sup', { textContent: '*' })); 
+		li.append(elementCreate('span', { textContent: ': ' }));
+ 		tracker.mirrors.forEach((mirror) => {
+			li.append(elementCreate('a', { 
+				href: mirror, 
+				textContent: (new URL(mirror)).host, 
 				target: '_blank'
-			} ) );
-		}
-		li.append( elementCreate( 'span', { textContent: ')' } ) );
+			}));
+		});
 		ul.appendChild(li);
 	}
-	document.getElementById("toggle_lnk").addEventListener("click", ()=>{
+	document.querySelectorAll('.toggle_lnk').forEach((elm) => elm.addEventListener("click", ()=>{
 		let div = document.getElementById("poster_info");
-		div.style.maxHeight = (div.style.maxHeight) ? null : '1000px';
+		div.style.maxHeight = (div.style.maxHeight) ? null : '1500px';
 		event.preventDefault();
 		return false;
-	});
+	}));
 });
 
 function elementCreate( tag, attributes ){

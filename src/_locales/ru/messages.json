@@ -13,7 +13,7 @@
 	},
 	"torrServer_version": {
 		"message": "версия сервера"
-	},	
+	},
 	"clearing": {
 		"message": "Очищать список закачек"
 	},
@@ -36,7 +36,7 @@
 		"message": "Воспроизвести без добавления"
 	},
 	"play_file": {
-		"message": "Воспроизвести"
+		"message": "Смотреть"
 	},
 	"the_link_is_not_a_torrent": {
 		"message": "Ссылка не является торрентом"
@@ -51,7 +51,7 @@
 		"message": "TorrServer отклонил запрос"
 	},
 	"torrent_successfully_added": {
-		"message": "Торрент успешно отправлен"
+		"message": "Торрент успешно отправлен на TorrServer"
 	},
 	"failed_send_to": {
 		"message": "Не удалось отправить на "
@@ -67,7 +67,7 @@
 	},
 	"catch_link_label": {
 		"message": "Перехват magnet ссылок"
-	},	
+	},
 	"no_catching": {
 		"message": "Нет"
 	},
@@ -84,7 +84,7 @@
 		"message": "Превышено время ожидания"
 	},
 	"title_ok": {
-		"message": "Применить"
+		"message": "Ok"
 	},
 	"title_cancel": {
 		"message": "Отмена"
@@ -93,7 +93,7 @@
 		"message": "Невозможно удалить единственный профиль"
 	},
 	"title_add_profile": {
-		"message": "Добавить новый профиль"
+		"message": "Новый профиль"
 	},
 	"title_remove_profile": {
 		"message": "Удалить профиль"
@@ -115,7 +115,7 @@
 	},
 	"title_catch_links": {
 		"message": "Действие выполняемое по ЛКМ на magnet-ссылке"
-	},	
+	},
 	"title_clearing": {
 		"message": "Скачанные для воспроизведения плейлисты не будут засорять историю закачек"
 	},
@@ -139,7 +139,7 @@
 	},
 	"Stat0": {
 		"message": "Торрент добавлен"
-	},
+		},
 	"Stat1": {
 		"message": "Получение информации"
 	},
@@ -154,5 +154,83 @@
 	},
 	"Stat5": {
 		"message": "Торрент в базе"
+	},
+	"torrent_updates_title": {
+		"message": "Поиск обновлений"
+	},
+	"total_updatable": {
+		"message": "Обновляемых"
+	},
+	"total_non_updatable": {
+		"message": "Необновляемых"
+	},
+	"total_no_updates": {
+		"message": "Обновлений нет"
+	},
+	"total_errors": {
+		"message": "Ошибок"
+	},
+	"total_available_for_update": {
+		"message": "Доступно обновлений"
+	},
+	"total_updated": {
+		"message": "Обновлено"
+	},
+	"total_in_processing": {
+		"message": "В обработке"
+	},
+	"searching_for_updates": {
+		"message": "Поиск обновлений..."
+	},
+	"non_updatable": {
+		"message": "Необновляемый"
+	},
+	"update_available": {
+		"message": "Доступно обновление"
+	},
+	"no_updates": {
+		"message": "Обновлений нет"
+	},
+	"update_in_progress": {
+		"message": "Обновление..."
+	},
+	"updated": {
+		"message": "Обновлён"
+	},
+	"homepage_info_missing": {
+		"message": "отсутствует информация о домашней странице"
+	},
+	"homepage_not_available": {
+		"message": "Домашняя страница недоступна"
+	},
+	"homepage_read_error": {
+		"message": "Ошибка чтения домашней страницы"
+	},
+	"homepage_layout_not_as_expected": {
+		"message": "Разметка домашней страницы не соответствует ожидаемой"
+	},
+	"torrent_content": {
+		"message": "Список файлов"
+	},
+	"check_all": {
+		"message": "Искать все"
+	},
+	"update_all": {
+		"message": "Обновить все"
+	},
+	"media_files_are_missing": {
+		"message": "Медиафайлы отсутствуют"
+	},
+	"torrent_homepage": {
+		"message": "Домашняя страница торрента"
+	},
+	"remove_torrent": {
+		"message": "Удалить торрент"
+	},
+	"check_for_update": {
+		"message": "Искать обновления"
+	},
+	"no_torrents_listed": {
+		"message": "На сервере торрентов нет"
 	}
 }

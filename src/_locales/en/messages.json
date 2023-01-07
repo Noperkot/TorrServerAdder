@@ -13,7 +13,7 @@
 	},
 	"torrServer_version": {
 		"message": "server version"
-	},	
+	},
 	"clearing": {
 		"message": "Clear download list"
 	},
@@ -22,7 +22,7 @@
 	},
 	"save_button_label": {
 		"message": "Save"
-	},	
+	},
 	"saved_message": {
 		"message": "Profiles saved"
 	},
@@ -67,7 +67,7 @@
 	},
 	"catch_link_label": {
 		"message": "Catch the magnet link"
-	},	
+	},
 	"no_catching": {
 		"message": "No"
 	},
@@ -115,7 +115,7 @@
 	},
 	"title_catch_links": {
 		"message": "The action performed by the LMB on the magnet link"
-	},	
+	},
 	"title_clearing": {
 		"message": "Downloaded playlists will not clog up the download history"
 	},
@@ -154,5 +154,83 @@
 	},
 	"Stat5": {
 		"message": "Torrent in db"
+	},
+	"torrent_updates_title": {
+		"message": "Checking for updates"
+	},
+	"total_updatable": {
+		"message": "Updatable"
+	},
+	"total_non_updatable": {
+		"message": "Non-updatables"
+	},
+	"total_no_updates": {
+		"message": "No updates found"
+	},
+	"total_errors": {
+		"message": "Errors"
+	},
+	"total_available_for_update": {
+		"message": "Available for update"
+	},
+	"total_updated": {
+		"message": "Updated"
+	},
+	"total_in_processing": {
+		"message": "In processing"
+	},
+	"searching_for_updates": {
+		"message": "Searching for updates..."
+	},
+	"non_updatable": {
+		"message": "Non-updatable"
+	},
+	"update_available": {
+		"message": "Update available"
+	},
+	"no_updates": {
+		"message": "No updates found"
+	},
+	"update_in_progress": {
+		"message": "Update in progress..."
+	},
+	"updated": {
+		"message": "Updated"
+	},
+	"homepage_info_missing": {
+		"message": "homepage information missing"
+	},
+	"homepage_not_available": {
+		"message": "Homepage not available"
+	},
+	"homepage_read_error": {
+		"message": "Homepage read error"
+	},
+	"homepage_layout_not_as_expected": {
+		"message": "Homepage layout not as expected"
+	},
+	"torrent_content": {
+		"message": "Torrent content"
+	},
+	"check_all": {
+		"message": "Check all"
+	},
+	"update_all": {
+		"message": "Update all"
+	},
+	"media_files_are_missing": {
+		"message": "Media files are missing"
+	},
+	"torrent_homepage": {
+		"message": "Torrent homepage"
+	},
+	"remove_torrent": {
+		"message": "Remove torrent"
+	},
+	"check_for_update": {
+		"message": "Check for an update"
+	},
+	"no_torrents_listed": {
+		"message": "There are no torrents listed"
 	}
 }

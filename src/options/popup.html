@@ -2,25 +2,22 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="preload" href="/wa/tsafont.woff2" as="font" crossorigin>
+		<link rel="stylesheet" type="text/css" href="../tsafont.css"/>
+		<link rel="stylesheet" type="text/css" href="base.css"/>
 		<link rel="stylesheet" type="text/css" href="popup.css"/>
-		<link rel="stylesheet" type="text/css" href="../wa/fontawesome/css/all.css"/>
 		<script src="localization.js"></script>
 		<script src="/common.js"></script>
 		<script src="popup.js"></script>
 	</head>
 	<body>
-		<div class="item header" title="__MSG_title_ts_web__">
-			<div class="markerbox">
-				<i class="TSAfa TSAfa-link"></i>
-			</div>
-			<span></span>
-		</div>
-		<div class="profiles"></div>
-		<div class="item header" title="__MSG_settings_message__">
-			<div class="markerbox">
-				<i class="TSAfa TSAfa-cog"></i>
-			</div>
-			<span>__MSG_settings_message__</span>
-		</div>
+		<article>
+			<header class="item tsastyle-link" title="__MSG_title_ts_web__">
+				<span></span>&nbsp;
+				<div class="tsastyle-search" title="__MSG_torrent_updates_title__"></div>
+			</header>
+			<main></main>
+			<footer class="item tsastyle-settings" title="__MSG_settings_message__">__MSG_settings_message__</footer>
+		</article>
 	</body>
 </html>

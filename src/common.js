@@ -66,6 +66,29 @@ function setIcon(options) {
 	});
 }
 
+function  TS_search(cb){
+	let abortCtrl = new AbortController();
+	setTimeout(() => { abortCtrl.abort() }, 300);
+	for(let host of [ 'localhost', 'torrserver.lan' ]){
+		fetch( `http:\/\/${host}:8090/echo`, {signal: abortCtrl.signal})
+		.then((response) => {
+			if (response.ok) {
+				abortCtrl.abort();
+				cb(host);
+			}
+		}).catch((e) => {});
+	}
+}
+
 function isChrome(){
 	return (typeof browser === "undefined");
 }
+
+
+function LoadOpt() {
+	return new Promise((resolve,reject) => {
+		chrome.storage.local.get(['profiles','selected_profile'],({profiles,selected_profile}) => {
+			resolve((profiles && selected_profile) ? profiles[selected_profile] : null);
+		});
+	});
+};

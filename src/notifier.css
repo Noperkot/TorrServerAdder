@@ -1,5 +1,5 @@
-.TSA_base div,
-.TSA_base fieldset,
+#TSA_base,
+#TSA_base div
 {	/* CSS Reset */
 	all: initial;
 	display: block;
@@ -22,7 +22,7 @@
 	cursor: inherit;
 }
 
-.TSA_base{
+#TSA_base{
 	all: initial;
 	right: 50px;
 	bottom: 50px;
@@ -39,108 +39,101 @@
 	cursor: pointer;
 	box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
 	display:flex;
-	margin: 10px;
+	flex-direction: row;
+	/* margin: 10px; */
 	font-size: 14px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	/* font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif; */
+	font-family: Arial, Helvetica, sans-serif;
 	opacity: 0;
 	transition-property: opacity;
 	transition: 0.2s linear;
+
+	color: var(--color);
+	background-color: var(--backgr);
+	border-color: var(--border);
 }
 
-.TSA_info{
-	background-color: #dff8d3;
-	border-color: #a7d590;
-	color: #40871d;
-}
-
-.TSA_warning{
-	background-color: #ffe7cc;
-	border-color: #ffc480;
-	color: #c26700;
-}
-
-.TSA_connection{
-	background-color: #E0E0E0;
-	border-color: #B0B0B0;
-	color: #606060;
-}
-
-.TSA_status{
-	background-color: #d3ebf8;
-	border-color: #9fd3ef;
-	color: #1c76a6;
-}
-
-.TSA_base .TSA_content{
-	width: 100%;
-	line-height: 2;
-	padding-right: 10px;
-}
-
-.TSA_base .TSA_icon{
-	margin-left: auto;
-	width: 28px;
+#TSA_base:after{
+	font-size: 28px;
 	height: 28px;
 }
 
-.TSA_base .TSA_message_title{
-	padding-bottom: 6px;
+
+#TSA_base #TSA_content{
+	display: inline-block;
+	width: 100%;
+	line-height: 2;
+	padding-right: 20px;
+}
+
+#TSA_base .TSA_message_title{
+	/* font-size: larger; */
 	text-align: center;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 
-.TSA_base .TSA_message_body{
+#TSA_base .TSA_message_body{
 	text-align: center;
-	color: Gray;
+	padding-top: 6px;
+	/* color: Gray; */
 	/* color: DimGray; */
 }
 
-.TSA_base .TSA_status_title{
+#TSA_base .TSA_status_title{
 	text-align: center;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 
-.TSA_base .TSA_progress-bar{
-	height: 2px; 
+#TSA_base .TSA_progress-bar{
+	height: 2px;
 	width: 100%;
-	background-color: #9fd3ef;
+	background-color: var(--border);
 }
 
-.TSA_base .TSA_progress-bar div{
-	height: 100%; 
+#TSA_base .TSA_progress-bar div{
+	height: 100%;
 	width: 0%;
-	background-color: #1c76a6;
+	background-color: currentColor;
 	transition-property: width;
 	transition: 0.5s;
 	/* animation: TSA_animation_preload 2s infinite;	 */
 	/* animation: TSA_animation_countdown 30s linear forwards;	 */
 }
 
-.TSA_base .TSA_status_table{
+#TSA_base .TSA_status_table{
 	display: table;
-	margin-top: 10px;	
+	margin-top: 10px;
 }
 
-.TSA_base .TSA_status_row{
+#TSA_base .TSA_status_row{
 	display: table-row;
 	width: 100%;
 }
 
-.TSA_base .TSA_status_label{
+#TSA_base .TSA_status_label{
 	display: table-cell;
 	width: 0;
-	color: #a86b00;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
 
-.TSA_base .TSA_status_value{
+#TSA_base .TSA_status_value{
 	display: table-cell;
 	width: 100%;
 	padding-left: 10px;
 	color: DimGrey;
 }
 
-.TSA_base .TSA_unimeas{
+#TSA_base > legend{
+	background-color: inherit;
+	border-color: inherit;
+	border-radius: 5px;
+	border-width:  inherit;
+	border-style: solid;
+	font-style: italic;
 	font-size: 80%;
+	padding-left: 10px;
+	padding-right: 10px;
+	color: var(--border);
 }
 
 @keyframes TSA_animation_preload {
@@ -154,30 +147,27 @@
 	100%	{width: 0%;}
 }
 
-.TSA_base legend{
-	background-color: inherit;
-	border-color: inherit;
-	border-radius: 5px;
-	border-width:  inherit;
-	border-style: solid;
-	font-style: italic;
-	font-size: 80%;
-	padding-left: 10px;
-	padding-right: 10px;
+.tsastyle-info, .tsastyle-play{
+ 	--color: #40871d;
+	--backgr: #dff8d3;
+	--border: #a7d590;
 }
 
-.TSA_info legend{
-	color: #a7d590;
+.tsastyle-warning{
+ 	--color: #c26700;
+	--backgr: #ffe7cc;
+	--border: #ffc480;
 }
 
-.TSA_warning legend{
-	color: #ffc480;
+.tsastyle-connection, .tsastyle-grayinfo{
+ 	--color: #606060;
+	--backgr: #E0E0E0;
+	--border: #B0B0B0;
 }
 
-.TSA_connection legend{
-	color: #B0B0B0;
+.tsastyle-status{
+ 	--color: #1c76a6;
+	--backgr: #d3ebf8;
+	--border: #9fd3ef;
 }
 
-.TSA_status legend{
-	color: #9fd3ef;
-}

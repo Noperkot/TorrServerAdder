@@ -1,43 +1,30 @@
 'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
 	chrome.storage.local.get(['profiles', 'selected_profile'], ({ profiles, selected_profile }) => {
-		document.querySelector('.header:last-child').onclick = () => {
+		document.querySelector('footer').onclick = () => {
 			chrome.runtime.openOptionsPage();
 			window.close();
 		}
+		const main = document.querySelector('main')
 		let profile_title = chrome.i18n.getMessage('title_profile');
-		let profilesFrame = document.querySelector('.profiles');
 		for (let profile in profiles) {
-			let TS_address = normTSaddr(profiles[profile].TS_address).url;
 			let item = document.createElement('div');
-			item.className = 'item';
+			item.className = 'item tsastyle-circle';
+			item.textContent = profiles[profile].profile_name;
 			item.title = profile_title;
-			let markerBox = document.createElement('div');
-			markerBox.className = 'markerbox';
-			let marker = document.createElement('i');
-			marker.className = ('TSAfa TSAfa-circle');
-			marker.style.color = profiles[profile].profile_color;
-			markerBox.append(marker);
-			item.append(markerBox);
-			let label = document.createElement('span');
-			label.textContent = profiles[profile].profile_name;
-			item.append(label);
+			item.style.setProperty('--profile-color', profiles[profile].profile_color);
 			if (profile === selected_profile) {
 				item.classList.add('selected');
-				if (TS_address !== '') {
-					let TS_link = document.querySelector('.header:first-child');
-					TS_link.querySelector('span').textContent = TS_address;
-					TS_link.onclick = () => {
-						chrome.tabs.query({}, async(tabs) => {
-							for (let tab of tabs) {
-								if (tab.url.startsWith(TS_address)) {
-									chrome.tabs.update(tab.id, { active: true }, window.close); // Если TS уже открыт - переключаемся на его вкладку.
-									return;
-								}
-							};
-							chrome.tabs.create({ 'url': TS_address }, window.close); // В противном случае открываем в новой.
-						});
-					}
+				let normAddr = normTSaddr(profiles[profile].TS_address);
+				if (normAddr.ok) {
+					let header = document.querySelector('header');
+					let TS_link = header.querySelector('*:first-child');
+					TS_link.textContent = normAddr.url;
+					TS_link.onclick = () => openUrl(normAddr.url);
+					let torrUpdate_link = header.querySelector('*:last-child');
+					torrUpdate_link.onclick = () => openUrl(chrome.runtime.getURL('/torrupdate.html'), true);
+					header.style.display = 'flex' ;
 				}
 			}
 			item.onclick = async() => {
@@ -45,7 +32,23 @@ document.addEventListener('DOMContentLoaded', () => {
 				await chrome.storage.local.set({ 'selected_profile': profile });
 				window.close();
 			};
-			profilesFrame.append(item);
+			main.append(item);
 		}
 	});
 });
+
+function openUrl(url, force){
+	chrome.tabs.query({}, (tabs) => {
+		for (let tab of tabs) {
+			if (tab.url.startsWith(url)) { // Если url уже открыт - переключаемся на его вкладку.
+				chrome.windows.update(tab.windowId, {focused: true});
+				chrome.tabs.update(tab.id, {
+					active: true,
+					...(force) && {url: url}, // принудительно обновляем страницу
+				}, window.close);
+				return;
+			}
+		};
+		chrome.tabs.create({ 'url': url }, window.close); // В противном случае открываем в новой.
+	});
+}

@@ -14,18 +14,31 @@ function on_page_loaded() {
 	elm.profile_selector_box = document.getElementById('profile_selector_box');
 	elm.profile_editor_box = document.getElementById('profile_editor_box');
 	elm.saved_msg = document.getElementById("saved_msg");
-	elm.cover = document.getElementById('cover');
-	elm.marker = document.querySelector('#marker div');
+	elm.marker = document.querySelector('#marker > div > div');
+	elm.cover = document.querySelector('.cover');
+	// elm.cover.onclick = profile_editor_cancel;
 
-	/** request profiles */
+	/** load profiles */
 	chrome.storage.local.get(['profiles','selected_profile'], (response)=>{
-		storage = response;
+		if(response.profiles && response.selected_profile) storage = response;
+		else storage = {
+			'profiles': {
+				'1': { // default profile
+					'profile_name': 'Profile1',
+					'profile_color': '#3cb44b',
+					'TS_address': '',
+					'clearing': false,
+					'catch_links': 0,
+				}
+			},
+			'selected_profile': '1'
+		};
 		fill_profile_selector();
 		fill_form( storage.profiles[storage.selected_profile] );
 	});
 
 	if (isChrome()){ // show invis (for Chrome br.)
-		const divs = document.getElementsByClassName('invis_options');
+		const divs = document.getElementsByClassName('invis');
 		for(let div of divs) div.className = 'options_item';
 	}
 
@@ -45,6 +58,7 @@ function on_page_loaded() {
 			'clearing':			false,
 			'profile_color':	colors[ (new_profile_id - 1) % colors.length ]
 		});
+		TS_search((host) => elm.TS_address.value = `http:\/\/${host}:8090`);
 		profile_editor_enable();
 	});
 
@@ -55,7 +69,7 @@ function on_page_loaded() {
 
 	document.getElementById('remove_profile_btn').addEventListener('click', ()=>{
 		if( Object.keys(storage.profiles).length === 1 ){
-			tsa_MessageBox.notify(chrome.i18n.getMessage('cant_delete_single_profile'), null, {className:'TSA_warning'});
+			tsa_MessageBox.notify(chrome.i18n.getMessage('cant_delete_single_profile'), null, {className:'tsastyle-warning'});
 			return;
 		}
 		delete storage.profiles[storage.selected_profile];
@@ -88,7 +102,7 @@ function on_page_loaded() {
 	});
 
 	elm.profile_color.addEventListener('input', (e)=>{
-		elm.marker.style.background = elm.profile_color.value;
+		elm.marker.style.backgroundColor = elm.profile_color.value;
 	});
 }
 
@@ -121,40 +135,34 @@ function fill_profile_selector(){
 function fill_form( options ) {
 	elm.profile_editor.value = options.profile_name;
 	elm.profile_color.value = options.profile_color;
-	if( options.TS_address === '' ){
-		elm.TS_address.value = 'http:\/\/torrserver.lan:8090';
-		elm.TS_address.focus();
-		fetch( 'http:\/\/localhost:8090/echo' )
-		.then( response => {
-			if( response.ok ) elm.TS_address.value = 'http:\/\/localhost:8090';
-		}).catch(e=>{});
-	} else elm.TS_address.value = options.TS_address;
+	elm.TS_address.value = options.TS_address;
 	elm.catch_links.selectedIndex = options.catch_links;
 	elm.clearing.checked = options.clearing;
-	elm.marker.style.background = options.profile_color;
+	elm.marker.style.backgroundColor = options.profile_color;
+	elm.TS_address.focus();
 }
 
 function apply_form(profile_id){
 	storage.profiles[profile_id]={
 		'profile_name': elm.profile_editor.value,
 		'profile_color': elm.profile_color.value,
-		'TS_address': elm.TS_address.value, 
+		'TS_address': elm.TS_address.value,
 		'catch_links': elm.catch_links.selectedIndex,
 		'clearing': elm.clearing.checked,
 	};
 }
 
 function profile_editor_enable( profile_name, profile_id  ){
-	elm.cover.style.zIndex=1;
+	elm.cover.style.display = 'block';
 	elm.profile_selector_box.style.display = 'none';
-	elm.profile_editor_box.style.display = 'flex';
+	elm.profile_editor_box.style.display = 'block';
 	elm.profile_editor.focus();
 
 }
 
 function profile_editor_disable(){
-	elm.cover.style.zIndex=-1;
-	elm.profile_selector_box.style.display = 'flex';
+	elm.cover.style.display = 'none';
+	elm.profile_selector_box.style.display = 'block';
 	elm.profile_editor_box.style.display = 'none';
 }
 

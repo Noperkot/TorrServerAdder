@@ -1,0 +1,149 @@
+html, body {
+	height: 100%;
+	margin: 0;
+}
+
+article {
+	width: 95%;
+	height: 100%;
+	min-width: 640px;
+	display: flex;
+	flex-direction: column;
+	margin:0 auto;
+}
+
+header, footer {
+	display: flex;
+	height: 3em;
+	padding-left: 2em;
+	padding-right: 2em;
+	align-items: center;
+	justify-content: space-between;
+	position: relative;
+	z-index: 1;
+	box-shadow: 0 0 10px #777;
+}
+
+header > :first-child:before {
+	color:inherit;
+	padding-right: 0.5em;
+	padding-bottom: 0.125em;
+	font-size: 100%;
+
+}
+
+.centered{
+ 	position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+main{
+	position: relative;
+	flex: 1;
+	overflow: auto;
+	padding: 2rem;
+}
+
+header a, footer a{
+	color: var(--base-color);
+	/* text-decoration: none; */
+}
+
+a {
+	font-style: italic;
+}
+
+blockquote {
+	padding: 0 1em;
+	margin-top: 0;
+	margin-bottom: 0;
+	color: #57606a;
+	border-left-color: rgb(208, 215, 222);
+	border-left-style: solid;
+	border-left-width: 4px;
+}
+
+li{
+	padding-bottom: 0.8em;
+}
+
+dl, ul {
+	margin: 0;
+}
+
+dt{
+	font-weight: bold;
+	color: gray;
+	padding-top: 1em;
+
+}
+
+dd {
+	margin-left: 5em;
+	display: list-item;
+	list-style-type: "•";
+	padding-inline-start: 1ch;
+	padding-bottom: 0.5em;
+}
+
+.table{
+	display: table;
+}
+
+.table > div:not(.invis){
+	display: table-row;
+}
+.table > div > *{
+	display: table-cell;
+	vertical-align: middle;
+}
+.table > div > :first-child{
+	white-space: nowrap;
+	padding-right: 0.5em;
+}
+.table > div > :last-child{
+	width: 100%;
+	padding-left: 0.5em;
+}
+
+.invis{
+	display: none;
+}
+
+.toolbox{
+	display: inline-block;
+	border-radius: 2vh;
+	background-color: #ffffff20;
+	height: 100%;
+	padding: 0.3em;
+	margin-left: 0.3em;
+	margin-right: 0.3em;
+	cursor: default;
+	white-space: nowrap;
+	user-select: none;
+}
+
+.toolbox:hover {
+	transform: translate(0, -1px);
+	box-shadow: 0 2px 4px 0 #00000080;
+}
+
+.toolbox > * {
+	display: inline-block;
+	border-radius: 2vh;
+	padding-bottom: 0.08em;
+	width: 2em;
+	text-align: center;
+	/* font-size: 140%; */
+	cursor: pointer;
+}
+
+.toolbox > *:hover {
+	box-shadow:  0 0 4px #000000B0;
+}
+
+.toolbox > *:active {
+	box-shadow: 0 0 6px -2px #00000080 inset;
+}

@@ -1,62 +1,85 @@
-body {
-	margin: 1px;
-	max-width: 400px;
+article {
+	color: #555;
+	background-color: #eee;
+	width: max-content;
 	min-width: 200px;
-	background-color: #eee; 
+	max-width: 400px;
+	line-height: 2.5rem;
+	border-radius: unset;
+}
+
+header, footer{
+	line-height: 2rem;
+}
+
+.item, header span{
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+[class*="tsastyle-"]:before {
+	font-size: 100%;
+}
+
+.tsastyle-circle:not(.selected):before {
+	font-size: 60%;
+}
+
+.tsastyle-circle:hover {
+	background-color: #ddd;
 }
 
 .item {
-	display: flex;
-	padding: 14px;
-	font-size: 14px;
 	cursor: pointer;
-	/* color: gray; */
+	display: block;
 }
 
-.header {
-	color: #E0FFFF;
-	background-color: #008000;
-	text-shadow: 1px 1px 2px black, 0 0 1em red; 
+.item:before{
+	display: inline-block;
+	width: 2rem;
+	text-align: center;
+	vertical-align: middle;
+	padding-bottom: 0.2em;
+	color: var(--profile-color);
 }
 
 .selected {
-	border-style: solid;  
-	border-radius: 5px;
+	border-style: solid;
+	border-radius: var(--base-radius);
 	border-width: 2px;
-	border-color: gray;
+	border-color: #888;
 	background-color: #ddd;
-	/* font-size: 16px; */
-	/* font-weight: 500;	 */
-}
-
-.profiles {
-	padding-top: 2px;
-	padding-bottom: 2px;
+	margin-bottom: 2px;
+	margin-top: 2px;
 }
 
 .item:hover {
-	border-radius: 5px;
+	border-radius: var(--base-radius);
 }
 
-.profiles .item:hover {
-	background-color: #ddd;
-}
-
-.profiles  i{
-	font-size: 8px;
-}
-
-.profiles .selected i{
-	font-size: 14px;
-}
-
-.markerbox{
-	width: 14px;
-	display: flex;
-	justify-content: center;
+.tsastyle-link {
+	display: none;
 	align-items: center;
+	overflow: hidden;
 }
 
-.item span{
-	padding-left: 10px;
+.tsastyle-link:before {
+	flex-shrink: 0;
+}
+
+.tsastyle-search {
+	background-color: #0146adc0;
+	min-width: 2rem;
+	margin-left: auto;
+}
+
+.tsastyle-search:before {
+	width: 100%;
+	font-size: 150%;
+	padding-bottom: 0.125em;
+}
+
+.tsastyle-search:hover {
+	font-size: 110%;
 }

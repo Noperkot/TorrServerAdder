@@ -1,5 +1,5 @@
 {
-    "version": "1.11.0",
+    "version": "2.0.0",
     "name": "TorrServer Adder",
     "short_name": "TSA",
     "description": "__MSG_extension_description__",
@@ -11,6 +11,25 @@
         "48": "icons/icon48.png",
         "16": "icons/icon16.png"
     },
+    "content_scripts": [
+        {
+            "all_frames": false,
+            "matches": [
+                "http://*/*",
+                "https://*/*"
+            ],
+            "run_at": "document_end",
+            "css": [
+                "tsafont.css",
+                "notifier.css"
+            ],
+            "js": [
+                "notifier.js",
+                "trackers.js",
+                "content_scr.js"
+            ]
+        }
+    ],
     "manifest_version": 2,
     "browser_action": {
         "default_icon": {
@@ -30,25 +49,6 @@
             "ts_1.2.js"
         ]
     },
-    "content_scripts": [
-        {
-            "all_frames": false,
-            "matches": [
-                "http://*/*",
-                "https://*/*"
-            ],
-            "run_at": "document_end",
-            "css": [
-                "notifier.css",
-                "wa/fontawesome/css/all_chr.css"
-            ],
-            "js": [
-                "notifier.js",
-                "trackers.js",
-                "content_scr.js"
-            ]
-        }
-    ],
     "permissions": [
         "http://*/*",
         "https://*/*",
@@ -60,8 +60,7 @@
         "webRequestBlocking"
     ],
     "web_accessible_resources": [
-        "wa/*",
-        "wa/fontawesome/webfonts/*"
+        "wa/*"
     ],
     "options_page": "options/options.html",
     "minimum_chrome_version": "86"

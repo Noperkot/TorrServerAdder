@@ -6,14 +6,14 @@ var tsa_MessageBox = {
 		return new Promise(( resolve, reject ) => {
 			this.hide()
 			.then(() => {
-				options = Object.assign({'className':'TSA_info','onclick':this.hide.bind(this),'delay':5000}, options);
+				options = Object.assign({'className':'tsastyle-info','onclick':this.hide.bind(this),'delay':5000}, options);
 				this.ntf =  tsa_elementCreate('fieldset', {
-					'classList'	: [ 'TSA_base', options.className ],
+					'id':		'TSA_base',
+					'className'	: options.className,
 					'onclick'	: options.onclick,
 					'append'	: [
 						// tsa_elementCreate( 'legend', { 'append': 'TSA' }),	// Логотип в левом верхнем углу окна. Только отвлекает внимание
-						tsa_elementCreate( 'div', { 'classList': ['TSA_content'], 'append': contents }),
-						tsa_elementCreate( 'i', { 'classList': this.tsa_ntf_styles[options.className].concat(['TSAfa', 'TSAfa-2x', 'TSA_icon']) }),
+					tsa_elementCreate( 'div', { 'id': 'TSA_content', 'append': contents })
 					]
 				});
 				document.body.append(this.ntf);
@@ -43,8 +43,8 @@ var tsa_MessageBox = {
 
 	_fade( direction ){
 		return new Promise(( resolve, reject ) => {
-			this.fadetimer = setTimeout(()=>{ 
-				this.ntf.style.opacity = (direction) ? 1 : 0; 
+			this.fadetimer = setTimeout(()=>{
+				this.ntf.style.opacity = (direction) ? 1 : 0;
 				this.fadetimer = setTimeout( resolve, 200 );
 			}, 50 );
 		});
@@ -62,14 +62,8 @@ var tsa_MessageBox = {
 			}));
 		}
 		return this.show(contents, options);
-	},
+	}
 
-	tsa_ntf_styles: {
-		'TSA_info':			['TSAfa-info-circle'],
-		'TSA_warning':		['TSAfa-exclamation-circle'],
-		'TSA_status':		['TSAfa-spinner', 'TSAfa-spin'],
-		'TSA_connection':	['TSAfa-spinner', 'TSAfa-spin'],
-	},
 }
 
 

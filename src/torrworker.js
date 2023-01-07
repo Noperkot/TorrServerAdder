@@ -1,13 +1,8 @@
 'use strict';
-const addTorrent = {};
+const tsVersions = {};
 const HIDE_DELAY = 15;	// время после начала воспроизведения, через которое должно быть закрыто окно прелоада
 
 class tWorkerSrv {
-	// #abortCtrl	// аборт-контроллер, единый для всей цепочки. используется для прерывания fetch
-	// #torrInfo	// информация собранная о торренте - magnet, url, название, постер и т.д.
-	// #TS_address	// нормализованный адрес ТС
-	// #TS_headers	// заголовок для авторизации(если в url ТС заданы имя,пароль)
-	// #hash
 
 	constructor(msgPort) {
 		this.msgPort = msgPort;
@@ -18,29 +13,32 @@ class tWorkerSrv {
 	}
 
 	onMessage = (request) => {
+
 		switch (request.action) {
 
-		case 'torrAdd':
+		case 'Add':
 			// цепочка обработки торрента //
 			this.Init(request)													// нормализация адреса и извлечение данных для авторизации
-			.then(() => this.tsVer())											// запрашиваем версию сервера
-			.then((ver) => addTorrent[ver](this))								// добавляем торрент
-			.then(() => { if(!this.torrInfo.flags.play) throw new tsaError("torrent_successfully_added", this.hash, 'TSA_info'); })	// если играть не нужно завершаем цепочку
-			.then(() => new Promise((resolve) => setTimeout(resolve,500)))		// когда-то без задержки у некоторых пользователей были проблемы. Нужна ли сейчас???
-			.then(() => this.pstMsg('Preloading'))								// сообщаем о начале предзагрузки
+			.then(() => this.tsVer())											// запрашиваем версию сервера в this.request.TS.ver
+			.then(() => this.addTorrent())										// добавляем торрент
+			.then(() => {
+				if(!this.request.flags.play) {									// если играть не нужно завершаем цепочку
+					this.preventDrop();											// предотвращаем дроп
+					throw new tsaError("torrent_successfully_added",  this.request.hash, 'tsastyle-info'); // null
+				}
+				chrome.tabs.query({active: false}, (tabs) => {					// останавливаем прелоад на всех страницах кроме текущей
+					tabs.forEach((tab) => chrome.tabs.sendMessage( tab.id, { 'action': 'Stop' }, () => void chrome.runtime.lastError ) );
+				} );
+				return new Promise((resolve) => setTimeout(resolve,500));		// когда-то без задержки у некоторых пользователей были проблемы. Нужна ли сейчас???
+			})
+			.then(() => this.pstMsg('Preload'))									// сообщаем о начале предзагрузки
 			.then(() => this.Preload())											// ждем окончания предзагрузки
 			.then(() => this.preventDrop())										// предотвращаем дроп торрента после начала воспроизведения
 			.then(() => this.Play())											// начинаем воспроизведение - скачиваем плейлист
 			.then(() => this.pstMsg('Play', HIDE_DELAY))						// сообщаем о воспроизведении
 			.then(() => setTimeout(this.Disconnect, HIDE_DELAY * 1000))			// закрываем порт через HIDE_DELAY секунд (задержка гашения окна предзагрузки)
 			.catch((e) => {														// если в цепочке случилось исключение - выводим сообщение
-				this.preventDrop();												// предотвращаем дроп после успешного добавлении
-				if(this.abortCtrl.signal.aborted) e = new tsaError('timeout');
-				this.pstMsg('Notify', {
-					'message': chrome.i18n.getMessage(e.message) || e.message,
-					'submessage': e.submessage,
-					'className': e.className || 'TSA_warning',
-				});
+				this.pstMsg(e);
 				setTimeout(this.Disconnect, 5000);								// задержка гашения сообщения
 			});
 			break;
@@ -51,63 +49,127 @@ class tWorkerSrv {
 			.catch((e) => {});
 			break;
 
+		case 'List':
+			this.Init(request)
+			.then(() => this.tsVer())
+			.then(() => this.tskit.torrents_list.bind(this)())
+			.then((tlist) => this.pstMsg('success',tlist))
+			.catch((e) => this.pstMsg(e))
+			.finally(() => this.Disconnect());
+			break;
+
+		case 'Replace':
+			this.Init(request)
+			.then(() => this.tsVer())
+			.then(() => this.addTorrent())
+			.then(() => this.remTorrent())
+			.then(() => this.remTorrent())	// при массовом обновлении ТС иногда "забывает" удалить торрент (хоть и возвращает 200-й статус). Дублируем запрос на удаление еще пару раз.
+			.then(() => this.remTorrent())
+			.then(() => this.pstMsg('success', this.request.hash))
+			.catch((e) => this.pstMsg(e))
+			.finally(() => this.Disconnect());
+			break;
+
+		case 'getContent':
+			this.Init(request)
+			.then(() => this.tsVer())
+			.then(() => this.tskit.getContent.bind(this)())
+			.then((content) => this.pstMsg('success', content))
+			.catch((e) => this.pstMsg(e))
+			.finally(() => this.Disconnect());
+			break;
+
+		case 'setViewed':
+			this.Init(request)
+			.then(() => this.tsVer())
+			.then(() => this.tskit.setViewed.bind(this)())
+			.then((result) => this.pstMsg('success', result))
+			.catch((e) => this.pstMsg(e))
+			.finally(() => this.Disconnect());
+			break;
+
 		}
 	}
 
 	pstMsg(action, val){
 		try{																	// try на случай если порт уже закрыт (аборт вызванный дисконнектом)
+			if(action instanceof Error){
+				if(this.abortCtrl.signal.aborted) action = new tsaError('timeout');
+				val = {
+					'message': chrome.i18n.getMessage(action.message) || action.message,
+					'submessage': action.submessage || '',
+					'className': action.className || 'tsastyle-warning',
+				};
+				action = 'error';
+			}
 			this.msgPort.postMessage( { 'action': action, 'val': val } );
 		} catch{}
 	}
 
 	Abort = () => {
 		this.abortCtrl.abort();
-		if(this.hash){
-			fetch(`${this.TS_address}/${this.path.drop}`, {
-				method: 'POST',
-				body: `{"action":"drop","hash":"${this.hash}"}`,				// в TS 1.1 "action" не нужен но и не мешает
-				headers: this.TS_headers,
-			}).catch((e) => {});
-		}
+		if(this.request.action === 'Add') this.Drop();
+	}
+
+	Drop(){
+		if(!this.request.hash) return;
+		fetch(`${this.request.TS.address}/${this.tskit.names.path.drop}`, {
+			method: 'POST',
+			body: `{"action":"drop","hash":"${this.request.hash}"}`,				// в TS 1.1 "action" не нужен, но и не мешает
+			headers: this.request.TS.headers,
+		}).catch((e) => {});
 	}
 
 	Disconnect = () => {
-		this.msgPort.onMessage.removeListener(this.onMessage);
 		this.msgPort.disconnect();
+		this.Cleanup();
+	}
+
+	Cleanup = () => {
+		clearTimeout(this.timeoutTimer);
+		this.msgPort.onDisconnect.removeListener(this.Abort);
+		this.msgPort.onMessage.removeListener(this.onMessage);
+		delete this.msgPort;
+		delete this.timeoutTimer;
+		delete this.abortCtrl;
 	}
 
 	preventDrop(){
-		this.msgPort.onDisconnect.removeListener(this.Abort);
 		clearTimeout(this.timeoutTimer);
+		this.msgPort.onDisconnect.removeListener(this.Abort);
 	}
 
 	Init(request){
-		this.torrInfo = request;
-		if(this.torrInfo.flags.play){											// останавливаем прелоад на всех страницах кроме текущей
-			chrome.tabs.query({active: false}, (tabs) => {
-				tabs.forEach((tab) => chrome.tabs.sendMessage( tab.id, { 'action': 'torrStop' }, () => void chrome.runtime.lastError ) );
-			} );
-		}
+		this.request = request;
 		return new Promise((resolve, reject) => {
-			const nUrl = normTSaddr(this.torrInfo.options.TS_address);
-			if(!nUrl.ok) throw new tsaError("torrserver_address_not_specified");
-			this.TS_address = nUrl.url;
-			this.TS_headers = (nUrl.user) ? { 'Authorization': 'Basic ' + btoa(`${nUrl.user}:${nUrl.pswd||''}`) } : {};
-			resolve();
+			if(this.request.options) {
+				const nUrl = normTSaddr(this.request.options.TS_address);
+				if(nUrl.ok) {
+					this.request.TS = {
+						address: nUrl.url,
+						headers: (nUrl.user) ? { 'Authorization': 'Basic ' + btoa(`${nUrl.user}:${nUrl.pswd||''}`) } : {}
+					}
+					resolve();
+					return;
+				}
+			}
+			reject(new tsaError("torrserver_address_not_specified"));
 		});
 	}
 
 	tsVer() {
 		return new Promise((resolve, reject) => {
-			fetch(`${this.TS_address}/echo`, {
+			fetch(`${this.request.TS.address}/echo`, {
 				signal: this.abortCtrl.signal,
-				headers: this.TS_headers,
+				headers: this.request.TS.headers,
 			})
 			.then(async (response) => {
 				if (response.ok) {
 					const response_text = await response.text();
-					for (let ver in addTorrent) {
+					for (let ver in tsVersions) {
 						if (response_text.startsWith(ver)) {
+							this.request.TS.ver = ver;
+							this.tskit = tsVersions[ver];
 							resolve(ver);
 							return;
 						}
@@ -116,72 +178,90 @@ class tWorkerSrv {
 				}
 				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));
 			})
-			.catch((e) => reject(new tsaError('TorrServer_is_not_responding', this.TS_address )));
+			.catch((e) => reject(new tsaError('TorrServer_is_not_responding', this.request.TS.address )));
+		});
+	}
+
+	addTorrent() {
+		if(this.request.hash) return;
+		return new Promise((resolve, reject) => {
+			this.tskit[(this.request.flags.isMagnet) ? 'add_magnet' : 'add_torrent'].bind(this)()
+			.then((hash) => this.request.hash = hash)
+			.then(resolve)
+			.catch(reject);
+		});
+	}
+
+	remTorrent(){
+		return new Promise((resolve, reject) => {
+			this.Post(this.tskit.names.path.rem, `{"action":"rem","hash":"${this.request.oldHash}"}`)
+			.then(resolve)
+			.catch(reject);
 		});
 	}
 
 	Post(path, body) {
 		return new Promise((resolve, reject) => {
-			const url = `${this.TS_address}/${path}`;
+			const url = `${this.request.TS.address}/${path}`;
 			fetch(url, {
 				method: 'POST',
 				body: body,
 				signal: this.abortCtrl.signal,
-				headers: this.TS_headers,
+				headers: this.request.TS.headers,
 			})
 			.then((response) => {
 				if (response.ok) resolve(response.text());
 				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));
 			})
-			.catch((e) => reject(new tsaError('TorrServer_is_not_responding',this.TS_address)));
+			.catch((e) => reject(new tsaError('TorrServer_is_not_responding',this.request.TS.address)));
 		});
 	}
 
 	Preload() {
 		return new Promise((resolve, reject) => {
-			fetch(`${this.TS_address}/${this.path.preload}${this.hash}`, {
+			fetch(`${this.request.TS.address}/${this.tskit.names.path.preload}${this.request.hash}`, {
 				'method': 'HEAD',
 				'signal': this.abortCtrl.signal,
-				'headers': this.TS_headers,
+				'headers': this.request.TS.headers,
 			})
 			.then((response) => {
 				if (response.ok) resolve();
 				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));//
 			})
-			.catch((e) => reject(new tsaError('TorrServer_is_not_responding',this.TS_address)));
+			.catch((e) => reject(new tsaError('TorrServer_is_not_responding',this.request.TS.address)));
 		});
 	}
 
 	Stat() {
 		return new Promise((resolve, reject) => {
-			this.Post(this.path.stat, `{"action":"get","hash":"${this.hash}"}`) // в TS 1.1 "action" не нужен но и не мешает
+			this.Post(this.tskit.names.path.stat, `{"action":"get","hash":"${this.request.hash}"}`) // в TS 1.1 "action" не нужен, но и не мешает
 			.then((response) => JSON.parse(response))
 			.then((jsn) => {
 				let stat = {};
-				for (const field in this.statFields) {
-					stat[field] = jsn[this.statFields[field]] || 0;
+				for (let fieldName in this.tskit.names.stat) {
+					stat[fieldName] = jsn[this.tskit.names.stat[fieldName]] || 0;
 				}
 				try{
-					let first_file_size = jsn[this.statFields['FileStats']][0][this.statFields['Length']];
+					let first_file_size = jsn[this.tskit.names.stat['FileStats']][0][this.tskit.names.stat['Length']];
 					if (first_file_size < stat.PreloadSize) stat.PreloadSize = first_file_size;
 				} catch {}
 				resolve(stat);
-			}) 
+			})
 			.catch(reject);
 		});
 	}
 
 	Play() {	// загрузчик плейлиста
 		return new Promise((resolve, reject) => {
-			let url = `${this.TS_address}/${this.path.m3u}${this.hash}`;
+			let url = `${this.request.TS.address}/${this.tskit.names.path.m3u}${this.request.hash}`;
 			if (isChrome()) { // Chrome (download playlist)
 				chrome.downloads.download({
 					url: url,
-					filename: (this.torrInfo.options.clearing) ? PLAYLIST_NAME_C : PLAYLIST_NAME_S,
+					filename: (this.request.options.clearing) ? PLAYLIST_NAME_C : PLAYLIST_NAME_S,
 					saveAs: false,
 					conflictAction: 'overwrite'
 				}, resolve);
-			} else { //Firefox (open playlist URL)
+			} else { //Firefox (open playlist in new tab)
 				chrome.tabs.create({
 					url: url,
 					active: false
@@ -195,8 +275,8 @@ class tWorkerSrv {
 
 	Load() {	// загрузчик торрент-файла
 		return new Promise((resolve, reject) => {
-			requestHeaders.add(this.torrInfo.linkUrl, { 'Referer': this.torrInfo.srcUrl }); // Подставляем заголовок Referer(без него на некоторых сайтах не отдается торрент-файл)
-			fetch(this.torrInfo.linkUrl, {
+			requestHeaders.add(this.request.linkUrl, { 'Referer': this.request.torrInfo.data.srcUrl }); // Подставляем заголовок Referer(без него на некоторых сайтах не отдается торрент-файл)
+			fetch(this.request.linkUrl, {
 				signal: this.abortCtrl.signal
 			})
 			.then(response => {
@@ -216,6 +296,7 @@ class tWorkerSrv {
 			.catch((e) => reject(new tsaError( "resource_is_unavailable")));
 		});
 	}
+
 }
 
 
