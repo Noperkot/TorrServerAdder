@@ -288,8 +288,8 @@ let torrUpdater = {
 		'tsastyle-nonupdatable': {title:'total_non_updatable'},
 		'tsastyle-noupdate': {title:'total_no_updates'},
 		'tsastyle-error': {title:'total_errors'},
+		'tsastyle-updated': {title:'total_updated'},		
 		'tsastyle-updatable': {title:'total_available_for_update'},
-		'tsastyle-updated': {title:'total_updated'},
 		'tsastyle-working': {title:'total_in_processing'},
 	},
 
