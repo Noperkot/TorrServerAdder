@@ -99,7 +99,7 @@ var tsa_trackers = [
 	{
 		label: 'MegaPeer',	// прикрыт Cloudflare
 		regexp: /^(?:http(s)?:\/\/(.*\.)?megapeer.*\/torrent\/([0-9]+))/i,
-		mirrors: [ 'http:\/\/megapeer.ru' ],
+		mirrors: [ 'http:\/\/megapeer.ru', 'http:\/\/megapeer.vip' ],
 		poster: (doc) => doc.querySelector('#detali tr:nth-child(1) td:nth-child(2) img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('h1').textContent,
 		magnet: (doc) => doc.querySelector('.download A[href^="magnet:"]').href,
