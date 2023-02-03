@@ -3,11 +3,14 @@
 if (document.body) {
 
 	const disableEventName = 'tsaDisable';
+	const modKeys = {};
 
 	/*********************************************** навешиваем слушатели ****************************************************/
 
 	document.dispatchEvent(new Event(disableEventName));					// генерируем событие деактивации ранее внедренного скрипта
 	document.addEventListener(disableEventName, tsaDisable);				// и сами подписываемся на это событие
+	document.addEventListener('keydown', modKeysListener);					// слушатель клавиатуры (по клавише ctrl отключается перехватчик магнет-ссылок)
+	document.addEventListener('keyup', modKeysListener);					// -//-
 	chrome.runtime.onMessage.addListener(messageListener);					// слушатель сообщений из фонового скрипта
 	for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){		// Навешиваем онклики на все магнет-ссылки на странице
 		a_obj.addEventListener('click', magnetClickListener);
@@ -22,11 +25,19 @@ if (document.body) {
 
 	function tsaDisable(ev) {												/******** снимаем слушатели *********/
 		document.removeEventListener(disableEventName, tsaDisable);			// отключаем слушатель события деактивации скрипта
+		document.removeEventListener('keydown', modKeysListener);			// отключаем слушатель клавиатуры
+		document.removeEventListener('keyup', modKeysListener);				// -//-
 		try { chrome.runtime.onMessage.removeListener(messageListener);	} catch {}		// отключаем слушатель сообщений ????? сам должен отвалиться при дисконнекте ???
 		observer.disconnect();												// отключаем отслеживание динамических magnet
 		for (let a_obj of document.querySelectorAll('A[href^="magnet:"]')){	// Снимаем свои онклики со всех магнет-ссылок
 			a_obj.removeEventListener('click', magnetClickListener);
 		}
+	}
+	
+	function modKeysListener(ev) {
+		modKeys.ctrlKey  = ev.ctrlKey;
+		modKeys.shiftKey = ev.shiftKey;
+		modKeys.altKey   = ev.altKey;
 	}
 
 	function mutaHandler(mutations) {	// отслеживаем появление динамических magnet
@@ -46,6 +57,7 @@ if (document.body) {
 	}
 
 	function magnetClickListener(e){
+		if(modKeys.ctrlKey) return;											// по клавише ctrl отключается перехватчик магнет-ссылок
 		const magnet = e.target.closest('A').href;
 		try{																// try на случай если расширение будет отключено после активации контент-скрипта
 			chrome.runtime.sendMessage({
