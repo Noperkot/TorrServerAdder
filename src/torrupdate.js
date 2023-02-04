@@ -334,22 +334,28 @@ let torrUpdater = {
 
 		let port = chrome.runtime.connect();
 		port.onMessage.addListener((msg) => {
+			document.querySelector('main > .tsastyle-working').remove();		
 			switch (msg.action) {
 				case 'success':
 					if(Object.keys(msg.val).length === 0) {
-						tsa_MessageBox.notify(chrome.i18n.getMessage('no_torrents_listed'), null, {className:'tsastyle-warning'});
+						document.querySelector('main').append(tsa_elementCreate( 'div', {
+							className: 'warning centered',
+							textContent: `—— ${chrome.i18n.getMessage('no_torrents_listed')} ——`,
+						}));
 					} else {
 						msg.val.forEach((torrent) => this.addItem(torrent) );
 						if(!this.options.nocheck) this.checkAll();
 					}
 					break;
 				case 'error':
-					tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className:'tsastyle-warning'});
+					document.querySelector('main').append(tsa_elementCreate( 'div', {
+						className: 'warning centered',
+						textContent: `—— ${msg.val.message}${(msg.val.submessage)?(' ('+msg.val.submessage+')'):''} ——`,
+					}));
 					break;
 			}
 		});
 		port.postMessage({ action: 'List', options: this.options });
-
 
 		document.addEventListener('StatusChanged', (event) => {
 			this.cntrInc(event.detail.newStatus, +1);

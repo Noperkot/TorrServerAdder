@@ -237,6 +237,10 @@ button:active {
 	box-shadow: none;
 }
 
+main > .tsastyle-working {
+	font-size: 300%;
+}
+
 @keyframes active {
 	50% { background-color: #eefff7; }
 }
