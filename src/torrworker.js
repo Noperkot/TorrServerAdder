@@ -62,6 +62,7 @@ class tWorkerSrv {
 			this.Init(request)
 			.then(() => this.tsVer())
 			.then(() => this.addTorrent())
+			.then(() => this.trasferViewed())
 			.then(() => this.remTorrent())
 			.then(() => this.remTorrent())	// при массовом обновлении ТС иногда "забывает" удалить торрент (хоть и возвращает 200-й статус). Дублируем запрос на удаление еще пару раз.
 			.then(() => this.remTorrent())
@@ -74,6 +75,7 @@ class tWorkerSrv {
 			this.Init(request)
 			.then(() => this.tsVer())
 			.then(() => this.tskit.getContent.bind(this)())
+			// .then(() => this.tskit.getContent(this))
 			.then((content) => this.pstMsg('success', content))
 			.catch((e) => this.pstMsg(e))
 			.finally(() => this.Disconnect());
@@ -197,6 +199,18 @@ class tWorkerSrv {
 			this.Post(this.tskit.names.path.rem, `{"action":"rem","hash":"${this.request.oldHash}"}`)
 			.then(resolve)
 			.catch(reject);
+		});
+	}
+
+	trasferViewed(){
+		return new Promise((resolve, reject) => {
+			try{
+				this.tskit.trasferViewed.bind(this)()
+				.then(resolve)
+				.catch(resolve);
+			} catch {
+				resolve();
+			}
 		});
 	}
 

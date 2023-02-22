@@ -129,6 +129,7 @@ class tItem {
 				this.setStatus('tsastyle-updated', chrome.i18n.getMessage('updated'));
 				this.updateReady = false;
 				this.torrent.hash = msg.val;
+				this.torrent.poster = this.torrInfo.poster;
 				if(this.torrInfo.title) {
 					this.torrName.textContent = this.torrInfo.title;
 					this.torrHeader.title = this.torrInfo.title;
