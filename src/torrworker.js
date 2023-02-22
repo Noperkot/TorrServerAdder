@@ -75,7 +75,6 @@ class tWorkerSrv {
 			this.Init(request)
 			.then(() => this.tsVer())
 			.then(() => this.tskit.getContent.bind(this)())
-			// .then(() => this.tskit.getContent(this))
 			.then((content) => this.pstMsg('success', content))
 			.catch((e) => this.pstMsg(e))
 			.finally(() => this.Disconnect());

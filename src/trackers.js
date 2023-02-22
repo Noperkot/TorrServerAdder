@@ -66,7 +66,7 @@ var tsa_trackers = [
 		mirrors: [ 'https:\/\/nnmclub.to' ],
 		poster: (doc) => {
 			let elm = doc.querySelector('.postImgAligned');
-			return (elm.getAttribute('src') || elm.getAttribute('title')).replace(/^http(s):\/\/nnmstatic\.win\/forum\/image\.php\?link=/i, '');
+			return (elm.getAttribute('src') || elm.getAttribute('title')); //.replace(/^http(s):\/\/nnmstatic\.win\/forum\/image\.php\?link=/i, '');
 		},
 		title:  (doc) => doc.querySelector('.maintitle').textContent,
 		magnet: (doc) => doc.querySelector('.btTbl A[href^="magnet:"]').href,
