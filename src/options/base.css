@@ -14,7 +14,6 @@ body {
 
 article {
 	background-color: #fff;
-	border-radius: var(--base-radius);
 	overflow: hidden;
 }
 
