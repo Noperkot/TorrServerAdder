@@ -1,6 +1,5 @@
 article {
 	width: 50%;
-	border-radius: var(--base-radius);
 }
 .table > div{
 	height: 4em;

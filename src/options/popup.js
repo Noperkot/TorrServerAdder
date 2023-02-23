@@ -11,8 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		for (let profile in profiles) {
 			let item = document.createElement('div');
 			item.className = 'item tsastyle-circle';
-			item.textContent = profiles[profile].profile_name;
-			item.title = profile_title;
+			let span = document.createElement('span');
+			span.textContent = profiles[profile].profile_name;
+			span.title = profile_title;
+			item.prepend(span);
 			item.style.setProperty('--profile-color', profiles[profile].profile_color);
 			if (profile === selected_profile) {
 				item.classList.add('selected');

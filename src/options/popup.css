@@ -8,14 +8,8 @@ article {
 	border-radius: unset;
 }
 
-header, footer{
+header, footer {
 	line-height: 2rem;
-}
-
-.item, header span{
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 [class*="tsastyle-"]:before {
@@ -33,11 +27,22 @@ header, footer{
 .item {
 	cursor: pointer;
 	display: block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.item  > :first-child {
+	padding-right: 0.5rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .item:before{
 	display: inline-block;
 	width: 2rem;
+	text-align: left;
 	text-align: center;
 	vertical-align: middle;
 	padding-bottom: 0.2em;

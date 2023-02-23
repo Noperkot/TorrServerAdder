@@ -1,4 +1,6 @@
 article{
+	width: 100%;
+	border-radius: 0;
 	background-color: #00a572;
 	color: #000;
 	user-select: none;
@@ -15,7 +17,7 @@ article{
 	margin-top: 0.5em;
 	margin-bottom: 0.5em;
 	overflow: hidden;
-}
+	}
 
 .torrHeader:hover,
 .torrFlList > *:hover:not(.warning) {
