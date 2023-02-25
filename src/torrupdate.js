@@ -156,10 +156,11 @@ class tItem {
 		this.status = status;
 	}
 
-	move(target,up){
-		this.elm.remove();
-		if(up) target.prepend(this.elm);
-		else target.append(this.elm);
+	move(target, prepend){
+		if(this.elm.parentNode !== target){
+			this.elm.remove();
+			target[(prepend)?"prepend":"append"](this.elm);
+		}
 	}
 
 	Remove(){
@@ -289,7 +290,7 @@ let torrUpdater = {
 		'tsastyle-nonupdatable': {title:'total_non_updatable'},
 		'tsastyle-noupdate': {title:'total_no_updates'},
 		'tsastyle-error': {title:'total_errors'},
-		'tsastyle-updated': {title:'total_updated'},		
+		'tsastyle-updated': {title:'total_updated'},
 		'tsastyle-updatable': {title:'total_available_for_update'},
 		'tsastyle-working': {title:'total_in_processing'},
 	},
@@ -335,7 +336,7 @@ let torrUpdater = {
 
 		let port = chrome.runtime.connect();
 		port.onMessage.addListener((msg) => {
-			document.querySelector('main > .tsastyle-working').remove();		
+			document.querySelector('main > .tsastyle-working').remove();
 			switch (msg.action) {
 				case 'success':
 					if(Object.keys(msg.val).length === 0) {
@@ -371,6 +372,9 @@ let torrUpdater = {
 				case 'tsastyle-error':
 					 item.move(this.groups.top2);
 					break;
+				case 'tsastyle-noupdate':
+					 item.move(this.groups.common,true);
+					break;
 			}
 		});
 	},
@@ -386,9 +390,15 @@ let torrUpdater = {
 		for( let item of this.tItems ) item.checkUpdate(true);
 	},
 
+	checkErrors(){
+		// this.groups.top2.scrollIntoView();/
+		for( let item of this.tItems ) {
+			if(item.StatusIcon.className == 'tsastyle-error') item.checkUpdate(true);
+		}
+	},
+
 	async updateAll(){
 		// document.querySelector('main').scrollTo(0,0);
-		// for( let item of this.tItems ) item.Update(true);
 		for( let item of this.tItems ) item.Update(false);
 	},
 
@@ -400,6 +410,7 @@ let torrUpdater = {
 			counter.div.classList[(counter.val)?'remove':'add']('invis');
 			this.setCntrFun('tsastyle-search', this.checkAll.bind(this));
 			this.setCntrFun('tsastyle-updatable', this.updateAll.bind(this));
+			this.setCntrFun('tsastyle-error', this.checkErrors.bind(this));
 		} catch {}
 	},
 
@@ -437,8 +448,8 @@ function magnetHash( magnet ){
 
 function isFilePlayable(fileName){
 	return [
-	  /* video */ '.3g2','.3gp','.aaf','.asf','.avchd','.avi','.drc','.flv','.iso','.m2v','.m2ts','.m4p','.m4v','.mkv','.mng','.mov','.mp2','.mp4','.mpe','.mpeg','.mpg','.mpv','.mxf','.nsv','.ogg','.ogv','.ts','.qt','.rm','.rmvb','.roq','.svi','.vob','.webm','.wmv','.yuv',
-	  /* audio */ '.aac','.aiff','.ape','.au','.flac','.gsm','.it','.m3u','.m4a','.mid','.mod','.mp3','.mpa','.pls','.ra','.s3m','.sid','.wav','.wma','.xm',
+		/* video */ '.3g2','.3gp','.aaf','.asf','.avchd','.avi','.drc','.flv','.iso','.m2v','.m2ts','.m4p','.m4v','.mkv','.mng','.mov','.mp2','.mp4','.mpe','.mpeg','.mpg','.mpv','.mxf','.nsv','.ogg','.ogv','.ts','.qt','.rm','.rmvb','.roq','.svi','.vob','.webm','.wmv','.yuv',
+		/* audio */ '.aac','.aiff','.ape','.au','.flac','.gsm','.it','.m3u','.m4a','.mid','.mod','.mp3','.mpa','.pls','.ra','.s3m','.sid','.wav','.wma','.xm',
 	].some((ext)=>fileName.endsWith(ext));
 };
 
