@@ -114,7 +114,7 @@ class tWorkerSrv {
 	}
 
 	Drop(){
-		if(!this.request.hash || this.request.flags.save) return;
+		if(!this.request.hash || !this.request.flags || this.request.flags.save) return;
 		fetch(`${this.request.TS.address}/${this.tskit.names.path.drop}`, {
 			method: 'POST',
 			body: `{"action":"drop","hash":"${this.request.hash}"}`,				// в TS 1.1 "action" не нужен, но и не мешает
