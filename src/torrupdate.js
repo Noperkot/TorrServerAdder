@@ -3,10 +3,11 @@
 class tItem {
 
 	constructor(torrent,options){
-
 		if(torrent.stat < 2) return;
+		
 		this.torrent = torrent;
 		this.options = options;
+		this.movable = true;		
 
 		this.StatusIcon = tsa_elementCreate( 'div' );
 
@@ -157,7 +158,7 @@ class tItem {
 	}
 
 	move(target, prepend){
-		if( !this.movable || this.elm.parentNode === target) return;
+		if( !this.movable || this.elm.parentNode === target ) return;
 		this.elm.remove();
 		target[(prepend)?"prepend":"append"](this.elm);
 	}
@@ -361,6 +362,7 @@ let torrUpdater = {
 		document.addEventListener('StatusChanged', (event) => {
 			this.cntrInc(event.detail.newStatus, +1);
 			this.cntrInc(event.detail.oldStatus, -1);
+			// if(!event.detail.item.movable) return;
 			switch(event.detail.newStatus){
 				case 'tsastyle-updated':
 				case 'tsastyle-updatable':

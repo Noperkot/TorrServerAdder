@@ -111,11 +111,9 @@ class tWorkerSrv {
 	Abort = () => {
 		this.abortCtrl.abort();
 		this.Drop();
-		// if(this.request.hash && this.request.action === 'Add' && !this.request.flags.save) this.Drop();	// для action 'Play' и 'Replace' не дропать
 	}
 
 	Drop(){
-		// if(!this.request.hash) return;
 		if(!this.request.hash || this.request.flags.save) return;
 		fetch(`${this.request.TS.address}/${this.tskit.names.path.drop}`, {
 			method: 'POST',
