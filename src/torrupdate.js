@@ -4,10 +4,10 @@ class tItem {
 
 	constructor(torrent,options){
 		if(torrent.stat < 2) return;
-		
+
 		this.torrent = torrent;
 		this.options = options;
-		this.movable = true;		
+		this.movable = true;
 
 		this.StatusIcon = tsa_elementCreate( 'div' );
 
@@ -112,7 +112,7 @@ class tItem {
 				throw new Error(chrome.i18n.getMessage('homepage_layout_not_as_expected'));
 			}
 		})
-		.catch((e) => this.setStatus('tsastyle-error', e.message, ()=>this.checkUpdate(false)))
+		.catch((e) => this.setStatus('tsastyle-error', e.message, (movable)=>this.checkUpdate(movable)))
 		.finally(async () => await Unlock(this.tracker,400));//nnmclub не любит слишком частые обращения, тем более в несколько потоков
 	}
 
@@ -362,7 +362,6 @@ let torrUpdater = {
 		document.addEventListener('StatusChanged', (event) => {
 			this.cntrInc(event.detail.newStatus, +1);
 			this.cntrInc(event.detail.oldStatus, -1);
-			// if(!event.detail.item.movable) return;
 			switch(event.detail.newStatus){
 				case 'tsastyle-updated':
 				case 'tsastyle-updatable':
