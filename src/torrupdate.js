@@ -15,9 +15,9 @@ class tItem {
 			title: chrome.i18n.getMessage('play_file'),
 			onclick: () => {
 				let request = {
-					action: 'Add',
+					action: 'Play',
 					hash: this.torrent.hash,
-					flags: {play:true},
+					flags: {play:true, "save": true},
 					options: this.options,
 				};
 				tWorkerCli.stop()
@@ -73,13 +73,13 @@ class tItem {
 			append: [ this.torrHeader ]
 		} );
 
-		if(this.tracker) this.setStatus('tsastyle-search', chrome.i18n.getMessage('check_for_update'), ()=>this.checkUpdate(false));
+		if(this.tracker) this.setStatus('tsastyle-search', chrome.i18n.getMessage('check_for_update'), (movable)=>this.checkUpdate(movable));
 		else this.setStatus('tsastyle-nonupdatable', chrome.i18n.getMessage('non_updatable'));
 	}
 
 	checkUpdate(movable){
 		if(!this.tracker) return;
-		this.movable = movable;
+		this.movable = movable === true;
 		this.setStatus('tsastyle-working', chrome.i18n.getMessage('searching_for_updates'));
 		new Promise(async (resolve,reject)=>{
 			await Lock(this.tracker);	// nnmclub будет обрабатываться в один поток
@@ -104,7 +104,7 @@ class tItem {
 					let url = new URL(this.nowMagnet);
 					this.torrInfo = tsa_torrInfoCollector(this.tracker, doc, url);
 					this.linkUrl = url.href;
-					this.setStatus('tsastyle-updatable', `${chrome.i18n.getMessage('update_available')}:\n${(this.torrInfo.title) ? this.torrInfo.title : nowHash}`, ()=>this.Update(false));
+					this.setStatus('tsastyle-updatable', `${chrome.i18n.getMessage('update_available')}:\n${(this.torrInfo.title) ? this.torrInfo.title : nowHash}`, (movable)=>this.Update(movable));
 					if(this.options.autoupdate) this.Update(false);
 				} else this.setStatus('tsastyle-noupdate', chrome.i18n.getMessage('no_updates'));
 			} catch {
@@ -117,7 +117,7 @@ class tItem {
 
 	async Update(movable){
 		if(!this.updateReady) return;
-		this.movable = movable;
+		this.movable = movable === true;
 		this.setStatus('tsastyle-working', chrome.i18n.getMessage('update_in_progress'));
 		await Lock(torrUpdater); // обновления будут происходить в один поток, иначе при множественных запросах ТС глючит
 		if(!this.elm) return( Unlock(torrUpdater) ); // пока ждали очереди торрент был удален
@@ -135,7 +135,7 @@ class tItem {
 					this.torrHeader.title = this.torrInfo.title;
 				}
 			} else {
-				this.setStatus('tsastyle-error', chrome.i18n.getMessage(msg.val.message) || msg.val.message, ()=>this.Update(false));
+				this.setStatus('tsastyle-error', chrome.i18n.getMessage(msg.val.message) || msg.val.message, (movable)=>this.Update(movable));
 			}
 		});
 		port.postMessage({
@@ -157,10 +157,9 @@ class tItem {
 	}
 
 	move(target, prepend){
-		if(this.elm.parentNode !== target){
-			this.elm.remove();
-			target[(prepend)?"prepend":"append"](this.elm);
-		}
+		if( !this.movable || this.elm.parentNode === target) return;
+		this.elm.remove();
+		target[(prepend)?"prepend":"append"](this.elm);
 	}
 
 	Remove(){
@@ -362,18 +361,16 @@ let torrUpdater = {
 		document.addEventListener('StatusChanged', (event) => {
 			this.cntrInc(event.detail.newStatus, +1);
 			this.cntrInc(event.detail.oldStatus, -1);
-			const item = event.detail.item;
-			if(!item.movable) return;
 			switch(event.detail.newStatus){
 				case 'tsastyle-updated':
 				case 'tsastyle-updatable':
-					item.move(this.groups.top1);
+					event.detail.item.move(this.groups.top1);
 					break;
 				case 'tsastyle-error':
-					 item.move(this.groups.top2);
+					event.detail.item.move(this.groups.top2);
 					break;
 				case 'tsastyle-noupdate':
-					 item.move(this.groups.common,true);
+					event.detail.item.move(this.groups.common,true);
 					break;
 			}
 		});
@@ -393,13 +390,13 @@ let torrUpdater = {
 	checkErrors(){
 		// this.groups.top2.scrollIntoView();/
 		for( let item of this.tItems ) {
-			if(item.StatusIcon.className == 'tsastyle-error') item.checkUpdate(true);
+			if(item.StatusIcon.className == 'tsastyle-error') item.StatusIcon.onclick(true);
 		}
 	},
 
 	async updateAll(){
 		// document.querySelector('main').scrollTo(0,0);
-		for( let item of this.tItems ) item.Update(false);
+		for( let item of this.tItems ) item.Update(true);//false
 	},
 
 	cntrInc(name,val){ // val - +1 -инкремент, -1 -декремент

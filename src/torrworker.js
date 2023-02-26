@@ -17,6 +17,7 @@ class tWorkerSrv {
 		switch (request.action) {
 
 		case 'Add':
+		case 'Play':
 			// цепочка обработки торрента //
 			this.Init(request)													// нормализация адреса и извлечение данных для авторизации
 			.then(() => this.tsVer())											// запрашиваем версию сервера в this.request.TS.ver
@@ -109,11 +110,13 @@ class tWorkerSrv {
 
 	Abort = () => {
 		this.abortCtrl.abort();
-		if(this.request.action === 'Add') this.Drop();
+		this.Drop();
+		// if(this.request.hash && this.request.action === 'Add' && !this.request.flags.save) this.Drop();	// для action 'Play' и 'Replace' не дропать
 	}
 
 	Drop(){
-		if(!this.request.hash) return;
+		// if(!this.request.hash) return;
+		if(!this.request.hash || this.request.flags.save) return;
 		fetch(`${this.request.TS.address}/${this.tskit.names.path.drop}`, {
 			method: 'POST',
 			body: `{"action":"drop","hash":"${this.request.hash}"}`,				// в TS 1.1 "action" не нужен, но и не мешает
