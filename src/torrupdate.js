@@ -8,6 +8,7 @@ class tItem {
 		this.torrent = torrent;
 		this.options = options;
 		this.movable = true;
+		if(!this.torrent.title) this.torrent.title = `hash:${this.torrent.hash}`
 
 		this.StatusIcon = tsa_elementCreate( 'div' );
 
