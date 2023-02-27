@@ -73,6 +73,7 @@ tsVersions['MatriX.'] = {
 						title: torrent.title,
 						poster: torrent.poster,
 						data: torrent.data,
+						size: torrent.torrent_size,
 					});
 				}
 				resolve(tlist);

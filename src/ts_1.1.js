@@ -78,9 +78,8 @@ tsVersions['1.1.'] = {
 						title: torrent.Name,
 						poster: JSON.parse(torrent.Info).poster_path || '',
 						data: torrent.Info,
+						size: torrent.Length,
 					});
-
-
 				}
 				resolve(tlist);
 			})

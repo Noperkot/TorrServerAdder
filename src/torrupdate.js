@@ -52,7 +52,7 @@ class tItem {
 
 		this.torrHeader = tsa_elementCreate( 'div', {
 			className: 'torrHeader',
-			title: this.torrent.title,
+			title: `${formatSize(this.torrent.size)}${this.torrent.title}`,
 			onclick: this.expand.bind(this),
 			append: [
 				tsa_elementCreate( 'div', {
@@ -234,7 +234,7 @@ class tItem {
 							flList.append(tsa_elementCreate( 'div', {
 								className: (file.viewed) ? 'tsastyle-viewed' : 'tsastyle-notviewed',
 								textContent: flPath,
-								title: flPath,
+								title: `${formatSize(file.size)}${flPath}`,
 								onclick: (e) => { // ??? надо бы еще снимать онклик на время запроса ???
 									let port = chrome.runtime.connect();
 									port.onMessage.addListener((vmsg) => {
@@ -455,4 +455,14 @@ function findFirstDiffPos(a, b) {
 	for(let i = 0;;i++){
 		if(!a[i] || a[i] !== b[i]) return i;
 	}
+}
+
+function formatSize(val) {
+	if (!val) return '';
+	let i = 0;
+	const measurement = ['ʙ', 'ᴋʙ', 'ᴍʙ', 'ɢʙ', 'ᴛʙ'];
+	for (; val > 1023 && i < measurement.length; i++) {
+		val /= 1024;
+	}
+	return `[ ${val.toFixed((i>0)?2:0)} ${measurement[i]} ]  `;
 }
