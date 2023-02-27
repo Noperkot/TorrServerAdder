@@ -336,6 +336,7 @@ let torrUpdater = {
 
 		let port = chrome.runtime.connect();
 		port.onMessage.addListener((msg) => {
+			clearTimeout(this.showSpinnerTimer);
 			document.querySelector('main > .tsastyle-working').remove();
 			switch (msg.action) {
 				case 'success':
@@ -357,6 +358,9 @@ let torrUpdater = {
 					break;
 			}
 		});
+		this.showSpinnerTimer = setTimeout(() => {
+			document.querySelector('main > .tsastyle-working').style.display = 'block';	
+		}, 200);
 		port.postMessage({ action: 'List', options: this.options });
 
 		document.addEventListener('StatusChanged', (event) => {

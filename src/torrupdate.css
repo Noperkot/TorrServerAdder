@@ -259,6 +259,7 @@ button:active {
 
 main > .tsastyle-working {
 	font-size: 300%;
+	display: none;
 }
 
 @keyframes pulse {
