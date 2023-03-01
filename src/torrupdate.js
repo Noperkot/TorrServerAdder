@@ -395,14 +395,15 @@ let torrUpdater = {
 
 	checkErrors(){
 		// this.groups.top2.scrollIntoView();
+		document.querySelector('main').scrollTo(0,0);
 		for( let item of this.tItems ) {
 			if(item.StatusIcon.className == 'tsastyle-error') item.StatusIcon.onclick(true);
 		}
 	},
 
 	async updateAll(){
-		// document.querySelector('main').scrollTo(0,0);
-		for( let item of this.tItems ) item.Update(true);//false
+		document.querySelector('main').scrollTo(0,0);
+		for( let item of this.tItems ) item.Update(true);
 	},
 
 	cntrInc(name,val){ // val - +1 -инкремент, -1 -декремент
