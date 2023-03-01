@@ -394,7 +394,7 @@ let torrUpdater = {
 	},
 
 	checkErrors(){
-		// this.groups.top2.scrollIntoView();/
+		// this.groups.top2.scrollIntoView();
 		for( let item of this.tItems ) {
 			if(item.StatusIcon.className == 'tsastyle-error') item.StatusIcon.onclick(true);
 		}
