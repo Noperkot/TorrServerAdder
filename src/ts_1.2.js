@@ -134,10 +134,12 @@ tsVersions['MatriX.'] = {
 			this.Post('viewed',`{"action":"list","hash":"${this.request.oldHash}"}`)
 			.then((response) => JSON.parse(response))
 			.then( async (jsn) => {
-				for(let file of jsn){
-					await this.Post('viewed',`{"action":"set","hash":"${this.request.hash}","file_index":${file.file_index}}`)
-					.catch((e) => {});
-				};
+				if(jsn) {
+					for(let file of jsn){
+						await this.Post('viewed',`{"action":"set","hash":"${this.request.hash}","file_index":${file.file_index}}`)
+						.catch((e) => {});
+					};
+				}
 			})
 			.then(resolve)
 			.catch(reject);
