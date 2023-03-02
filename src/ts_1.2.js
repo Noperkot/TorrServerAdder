@@ -92,8 +92,7 @@ tsVersions['MatriX.'] = {
 					jsn.forEach((file) => viewedList.push(file.file_index));
 					resolve(viewedList);
 				})
-				.catch((e)=>resolve([]));
-				//.catch(reject);
+				.catch(reject);
 			})
 			.then((viewedList)=> new Promise((resolve, reject) => {
 				let f = () => {
