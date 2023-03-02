@@ -89,7 +89,7 @@ tsVersions['MatriX.'] = {
 				.then((response) => JSON.parse(response))
 				.then((jsn) => {
 					let viewedList = [];
-					if(jsn) jsn.forEach((file) => viewedList.push(file.file_index));
+					if(Array.isArray(jsn)) jsn.forEach((file) => viewedList.push(file.file_index));
 					resolve(viewedList);
 				})
 				.catch(reject);
@@ -134,7 +134,7 @@ tsVersions['MatriX.'] = {
 			this.Post('viewed',`{"action":"list","hash":"${this.request.oldHash}"}`)
 			.then((response) => JSON.parse(response))
 			.then( async (jsn) => {
-				if(jsn) {
+				if(Array.isArray(jsn)) {
 					for(let file of jsn){
 						await this.Post('viewed',`{"action":"set","hash":"${this.request.hash}","file_index":${file.file_index}}`)
 						.catch((e) => {});
