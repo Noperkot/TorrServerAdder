@@ -89,7 +89,7 @@ tsVersions['MatriX.'] = {
 				.then((response) => JSON.parse(response))
 				.then((jsn) => {
 					let viewedList = [];
-					jsn.forEach((file) => viewedList.push(file.file_index));
+					if(jsn) jsn.forEach((file) => viewedList.push(file.file_index));
 					resolve(viewedList);
 				})
 				.catch(reject);
