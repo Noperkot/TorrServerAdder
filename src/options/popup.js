@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					TS_link.onclick = () => openUrl(normAddr.url);
 					let torrUpdate_link = header.querySelector('*:last-child');
 					torrUpdate_link.onclick = () => openUrl(chrome.runtime.getURL('/torrupdate.html'), true);
+					torrUpdate_link.oncontextmenu = () => openUrl(chrome.runtime.getURL('/torrupdate.html?autoupdate'), true);
 					header.style.display = 'flex' ;
 				}
 			}
