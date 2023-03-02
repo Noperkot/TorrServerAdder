@@ -43,7 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function openUrl(url, force){
 	chrome.tabs.query({}, (tabs) => {
 		for (let tab of tabs) {
-			if (tab.url.startsWith((new URL(url)).origin)) { // Если url уже открыт - переключаемся на его вкладку.
+			let urlObj= new URL(url);
+			if (tab.url.startsWith(`${urlObj.origin}${urlObj.pathname}`)) { // Если url уже открыт - переключаемся на его вкладку.
 				chrome.windows.update(tab.windowId, {focused: true});
 				chrome.tabs.update(tab.id, {
 					active: true,
