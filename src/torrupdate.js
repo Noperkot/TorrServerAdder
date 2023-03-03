@@ -303,7 +303,7 @@ let torrUpdater = {
 		let ts = params.get('torrserver');
 		if(ts) this.options = {TS_address: ts};
 		else this.options =  await LoadOpt();
-		this.options.nocheck = params.get('nocheck') !== null;
+		this.options.autocheck = params.get('autocheck') !== null;
 		this.options.autoupdate = params.get('autoupdate') !== null;
 
 		let ovl = document.querySelector('.overlay')
@@ -348,7 +348,7 @@ let torrUpdater = {
 						}));
 					} else {
 						msg.val.forEach((torrent) => this.addItem(torrent) );
-						if(!this.options.nocheck) this.checkAll();
+						if(this.options.autocheck) this.checkAll();
 					}
 					break;
 				case 'error':
