@@ -35,6 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				await chrome.storage.local.set({ 'selected_profile': profile });
 				window.close();
 			};
+			item.oncontextmenu = async() => {
+				await setIcon(profiles[profile]);
+				await chrome.storage.local.set({ 'selected_profile': profile });
+				openUrl(chrome.runtime.getURL('/torrupdate.html?autocheck'), true);
+				// openUrl(chrome.runtime.getURL(`/torrupdate.html?autocheck&torrserver=${profiles[profile].TS_address}`), true);
+				window.close();
+			};
 			main.append(item);
 		}
 	});

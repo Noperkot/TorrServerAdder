@@ -85,6 +85,7 @@ if (document.body) {
 			case 'https:':
 				request.torrInfo = tsa_torrInfoCollector(tsa_trackers.find((tracker) => tracker.regexp.test(document.location.href)), document, url);
 				request.linkUrl = url.href;
+				// request.cookie = document.cookie; // сюда не попадают куки с HttpOnly
 				tWorkerCli.stop()
 				.then(()=>tWorkerCli.start(request));
 				break;

@@ -6,6 +6,7 @@ article {
 	max-width: 400px;
 	line-height: 2.5rem;
 	border-radius: unset;
+	user-select: none;
 }
 
 header, footer {
