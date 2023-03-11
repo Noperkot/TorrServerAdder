@@ -179,7 +179,7 @@ var tsa_trackers = [
 		}
 	},
 	{
-		label: 'RARBG',	// что-то непонятное с постерами с dyncdn.me - не отображаются в браузере из веба ТС, но отображаются по прямой ссылке и в клиентах
+		// label: 'RARBG',	// что-то непонятное с постерами с dyncdn.me - не отображаются в браузере из веба ТС, но отображаются по прямой ссылке и в клиентах
 		regexp: /^(?:http(s)?:\/\/(.*\.)?(rargb|rarbgenter)\..*\/torrent\/.*)/i,
 		mirrors: [ 'https:\/\/rargb.to', 'https:\/\/rarbgenter.org' ],
 		poster: (doc) => {
@@ -264,16 +264,3 @@ function tsa_torrInfoCollector(tracker, doc, url){	// собираем со ст
 	} catch {}
 	return torrInfo;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

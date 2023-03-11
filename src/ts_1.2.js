@@ -18,6 +18,7 @@ tsVersions['MatriX.'] = {
 			'ActivePeers': 'active_peers',
 			'TotalPeers': 'total_peers',
 			'PreloadSize': 'preload_size',
+			// 'LoadedSize': 'preloaded_bytes',			
 			'LoadedSize': 'bytes_read',
 			'TorrentSize': 'torrent_size',
 			'FileStats': 'file_stats',

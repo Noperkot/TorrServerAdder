@@ -30,22 +30,27 @@ document.addEventListener('DOMContentLoaded', () => {
 					header.style.display = 'flex' ;
 				}
 			}
-			item.onclick = async() => {
-				await setIcon(profiles[profile]);
-				await chrome.storage.local.set({ 'selected_profile': profile });
-				window.close();
+			item.onclick = () => {
+				selectProfile (profiles, profile)
+				.then(window.close);
 			};
-			item.oncontextmenu = async() => {
-				await setIcon(profiles[profile]);
-				await chrome.storage.local.set({ 'selected_profile': profile });
-				openUrl(chrome.runtime.getURL('/torrupdate.html?autocheck'), true);
-				// openUrl(chrome.runtime.getURL(`/torrupdate.html?autocheck&torrserver=${profiles[profile].TS_address}`), true);
-				window.close();
+			item.oncontextmenu = () => {
+				selectProfile (profiles, profile)
+				.then(() => openUrl(chrome.runtime.getURL('/torrupdate.html?autocheck'), true));
+				return false;
 			};
 			main.append(item);
 		}
 	});
 });
+
+function selectProfile(profiles, profile){
+	return new Promise(async (resolve, reject) => {
+		await setIcon(profiles[profile]);
+		await chrome.storage.local.set({ 'selected_profile': profile });
+		resolve();
+	});
+}
 
 function openUrl(url, force){
 	chrome.tabs.query({}, (tabs) => {
@@ -62,4 +67,5 @@ function openUrl(url, force){
 		};
 		chrome.tabs.create({ 'url': url }, window.close); // В противном случае открываем в новой.
 	});
+	return false;
 }
