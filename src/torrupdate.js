@@ -3,10 +3,12 @@
 class tItem {
 
 	constructor(torrent,options){
-
 		if(torrent.stat < 2) return;
+
 		this.torrent = torrent;
 		this.options = options;
+		this.movable = true;
+		if(!this.torrent.title) this.torrent.title = `hash:${this.torrent.hash}`
 
 		this.StatusIcon = tsa_elementCreate( 'div' );
 
@@ -15,9 +17,9 @@ class tItem {
 			title: chrome.i18n.getMessage('play_file'),
 			onclick: () => {
 				let request = {
-					action: 'Add',
+					action: 'Play',
 					hash: this.torrent.hash,
-					flags: {play:true},
+					flags: {play:true, "save": true},
 					options: this.options,
 				};
 				tWorkerCli.stop()
@@ -51,7 +53,7 @@ class tItem {
 
 		this.torrHeader = tsa_elementCreate( 'div', {
 			className: 'torrHeader',
-			title: this.torrent.title,
+			title: `${formatSize(this.torrent.size)}${this.torrent.title}`,
 			onclick: this.expand.bind(this),
 			append: [
 				tsa_elementCreate( 'div', {
@@ -73,13 +75,13 @@ class tItem {
 			append: [ this.torrHeader ]
 		} );
 
-		if(this.tracker) this.setStatus('tsastyle-search', chrome.i18n.getMessage('check_for_update'), ()=>this.checkUpdate(false));
+		if(this.tracker) this.setStatus('tsastyle-search', chrome.i18n.getMessage('check_for_update'), (movable)=>this.checkUpdate(movable));
 		else this.setStatus('tsastyle-nonupdatable', chrome.i18n.getMessage('non_updatable'));
 	}
 
 	checkUpdate(movable){
 		if(!this.tracker) return;
-		this.movable = movable;
+		this.movable = movable === true;
 		this.setStatus('tsastyle-working', chrome.i18n.getMessage('searching_for_updates'));
 		new Promise(async (resolve,reject)=>{
 			await Lock(this.tracker);	// nnmclub будет обрабатываться в один поток
@@ -104,20 +106,20 @@ class tItem {
 					let url = new URL(this.nowMagnet);
 					this.torrInfo = tsa_torrInfoCollector(this.tracker, doc, url);
 					this.linkUrl = url.href;
-					this.setStatus('tsastyle-updatable', `${chrome.i18n.getMessage('update_available')}:\n${(this.torrInfo.title) ? this.torrInfo.title : nowHash}`, ()=>this.Update(false));
+					this.setStatus('tsastyle-updatable', `${chrome.i18n.getMessage('update_available')}:\n${(this.torrInfo.title) ? this.torrInfo.title : nowHash}`, (movable)=>this.Update(movable));
 					if(this.options.autoupdate) this.Update(false);
 				} else this.setStatus('tsastyle-noupdate', chrome.i18n.getMessage('no_updates'));
 			} catch {
 				throw new Error(chrome.i18n.getMessage('homepage_layout_not_as_expected'));
 			}
 		})
-		.catch((e) => this.setStatus('tsastyle-error', e.message, ()=>this.checkUpdate(false)))
+		.catch((e) => this.setStatus('tsastyle-error', e.message, (movable)=>this.checkUpdate(movable)))
 		.finally(async () => await Unlock(this.tracker,400));//nnmclub не любит слишком частые обращения, тем более в несколько потоков
 	}
 
 	async Update(movable){
 		if(!this.updateReady) return;
-		this.movable = movable;
+		this.movable = movable === true;
 		this.setStatus('tsastyle-working', chrome.i18n.getMessage('update_in_progress'));
 		await Lock(torrUpdater); // обновления будут происходить в один поток, иначе при множественных запросах ТС глючит
 		if(!this.elm) return( Unlock(torrUpdater) ); // пока ждали очереди торрент был удален
@@ -129,12 +131,13 @@ class tItem {
 				this.setStatus('tsastyle-updated', chrome.i18n.getMessage('updated'));
 				this.updateReady = false;
 				this.torrent.hash = msg.val;
+				this.torrent.poster = this.torrInfo.poster;
 				if(this.torrInfo.title) {
 					this.torrName.textContent = this.torrInfo.title;
 					this.torrHeader.title = this.torrInfo.title;
 				}
 			} else {
-				this.setStatus('tsastyle-error', chrome.i18n.getMessage(msg.val.message) || msg.val.message, ()=>this.Update(false));
+				this.setStatus('tsastyle-error', chrome.i18n.getMessage(msg.val.message) || msg.val.message, (movable)=>this.Update(movable));
 			}
 		});
 		port.postMessage({
@@ -155,10 +158,10 @@ class tItem {
 		this.status = status;
 	}
 
-	move(target,up){
+	move(target, prepend){
+		if( !this.movable || this.elm.parentNode === target ) return;
 		this.elm.remove();
-		if(up) target.prepend(this.elm);
-		else target.append(this.elm);
+		target[(prepend)?"prepend":"append"](this.elm);
 	}
 
 	Remove(){
@@ -232,7 +235,7 @@ class tItem {
 							flList.append(tsa_elementCreate( 'div', {
 								className: (file.viewed) ? 'tsastyle-viewed' : 'tsastyle-notviewed',
 								textContent: flPath,
-								title: flPath,
+								title: `${formatSize(file.size)}${flPath}`,
 								onclick: (e) => { // ??? надо бы еще снимать онклик на время запроса ???
 									let port = chrome.runtime.connect();
 									port.onMessage.addListener((vmsg) => {
@@ -288,8 +291,8 @@ let torrUpdater = {
 		'tsastyle-nonupdatable': {title:'total_non_updatable'},
 		'tsastyle-noupdate': {title:'total_no_updates'},
 		'tsastyle-error': {title:'total_errors'},
-		'tsastyle-updatable': {title:'total_available_for_update'},
 		'tsastyle-updated': {title:'total_updated'},
+		'tsastyle-updatable': {title:'total_available_for_update'},
 		'tsastyle-working': {title:'total_in_processing'},
 	},
 
@@ -300,7 +303,7 @@ let torrUpdater = {
 		let ts = params.get('torrserver');
 		if(ts) this.options = {TS_address: ts};
 		else this.options =  await LoadOpt();
-		this.options.nocheck = params.get('nocheck') !== null;
+		this.options.autocheck = params.get('autocheck') !== null;
 		this.options.autoupdate = params.get('autoupdate') !== null;
 
 		let ovl = document.querySelector('.overlay')
@@ -334,35 +337,46 @@ let torrUpdater = {
 
 		let port = chrome.runtime.connect();
 		port.onMessage.addListener((msg) => {
+			clearTimeout(this.showSpinnerTimer);
+			document.querySelector('main > .tsastyle-working').remove();
 			switch (msg.action) {
 				case 'success':
 					if(Object.keys(msg.val).length === 0) {
-						tsa_MessageBox.notify(chrome.i18n.getMessage('no_torrents_listed'), null, {className:'tsastyle-warning'});
+						document.querySelector('main').append(tsa_elementCreate( 'div', {
+							className: 'warning centered',
+							textContent: `—— ${chrome.i18n.getMessage('no_torrents_listed')} ——`,
+						}));
 					} else {
 						msg.val.forEach((torrent) => this.addItem(torrent) );
-						if(!this.options.nocheck) this.checkAll();
+						if(this.options.autocheck) this.checkAll();
 					}
 					break;
 				case 'error':
-					tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className:'tsastyle-warning'});
+					document.querySelector('main').append(tsa_elementCreate( 'div', {
+						className: 'warning centered',
+						textContent: `—— ${msg.val.message}${(msg.val.submessage)?(' ('+msg.val.submessage+')'):''} ——`,
+					}));
 					break;
 			}
 		});
+		this.showSpinnerTimer = setTimeout(() => {
+			document.querySelector('main > .tsastyle-working').style.display = 'block';	
+		}, 200);
 		port.postMessage({ action: 'List', options: this.options });
-
 
 		document.addEventListener('StatusChanged', (event) => {
 			this.cntrInc(event.detail.newStatus, +1);
 			this.cntrInc(event.detail.oldStatus, -1);
-			const item = event.detail.item;
-			if(!item.movable) return;
 			switch(event.detail.newStatus){
 				case 'tsastyle-updated':
 				case 'tsastyle-updatable':
-					item.move(this.groups.top1);
+					event.detail.item.move(this.groups.top1);
 					break;
 				case 'tsastyle-error':
-					 item.move(this.groups.top2);
+					event.detail.item.move(this.groups.top2);
+					break;
+				case 'tsastyle-noupdate':
+					event.detail.item.move(this.groups.common,true);
 					break;
 			}
 		});
@@ -379,10 +393,17 @@ let torrUpdater = {
 		for( let item of this.tItems ) item.checkUpdate(true);
 	},
 
+	checkErrors(){
+		// this.groups.top2.scrollIntoView();
+		document.querySelector('main').scrollTo(0,0);
+		for( let item of this.tItems ) {
+			if(item.StatusIcon.className == 'tsastyle-error') item.StatusIcon.onclick(true);
+		}
+	},
+
 	async updateAll(){
-		// document.querySelector('main').scrollTo(0,0);
-		// for( let item of this.tItems ) item.Update(true);
-		for( let item of this.tItems ) item.Update(false);
+		document.querySelector('main').scrollTo(0,0);
+		for( let item of this.tItems ) item.Update(true);
 	},
 
 	cntrInc(name,val){ // val - +1 -инкремент, -1 -декремент
@@ -393,6 +414,7 @@ let torrUpdater = {
 			counter.div.classList[(counter.val)?'remove':'add']('invis');
 			this.setCntrFun('tsastyle-search', this.checkAll.bind(this));
 			this.setCntrFun('tsastyle-updatable', this.updateAll.bind(this));
+			this.setCntrFun('tsastyle-error', this.checkErrors.bind(this));
 		} catch {}
 	},
 
@@ -430,8 +452,8 @@ function magnetHash( magnet ){
 
 function isFilePlayable(fileName){
 	return [
-	  /* video */ '.3g2','.3gp','.aaf','.asf','.avchd','.avi','.drc','.flv','.iso','.m2v','.m2ts','.m4p','.m4v','.mkv','.mng','.mov','.mp2','.mp4','.mpe','.mpeg','.mpg','.mpv','.mxf','.nsv','.ogg','.ogv','.ts','.qt','.rm','.rmvb','.roq','.svi','.vob','.webm','.wmv','.yuv',
-	  /* audio */ '.aac','.aiff','.ape','.au','.flac','.gsm','.it','.m3u','.m4a','.mid','.mod','.mp3','.mpa','.pls','.ra','.s3m','.sid','.wav','.wma','.xm',
+		/* video */ '.3g2','.3gp','.aaf','.asf','.avchd','.avi','.drc','.flv','.iso','.m2v','.m2ts','.m4p','.m4v','.mkv','.mng','.mov','.mp2','.mp4','.mpe','.mpeg','.mpg','.mpv','.mxf','.nsv','.ogg','.ogv','.ts','.qt','.rm','.rmvb','.roq','.svi','.vob','.webm','.wmv','.yuv',
+		/* audio */ '.aac','.aiff','.ape','.au','.flac','.gsm','.it','.m3u','.m4a','.mid','.mod','.mp3','.mpa','.pls','.ra','.s3m','.sid','.wav','.wma','.xm',
 	].some((ext)=>fileName.endsWith(ext));
 };
 
@@ -439,4 +461,14 @@ function findFirstDiffPos(a, b) {
 	for(let i = 0;;i++){
 		if(!a[i] || a[i] !== b[i]) return i;
 	}
+}
+
+function formatSize(val) {
+	if (!val) return '';
+	let i = 0;
+	const measurement = ['ʙ', 'ᴋʙ', 'ᴍʙ', 'ɢʙ', 'ᴛʙ'];
+	for (; val > 1023 && i < measurement.length; i++) {
+		val /= 1024;
+	}
+	return `[ ${val.toFixed((i>0)?2:0)} ${measurement[i]} ]  `;
 }

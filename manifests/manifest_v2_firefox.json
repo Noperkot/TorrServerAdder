@@ -1,5 +1,5 @@
 {
-    "version": "2.0.0",
+    "version": "2.0.1",
     "name": "TorrServer Adder",
     "short_name": "TSA",
     "description": "__MSG_extension_description__",
@@ -66,7 +66,7 @@
         "page": "options/options.html",
         "open_in_tab": true
     },
-    "applications": {
+    "browser_specific_settings": {
         "gecko": {
             "id": "84z74tXJKt8OUrTD@TSA",
             "strict_min_version": "78.0"

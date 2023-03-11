@@ -66,7 +66,7 @@ var tsa_trackers = [
 		mirrors: [ 'https:\/\/nnmclub.to' ],
 		poster: (doc) => {
 			let elm = doc.querySelector('.postImgAligned');
-			return (elm.getAttribute('src') || elm.getAttribute('title')).replace(/^http(s):\/\/nnmstatic\.win\/forum\/image\.php\?link=/i, '');
+			return (elm.getAttribute('src') || elm.getAttribute('title')); //.replace(/^http(s):\/\/nnmstatic\.win\/forum\/image\.php\?link=/i, '');
 		},
 		title:  (doc) => doc.querySelector('.maintitle').textContent,
 		magnet: (doc) => doc.querySelector('.btTbl A[href^="magnet:"]').href,
@@ -99,7 +99,7 @@ var tsa_trackers = [
 	{
 		label: 'MegaPeer',	// прикрыт Cloudflare
 		regexp: /^(?:http(s)?:\/\/(.*\.)?megapeer.*\/torrent\/([0-9]+))/i,
-		mirrors: [ 'http:\/\/megapeer.ru' ],
+		mirrors: [ 'http:\/\/megapeer.ru', 'http:\/\/megapeer.vip' ],
 		poster: (doc) => doc.querySelector('#detali tr:nth-child(1) td:nth-child(2) img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('h1').textContent,
 		magnet: (doc) => doc.querySelector('.download A[href^="magnet:"]').href,
@@ -179,7 +179,7 @@ var tsa_trackers = [
 		}
 	},
 	{
-		label: 'RARBG',	// что-то непонятное с постерами с dyncdn.me - не отображаются в браузере из веба ТС, но отображаются по прямой ссылке и в клиентах
+		// label: 'RARBG',	// что-то непонятное с постерами с dyncdn.me - не отображаются в браузере из веба ТС, но отображаются по прямой ссылке и в клиентах
 		regexp: /^(?:http(s)?:\/\/(.*\.)?(rargb|rarbgenter)\..*\/torrent\/.*)/i,
 		mirrors: [ 'https:\/\/rargb.to', 'https:\/\/rarbgenter.org' ],
 		poster: (doc) => {
@@ -264,16 +264,3 @@ function tsa_torrInfoCollector(tracker, doc, url){	// собираем со ст
 	} catch {}
 	return torrInfo;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

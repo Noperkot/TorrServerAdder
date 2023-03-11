@@ -11,8 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		for (let profile in profiles) {
 			let item = document.createElement('div');
 			item.className = 'item tsastyle-circle';
-			item.textContent = profiles[profile].profile_name;
-			item.title = profile_title;
+			let span = document.createElement('span');
+			span.textContent = profiles[profile].profile_name;
+			span.title = profile_title;
+			item.prepend(span);
 			item.style.setProperty('--profile-color', profiles[profile].profile_color);
 			if (profile === selected_profile) {
 				item.classList.add('selected');
@@ -23,24 +25,38 @@ document.addEventListener('DOMContentLoaded', () => {
 					TS_link.textContent = normAddr.url;
 					TS_link.onclick = () => openUrl(normAddr.url);
 					let torrUpdate_link = header.querySelector('*:last-child');
-					torrUpdate_link.onclick = () => openUrl(chrome.runtime.getURL('/torrupdate.html'), true);
+					torrUpdate_link.onclick = () => openUrl(chrome.runtime.getURL('/torrupdate.html?autocheck'), true);
+					torrUpdate_link.oncontextmenu = () => openUrl(chrome.runtime.getURL('/torrupdate.html?autocheck&autoupdate'), true);
 					header.style.display = 'flex' ;
 				}
 			}
-			item.onclick = async() => {
-				await setIcon(profiles[profile]);
-				await chrome.storage.local.set({ 'selected_profile': profile });
-				window.close();
+			item.onclick = () => {
+				selectProfile (profiles, profile)
+				.then(window.close);
+			};
+			item.oncontextmenu = () => {
+				selectProfile (profiles, profile)
+				.then(() => openUrl(chrome.runtime.getURL('/torrupdate.html?autocheck'), true));
+				return false;
 			};
 			main.append(item);
 		}
 	});
 });
 
+function selectProfile(profiles, profile){
+	return new Promise(async (resolve, reject) => {
+		await setIcon(profiles[profile]);
+		await chrome.storage.local.set({ 'selected_profile': profile });
+		resolve();
+	});
+}
+
 function openUrl(url, force){
 	chrome.tabs.query({}, (tabs) => {
 		for (let tab of tabs) {
-			if (tab.url.startsWith(url)) { // Если url уже открыт - переключаемся на его вкладку.
+			let urlObj= new URL(url);
+			if (tab.url.startsWith(`${urlObj.origin}${urlObj.pathname}`)) { // Если url уже открыт - переключаемся на его вкладку.
 				chrome.windows.update(tab.windowId, {focused: true});
 				chrome.tabs.update(tab.id, {
 					active: true,
@@ -51,4 +67,5 @@ function openUrl(url, force){
 		};
 		chrome.tabs.create({ 'url': url }, window.close); // В противном случае открываем в новой.
 	});
+	return false;
 }

@@ -18,6 +18,7 @@ tsVersions['MatriX.'] = {
 			'ActivePeers': 'active_peers',
 			'TotalPeers': 'total_peers',
 			'PreloadSize': 'preload_size',
+			// 'LoadedSize': 'preloaded_bytes',			
 			'LoadedSize': 'bytes_read',
 			'TorrentSize': 'torrent_size',
 			'FileStats': 'file_stats',
@@ -73,6 +74,7 @@ tsVersions['MatriX.'] = {
 						title: torrent.title,
 						poster: torrent.poster,
 						data: torrent.data,
+						size: torrent.torrent_size,
 					});
 				}
 				resolve(tlist);
@@ -84,17 +86,16 @@ tsVersions['MatriX.'] = {
 	getContent(){
 		return new Promise((resolve, reject) => {
 			new Promise((resolve, reject) => {
-				this.viewed = [];
 				this.Post('viewed',`{"action":"list","hash":"${this.request.hash}"}`)
 				.then((response) => JSON.parse(response))
 				.then((jsn) => {
-					jsn.forEach((file) => this.viewed.push(file.file_index));
-					resolve();
+					let viewedList = [];
+					if(Array.isArray(jsn)) jsn.forEach((file) => viewedList.push(file.file_index));
+					resolve(viewedList);
 				})
-				.catch((e)=>resolve());
-				//.catch(reject);
+				.catch(reject);
 			})
-			.then(()=> new Promise((resolve, reject) => {
+			.then((viewedList)=> new Promise((resolve, reject) => {
 				let f = () => {
 					this.Post('torrents',`{"action":"get","hash":"${this.request.hash}"}`)
 					.then((response) => JSON.parse(response))
@@ -105,7 +106,7 @@ tsVersions['MatriX.'] = {
 								content.push({
 									path: file.path,
 									size: file.length,
-									viewed: this.viewed.includes(file.id),
+									viewed: viewedList.includes(file.id),
 									id: file.id,
 								});
 							});
@@ -127,7 +128,24 @@ tsVersions['MatriX.'] = {
 			.then(() => resolve(this.request.val))
 			.catch(reject);
 		});
-	}
+	},
+	
+	trasferViewed(){
+		return new Promise((resolve, reject) => {
+			this.Post('viewed',`{"action":"list","hash":"${this.request.oldHash}"}`)
+			.then((response) => JSON.parse(response))
+			.then( async (jsn) => {
+				if(Array.isArray(jsn)) {
+					for(let file of jsn){
+						await this.Post('viewed',`{"action":"set","hash":"${this.request.hash}","file_index":${file.file_index}}`)
+						.catch((e) => {});
+					};
+				}
+			})
+			.then(resolve)
+			.catch(reject);
+		})
+	},	
 };
 
 tsVersions['1.2.'] = tsVersions['MatriX.'];
@@ -138,4 +156,3 @@ function ResponseHandler_12(response){	// один обработчик отве
 	if (!hash) throw new tsaError(chrome.i18n.getMessage('request_rejected'));
 	return hash;
 }
-
