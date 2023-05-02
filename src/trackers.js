@@ -9,7 +9,7 @@ var tsa_trackers = [
 		label: 'RUTOR',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?(rutor|([0-9]+)tor\.).*\/torrent\/([0-9]+))/i,
 		mirrors: [ 'http:\/\/rutor.info', 'http:\/\/rutor.is' ],
-		poster:  (doc) => doc.querySelector('#details tr:nth-child(1) td:nth-child(2) img').getAttribute('src'),
+		poster:  (doc) => doc.querySelector('#details tr:nth-child(1) td:nth-child(2) > img').getAttribute('src'),
 		title:   (doc) => doc.querySelector('#all h1').textContent,
 		magnet:  (doc) => doc.querySelector('#download > a:nth-child(1)').href,
 	},
@@ -193,6 +193,13 @@ var tsa_trackers = [
 		}
 	},
 	{
+		label: 'bitru.org',
+		regexp: /^(?:http(s)?:\/\/(.*\.)?bitru.*\/details\.php.*id=([0-9]+))/i,
+		mirrors: [ 'https:\/\/bitru.org' ],
+		poster: (doc) => doc.querySelector('#thumb1 img').src,
+		title:  (doc) => doc.querySelector('.title,.ellips span').textContent
+	},
+	{
 		// label: 'HDReactor',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?hdreactor.*\/([0-9]+))-/i,
 		mirrors: [ 'http:\/\/hdreactor.club', 'http:\/\/hdreactor.net' ],
@@ -217,13 +224,6 @@ var tsa_trackers = [
 		poster: (doc) => doc.querySelector('#pp_996144 img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('.maintitle a').textContent
 	},
-/* 	{
-		label: 'bitru.org',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?bitru.*\/details\.php.*id=([0-9]+))/i,
-		mirrors: [ 'https:\/\/bitru.org' ],
-		poster: (doc) => doc.querySelector('#thumb1 img').src,
-		title:  (doc) => doc.querySelector('.title,.ellips span').textContent
-	}, */
 /* 	{
 		label: 'zooqle',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?zooqle\..*\/.*)/i,
