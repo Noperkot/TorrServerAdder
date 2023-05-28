@@ -159,7 +159,7 @@ class tItem {
 	}
 
 	move(target, prepend){
-		if( !this.movable || this.elm.parentNode === target ) return;
+		if( !this.movable || !this.elm || this.elm.parentNode === target ) return;
 		this.elm.remove();
 		target[(prepend)?"prepend":"append"](this.elm);
 	}
