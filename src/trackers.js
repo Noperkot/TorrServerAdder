@@ -93,7 +93,7 @@ var tsa_trackers = [
 	{
 		label: 'seleZen',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?selezen\..*\/.*\/([0-9]+)-)/i,
-		mirrors: [ 'https:\/\/selezen.org', 'https:\/\/selezen.net', 'https:\/\/use.selezen.club' ],
+		mirrors: [ 'https:\/\/selezen.org', 'https:\/\/selezen.net', 'https:\/\/www.selezen.club', 'https:\/\/use.selezen.club' ],
 		poster: (doc) => doc.querySelector('.col-md-3 img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('.card-title').textContent
 	},
