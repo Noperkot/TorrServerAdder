@@ -56,34 +56,35 @@
 	content: '\E838';
 	animation: tsa-spinner 2s infinite linear;
 }
-.tsastyle-info:after { content: '\e800'; }
-.tsastyle-warning:after { content: '\e801'; }
-.tsastyle-play:after { content: '\f144'; }
-.tsastyle-link:before { content: '\e802'; }
-.tsastyle-settings:before { content: '\e804'; }
-.tsastyle-trash:before { content: '\F1F8'; }
-.tsastyle-edit:before { content: '\E803'; }
-.tsastyle-check:before, .tsastyle-noupdate:before { content: '\e807'; }
-.tsastyle-cancel:before, .tsastyle-nonupdatable:before { content: '\e808'; }
-.tsastyle-circle:before { content: '\f111'; }
-.tsastyle-plus:before { content: '\F0FE'; }
-.tsastyle-help:before { content: '\F29C'; }
-.tsastyle-notes:before { content: '\E80B'; }
-
-.tsastyle-expand:before { content: '\E805'; }
-.tsastyle-collapse:before { content: '\E80A'; }
-
-.tsastyle-updatable:before { content: '\e801'; }
-.tsastyle-updated:before { content: '\e807'; }
-.tsastyle-error:before { content: '\e801'; }
-.tsastyle-playicon:before { content: '\f144'; }
-.tsastyle-unlinked:before { content: '\e802'; }
-
-.tsastyle-noicon:before { content: ''; }
-.tsastyle-search:before { content: '\E809'; }
-.tsastyle-viewed:before { content: '\E806';}
-.tsastyle-notviewed:before { content: '';}
-
+.tsastyle-info:after			{ content: '\E800'; }
+.tsastyle-warning:after			{ content: '\E801'; }
+.tsastyle-play:after			{ content: '\f144'; }
+.tsastyle-link:before			{ content: '\E802'; }
+.tsastyle-settings:before		{ content: '\E804'; }
+.tsastyle-trash:before			{ content: '\F1F8'; }
+.tsastyle-edit:before			{ content: '\E803'; }
+.tsastyle-check:before			{ content: '\E807'; }
+.tsastyle-cancel:before			{ content: '\E808'; }
+.tsastyle-circle:before			{ content: '\F111'; }
+.tsastyle-plus:before			{ content: '\F0FE'; }
+.tsastyle-help:before			{ content: '\F29C'; }
+.tsastyle-notes:before			{ content: '\E80B'; }
+.tsastyle-expand:before			{ content: '\E805'; }
+.tsastyle-collapse:before		{ content: '\E80A'; }
+.tsastyle-checkupdate:before	{ content: '\E809'; }
+.tsastyle-updatable:before		{ content: '\E801'; }
+.tsastyle-nonupdatable:before	{ content: '\E80D'; }
+.tsastyle-noupdate:before		{ content: '\E807'; }
+.tsastyle-updated:before		{ content: '\E807'; }
+.tsastyle-error:before			{ content: '\E801'; }
+.tsastyle-playicon:before		{ content: '\F144'; }
+.tsastyle-home:before			{ content: '\E80F'; }
+.tsastyle-homeless:before		{ content: '\E80F'; }
+.tsastyle-noicon:before			{ content: ''; }
+.tsastyle-search:before			{ content: '\E809'; }
+.tsastyle-hash:before			{ content: '\F029'; }
+.tsastyle-viewed:before			{ content: '\E806'; }
+.tsastyle-notviewed:before		{ content: '';}
 
 @keyframes tsa-spinner {
 	from { transform: rotate(0deg); }

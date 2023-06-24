@@ -2,17 +2,17 @@
 
 	// трекеры без 'label' будут обрабатываться расширением, но не попадут в список торрентов в справке.
 	// трекеры с 'magnet' - обновляемые(в списке отмечены '⃰')
-	// трекеры с 'lock' - проверка обновлений в один поток (nnmclub ругается на множественные запросы)
+	// 'threads' - макс. одновременных запросов при обновлении для этого трекера. (nnmclub ругается на множественные запросы, кинозал подвисает)
 
 var tsa_trackers = [
 	{
 		label: 'RUTOR',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?(rutor|([0-9]+)tor\.).*\/torrent\/([0-9]+))/i,
 		mirrors: [ 'http:\/\/rutor.info', 'http:\/\/rutor.is' ],
-		// poster:  (doc) => doc.querySelector('#details tr:nth-child(1) td:nth-child(2) img').getAttribute('src'),
 		poster:  (doc) => Array.from(doc.querySelectorAll('#details tr:nth-child(1) td:nth-child(2) img')).find(el => el.closest('A') === null).getAttribute('src'),
 		title:   (doc) => doc.querySelector('#all h1').textContent,
 		magnet:  (doc) => doc.querySelector('#download > a:nth-child(1)').href,
+		threads: 16,
 	},
 	{
 		label: 'RuTracker',
@@ -24,6 +24,8 @@ var tsa_trackers = [
 		},
 		title:  (doc) => doc.querySelector('#soc-container').getAttribute('data-share_title'),
 		magnet: (doc) => doc.querySelector('.magnet-link').href,
+		threads: 8,
+		timeout: 5000,
 	},
 	{
 		label: 'КИНОЗАЛ.ТВ',
@@ -31,12 +33,12 @@ var tsa_trackers = [
 		mirrors: [ 'https:\/\/kinozal.tv', 'https:\/\/kinozal.guru', 'https:\/\/kinozal.me' ],
 		poster: (doc) => doc.querySelector('.p200').getAttribute('src'),
 		title:  (doc) => doc.querySelector('.mn_wrap h1 a').textContent,
-		magnet: (doc) => {
+		magnet: (doc, abort_signal) => {
 			return new Promise((resolve,reject)=>{
 				let url = new URL((doc.location || doc.tsa_location).href);
 				url.pathname = 'get_srv_details.php';
 				url.searchParams.set( 'action', 2 );
-				fetch(url)
+				fetch(url, {signal: abort_signal})
 				.then((response) => response.text())
 				.then((text)=>{
 					let hash = text.match(/[0-9,A-F]{40}/i);
@@ -60,6 +62,8 @@ var tsa_trackers = [
 			})
 			.catch((e)=>{});
 		},
+		threads: 16,
+		timeout: 5000,
 	},
 	{
 		label: 'NNM-Club',
@@ -71,7 +75,8 @@ var tsa_trackers = [
 		},
 		title:  (doc) => doc.querySelector('.maintitle').textContent,
 		magnet: (doc) => doc.querySelector('.btTbl A[href^="magnet:"]').href,
-		lock: false,
+		threads: 1,
+		releaseDelay: 400,
 	},
 	{
 		label: 'LostFilm.TV',
@@ -88,37 +93,33 @@ var tsa_trackers = [
 			let _subtitle = doc.querySelector('.inner-box--subtitle').textContent;
 			let _text = doc.querySelector('.inner-box--text').textContent.replace(/(\s+|\s+)/g," ");
 			return `${_title} / ${_subtitle}. ${_text}`;
-		}
+		},
 	},
 	{
 		label: 'seleZen',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?selezen\..*\/.*\/([0-9]+)-)/i,
 		mirrors: [ 'https:\/\/selezen.org', 'https:\/\/selezen.net', 'https:\/\/www.selezen.club', 'https:\/\/use.selezen.club' ],
 		poster: (doc) => doc.querySelector('.col-md-3 img').getAttribute('src'),
-		title:  (doc) => doc.querySelector('.card-title').textContent
+		title:  (doc) => doc.querySelector('.card-title').textContent,
 	},
 	{
-		label: 'MegaPeer',	// прикрыт Cloudflare
+		label: 'MegaPeer',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?megapeer.*\/torrent\/([0-9]+))/i,
 		mirrors: [ 'http:\/\/megapeer.ru', 'http:\/\/megapeer.vip' ],
 		poster: (doc) => doc.querySelector('#detali tr:nth-child(1) td:nth-child(2) img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('h1').textContent,
 		magnet: (doc) => doc.querySelector('.download A[href^="magnet:"]').href,
+		threads: 8,
+		timeout: 5000,
 	},
 	{
 		label: 'torrent.by',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?torrent.by\/([0-9]+))\//i,
 		mirrors: [ 'https:\/\/torrent.by' ],
-		poster: (doc) => doc.querySelector('#details img').getAttribute('src'),
+		poster: (doc) => (Array.from(doc.querySelectorAll('#details img')).find(el => el.closest('A') === null)||doc.querySelector('span img')).getAttribute('src'),
 		title:  (doc) => doc.querySelector('h1').textContent,
-		magnet: (doc) => doc.querySelector('#downloadbox A[href^="magnet:"]').href,	// ??? обновляемые торренты не публикуют ???
-	},
-	{
-		label: 'booktracker',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?booktracker.*\/viewtopic\.php\?t=([0-9]+))/i,
-		mirrors: [ 'https:\/\/booktracker.org' ],
-		poster: (doc) => doc.querySelector('.post_body .postImg img').getAttribute('src'),
-		title:  (doc) => doc.querySelector('.maintitle a').textContent
+		magnet: (doc) => doc.querySelector('#downloadbox A[href^="magnet:"]').href,
+		threads: 16,
 	},
 	{
 		label: 'Fast-Torrent',
@@ -132,7 +133,7 @@ var tsa_trackers = [
 		regexp: /^(?:http(s)?:\/\/(.*\.)?newstudio.*\/viewtopic\.php\?t=([0-9]+))/i,
 		mirrors: [ 'http:\/\/newstudio.tv' ],
 		poster: (doc) => doc.querySelector('.postImg img').getAttribute('src'),
-		title:  (doc) => doc.querySelector('.post-b').textContent
+		title:  (doc) => doc.querySelector('.post-b').textContent,
 	},
 	{
 		label: 'PiratBit',
@@ -141,7 +142,8 @@ var tsa_trackers = [
 		poster: (doc) => doc.querySelector('.postImgAligned').title,
 		title:  (doc) => doc.querySelector('.tt-text strong').textContent,
 		magnet: (doc) => doc.querySelector('.table-condensed A[href^="magnet:"]').href,
-		lock: false,
+		threads: 1,
+		releaseDelay: 100,
 	},
 	{
 		label: 'DugTor',
@@ -150,7 +152,81 @@ var tsa_trackers = [
 		poster: (doc) => doc.querySelector('.preview img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('.social-likes.social-likes_single').getAttribute('data-title').replace('Скачать торрент - ',''),
 		magnet: (doc) => doc.querySelector('.torrent A[href^="magnet:"]').href,
-		charset: 'windows-1251',
+		charset: 'windows-1251',		
+		threads: 8,
+	},
+	{
+		label: 'HDrezka',
+		regexp: /^(?:http(s)?:\/\/(.*\.)?rezka\.cc\/r\/([0-9]+)-)/i,
+		mirrors: [ 'https:\/\/rezka.cc' ],
+		poster: (doc) => doc.querySelector('.si-cover img').getAttribute('src'),
+		title:  (doc, url) => {
+			return doc.querySelector(`.download-wrapper A[href='${url.pathname}']`)
+				.closest('.dwn-list-collapser__group-dwn').querySelector('.dwn-list-none_collapser').textContent.replace(' - скачать через торрент','');
+		},
+	},
+	
+	
+	
+	{
+		// label: 'HDrezka', // у HDrezka возможны две страницы загрузки торрента - 'r' и 'p', которые обрабатываются немного по-разному
+		regexp: /^(?:http(s)?:\/\/(.*\.)?rezka\.cc\/p\/([0-9]+)-)/i,
+		mirrors: [ 'https:\/\/rezka.cc' ],
+		poster: (doc) => doc.querySelector('.si-cover img').getAttribute('src'),
+		title:  (doc, url) => {
+			let title = doc.querySelector('.si-title').textContent;
+			try {
+				let subtitle = doc.querySelector(`.download-wrapper A[href='${url.pathname}']`)
+					.closest('.dwn-list-collapser__group-dwn').querySelector('h2').textContent.trim();
+				return title + ((subtitle === 'Скачать через торрент') ? '' : (' / ' + subtitle));
+			} catch {
+				return title + ' / ' + doc.querySelector(`.download-wrapper A[href='${url.pathname}']`)
+					.closest('.dwn-item').querySelector('.dwn-title A').textContent.trim();
+			}
+		},
+	},
+	
+	
+	
+	
+	{
+		label: 'bitru.org',
+		regexp: /^(?:http(s)?:\/\/(.*\.)?bitru.*\/details\.php.*id=([0-9]+))/i,
+		mirrors: [ 'https:\/\/bitru.org' ],
+		poster: (doc) => doc.querySelector('#thumb1 img').getAttribute('src'),
+		title:  (doc) => doc.querySelector('.title,.ellips span').textContent,
+	},
+	{
+		label: 'ANIDUB',
+		regexp: /^(?:http(s)?:\/\/(.*\.)?anidub\..*\/([0-9]+)-.*\.html)/i,
+		mirrors: [ 'https:\/\/tr.anidub.com' ],
+		poster: (doc) => doc.querySelector('.poster img').getAttribute('src'),
+		title:  (doc) => doc.querySelector('#news-title').textContent,
+	},
+	{
+		label: 'AniLibria',
+		regexp: /^(?:http(s)?:\/\/(.*\.)?anilib.*\..*\/release\/.*\.html)/i,
+		mirrors: [ 'https:\/\/anilibria.tv', 'https:\/\/aaa.anilibria.sbs' ],
+		poster: (doc) => doc.querySelector('#adminPoster').getAttribute('src'),
+		title:  (doc, url) => doc.querySelector('.release-title').textContent.trim() + ' / ' +
+				doc.querySelector(`#publicTorrentTable A[href='${url.pathname+url.search}']`)
+				.closest('tr').querySelector('td').textContent,
+	},
+	{
+		label: 'booktracker',
+		regexp: /^(?:http(s)?:\/\/(.*\.)?booktracker.*\/viewtopic\.php\?t=([0-9]+))/i,
+		mirrors: [ 'https:\/\/booktracker.org' ],
+		poster: (doc) => doc.querySelector('.post_body .postImg img').getAttribute('src'),
+		title:  (doc) => doc.querySelector('.maintitle a').textContent,
+	},
+	{
+		label: '1337X',
+		regexp: /^(?:http(s)?:\/\/(.*\.)?13(3|7)7x\..*\/torrent\/([0-9]+))/i,
+		mirrors: [ 'https:\/\/www.1337x.to' ],
+		poster: (doc) => {
+			try   { return doc.querySelector('.torrent-image img').getAttribute('src'); } // small image (poster)
+			catch { return doc.querySelector('#description img').getAttribute('src'); }   // first large image from description
+		},
 	},
 	{
 		// label: 'ANIMEDIA',
@@ -161,23 +237,7 @@ var tsa_trackers = [
 			let name=doc.querySelector('.media__post__title').textContent;
 			let season=doc.querySelector('.media__tabs__nav__item.active a').textContent;
 			return `${name} [${season}]`;
-		}
-	},
-	{
-		label: 'ANIDUB',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?anidub\..*\/([0-9]+)-.*\.html)/i,
-		mirrors: [ 'https:\/\/tr.anidub.com' ],
-		poster: (doc) => doc.querySelector('.poster img').getAttribute('src'),
-		title:  (doc) => doc.querySelector('#news-title').textContent
-	},
-	{
-		label: '1337X',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?13(3|7)7x\..*\/torrent\/([0-9]+))/i,
-		mirrors: [ 'https:\/\/www.1337x.to' ],
-		poster: (doc) => {
-			try   { return doc.querySelector('.torrent-image img').getAttribute('src'); } // small image (poster)
-			catch { return doc.querySelector('#description img').getAttribute('src'); }   // first large image from description
-		}
+		},
 	},
 	{
 		// label: 'RARBG',	// что-то непонятное с постерами с dyncdn.me - не отображаются в браузере из веба ТС, но отображаются по прямой ссылке и в клиентах
@@ -191,22 +251,10 @@ var tsa_trackers = [
 					return tbl.rows[i].cells[1].querySelector('img').getAttribute('src');
 				}
 			}
-		}
+		},
 	},
-	{
-		label: 'bitru.org',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?bitru.*\/details\.php.*id=([0-9]+))/i,
-		mirrors: [ 'https:\/\/bitru.org' ],
-		poster: (doc) => doc.querySelector('#thumb1 img').src,
-		title:  (doc) => doc.querySelector('.title,.ellips span').textContent
-	},
-	{
-		// label: 'HDReactor',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?hdreactor.*\/([0-9]+))-/i,
-		mirrors: [ 'http:\/\/hdreactor.club', 'http:\/\/hdreactor.net' ],
-		poster: (doc) => doc.querySelector('.inner-page__desc img').getAttribute('src'),
-		title:  (doc) => doc.querySelector('.inner-page__desc .inner-page__title').textContent
-	},
+	
+	
 	{
 		// label: 'ULTRADOX',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?ultradox.*\/([0-9]+))-/i,
@@ -216,30 +264,8 @@ var tsa_trackers = [
 			let _rus_title=doc.querySelector('.full-story__top__titles h1').textContent;
 			let _org_title=doc.querySelector('.full-story__top__titles .orig_name').textContent;
 			return `${_rus_title} / ${_org_title}`;
-		}
+		},
 	},
-	{
-		// label: 'WRIZA',	//  доступ открывается только через ссылку из поисковика(яндекс)??????
-		regexp: /^(?:http(s)?:\/\/(.*\.)?wriza\..*\/torrent\/([0-9]+))/i,
-		mirrors: [ 'https:\/\/wriza.top' ],
-		poster: (doc) => doc.querySelector('#pp_996144 img').getAttribute('src'),
-		title:  (doc) => doc.querySelector('.maintitle a').textContent
-	},
-/* 	{
-		label: 'zooqle',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?zooqle\..*\/.*)/i,
-		mirrors: [ 'https:\/\/zooqle.com' ],
-		poster: (doc) => doc.querySelector('#movimg').src,
-		title:  (doc) => doc.querySelector('#torname').childNodes[0].textContent
-	}, */
-/* 	{
-		// label: 'UNDERVERSE', // умер???
-		regexp: /^(?:http(s)?:\/\/(.*\.)?underver(se)?\..*\/viewtopic\.php\?t=([0-9]+))/i,
-		mirrors: [ 'https:\/\/underver.se' ],
-		poster: (doc) => doc.querySelector('.postImgAligned').title.split('=')[1],
-		title:  (doc) => doc.querySelector('.maintitle').textContent,
-		magnet: (doc) => doc.querySelector('.attach A[href^="magnet:"]').href,
-	}, */
 /* 	{
 		// label: 'torrserver.lan',	// тестовый трекер
 		regexp: /^(?:http(s)?:\/\/(.*\.)?torrserver.lan\/ttracker\/torrents\/torrent([0-9]+))/i,
@@ -247,6 +273,7 @@ var tsa_trackers = [
 		poster: (doc) => doc.querySelector('.poster').getAttribute('src'),
 		title: (doc) => doc.querySelector('.title').textContent,
 		magnet: (doc) => doc.querySelector('.magnet').href,
+		threads: 16,
 	}, */
 ];
 
@@ -257,7 +284,7 @@ function tsa_torrInfoCollector(tracker, doc, url){	// собираем со ст
 		torrInfo.poster =  new URL(tracker.poster(doc), torrInfo.data.srcUrl).href;
 	} catch {}
 	try {
-		torrInfo.title  = tracker.title(doc);
+		torrInfo.title  = tracker.title(doc, url);
 		// torrInfo.title = torrInfo.title.substring( 0, 150 );						// обрезка слишком длинного названия
 		torrInfo.title = torrInfo.title.replaceAll('езон', 'eзон');					// меняем первую 'е' в словах 'сезон' и 'серия' с кирилицы на латиницу. Чтобы веб торрсервера не выкидывал инормацию о сериях. В основном для лостфильма и анимедии при добавлении одной серии/сезона
 		torrInfo.title = torrInfo.title.replaceAll('ери', 'eри');

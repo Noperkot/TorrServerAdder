@@ -15,9 +15,8 @@ class tWorkerSrv {
 	onMessage = (request) => {
 
 		switch (request.action) {
-
-		case 'Add':
 		case 'Play':
+		case 'Add':
 			// цепочка обработки торрента //
 			this.Init(request)													// нормализация адреса и извлечение данных для авторизации
 			.then(() => this.tsVer())											// запрашиваем версию сервера в this.request.TS.ver
@@ -60,13 +59,24 @@ class tWorkerSrv {
 			break;
 
 		case 'Replace':
+			this.preventDrop();									// обновление торрента завершится даже после дисконнекта порта
 			this.Init(request)
 			.then(() => this.tsVer())
 			.then(() => this.addTorrent())
 			.then(() => this.trasferViewed())
-			.then(() => this.remTorrent())
-			.then(() => this.remTorrent())	// при массовом обновлении ТС иногда "забывает" удалить торрент (хоть и возвращает 200-й статус). Дублируем запрос на удаление еще пару раз.
-			.then(() => this.remTorrent())
+			.then(() => this.remTorrent(this.request.oldHash))	// при массовом обновлении ТС иногда "забывает" удалить торрент (хоть и возвращает 200-й статус). Дублируем запрос на удаление еще пару раз.
+			.then(() => this.remTorrent(this.request.oldHash))	//
+			.then(() => this.remTorrent(this.request.oldHash))	//
+			.then(() => this.pstMsg('success', this.request.hash))
+			.catch((e) => this.pstMsg(e))
+			.finally(() => this.Disconnect());
+			break;
+			
+		case 'Remove':
+			this.preventDrop();
+			this.Init(request)
+			.then(() => this.tsVer())
+			.then(() => this.remTorrent(this.request.hash))
 			.then(() => this.pstMsg('success', this.request.hash))
 			.catch((e) => this.pstMsg(e))
 			.finally(() => this.Disconnect());
@@ -194,9 +204,9 @@ class tWorkerSrv {
 		});
 	}
 
-	remTorrent(){
+	remTorrent(hash){
 		return new Promise((resolve, reject) => {
-			this.Post(this.tskit.names.path.rem, `{"action":"rem","hash":"${this.request.oldHash}"}`)
+			this.Post(this.tskit.names.path.rem, `{"action":"rem","hash":"${hash}"}`)
 			.then(resolve)
 			.catch(reject);
 		});
@@ -280,7 +290,7 @@ class tWorkerSrv {
 					url: url,
 					active: false
 				}, (tab) => {
-					setTimeout(() => chrome.tabs.remove(tab.id), 10000);
+					setTimeout(() => chrome.tabs.remove(tab.id, () => void chrome.runtime.lastError), 10000);
 					resolve();
 				});
 			}
