@@ -156,7 +156,7 @@
 		"message": "Torrent in db"
 	},
 	"torrent_updates_title": {
-		"message": "Checking for updates"
+		"message": "Checking for torrent updates"
 	},
 	"total_updatable": {
 		"message": "Check for an update"

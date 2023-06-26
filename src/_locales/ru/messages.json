@@ -156,7 +156,7 @@
 		"message": "Торрент в базе"
 	},
 	"torrent_updates_title": {
-		"message": "Поиск обновлений"
+		"message": "Поиск обновлений торрентов"
 	},
 	"total_updatable": {
 		"message": "Искать обновления"

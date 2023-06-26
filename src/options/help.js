@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 	document.querySelectorAll('.toggle_lnk').forEach((elm) => elm.addEventListener("click", ()=>{
 		let div = document.getElementById("poster_info");
 		div.style.maxHeight = (div.style.maxHeight) ? null : '1500px';
-		event.preventDefault();
+		// event.preventDefault();
 		return false;
 	}));
 });

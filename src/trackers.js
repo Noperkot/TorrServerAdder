@@ -156,7 +156,7 @@ var tsa_trackers = [
 		threads: 8,
 	},
 	{
-		label: 'HDrezka',
+		label: 'HDrezka', // у HDrezka возможны две страницы загрузки торрента - 'r' и 'p', которые обрабатываются немного по-разному
 		regexp: /^(?:http(s)?:\/\/(.*\.)?rezka\.cc\/r\/([0-9]+)-)/i,
 		mirrors: [ 'https:\/\/rezka.cc' ],
 		poster: (doc) => doc.querySelector('.si-cover img').getAttribute('src'),
@@ -165,30 +165,23 @@ var tsa_trackers = [
 				.closest('.dwn-list-collapser__group-dwn').querySelector('.dwn-list-none_collapser').textContent.replace(' - скачать через торрент','');
 		},
 	},
-	
-	
-	
 	{
-		// label: 'HDrezka', // у HDrezka возможны две страницы загрузки торрента - 'r' и 'p', которые обрабатываются немного по-разному
+		// label: 'HDrezka',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?rezka\.cc\/p\/([0-9]+)-)/i,
 		mirrors: [ 'https:\/\/rezka.cc' ],
 		poster: (doc) => doc.querySelector('.si-cover img').getAttribute('src'),
 		title:  (doc, url) => {
-			let title = doc.querySelector('.si-title').textContent;
+			let _title = doc.querySelector('.si-title').textContent;
 			try {
-				let subtitle = doc.querySelector(`.download-wrapper A[href='${url.pathname}']`)
+				let _subtitle = doc.querySelector(`.download-wrapper A[href='${url.pathname}']`)
 					.closest('.dwn-list-collapser__group-dwn').querySelector('h2').textContent.trim();
-				return title + ((subtitle === 'Скачать через торрент') ? '' : (' / ' + subtitle));
+				return _title + ((_subtitle === 'Скачать через торрент') ? '' : (' / ' + _subtitle));
 			} catch {
-				return title + ' / ' + doc.querySelector(`.download-wrapper A[href='${url.pathname}']`)
+				return _title + ' / ' + doc.querySelector(`.download-wrapper A[href='${url.pathname}']`)
 					.closest('.dwn-item').querySelector('.dwn-title A').textContent.trim();
 			}
 		},
 	},
-	
-	
-	
-	
 	{
 		label: 'bitru.org',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?bitru.*\/details\.php.*id=([0-9]+))/i,

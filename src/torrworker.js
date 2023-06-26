@@ -59,14 +59,14 @@ class tWorkerSrv {
 			break;
 
 		case 'Replace':
-			this.preventDrop();									// обновление торрента завершится даже после дисконнекта порта
+			this.preventDrop();									// обновление торрента завершится даже после дисконнекта порта (torrupdate.html была закрыта досрочно)
 			this.Init(request)
 			.then(() => this.tsVer())
 			.then(() => this.addTorrent())
-			.then(() => this.trasferViewed())
+			.then(() => this.trasferViewed())	
 			.then(() => this.remTorrent(this.request.oldHash))	// при массовом обновлении ТС иногда "забывает" удалить торрент (хоть и возвращает 200-й статус). Дублируем запрос на удаление еще пару раз.
-			.then(() => this.remTorrent(this.request.oldHash))	//
-			.then(() => this.remTorrent(this.request.oldHash))	//
+			.then(() => this.remTorrent(this.request.oldHash))	// -//-
+			.then(() => this.remTorrent(this.request.oldHash))	// -//-
 			.then(() => this.pstMsg('success', this.request.hash))
 			.catch((e) => this.pstMsg(e))
 			.finally(() => this.Disconnect());

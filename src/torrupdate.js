@@ -8,7 +8,7 @@ class tItem {
 		this.options = options;
 		this.movable = true;
 		this.abortCtrl = {abort:()=>{}};
-		this.contentPort = {disconnect:()=>{}};
+		this.contentPort = this.updatePort = {disconnect:()=>{}};
 		if(!this.torrent.title) this.torrent.title = `hash:${this.torrent.hash}`
 		this.StatusIcon = tsa_elementCreate( 'div' );
 		this.PlayIcon = tsa_elementCreate( 'div', {
@@ -99,6 +99,7 @@ class tItem {
 			this.abortCtrl = new AbortController();	
 			this.Wait(this.tracker) // ограничение запросов на трекер
 			.then(() => this.Wait(torrUpdater.globalThreads)) // глобальное ограничение запросов
+			.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })
 			.then(() => new Promise((resolve,reject)=>{
 				if(attempts--) {
 					let timeout = (this.tracker.timeout || 3000) + Math.random() * 2000;
@@ -152,41 +153,35 @@ class tItem {
 		let StatusIconTitle = this.StatusIcon.title; // сохраняем на случай отмены
 		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('update_in_progress'), null, this.Abort.bind(this));
 		this.abortCtrl = new AbortController();
-		this.Wait(torrUpdater.updateThreads) // ограничение одновременных запросов на TorrServer
-		.then(()=> new Promise((resolve,reject)=>{
-			if(this.abortCtrl.signal.aborted) reject();
-			else { // уже начатое обновление отменить нельзя
-				let updatePort = chrome.runtime.connect();
-				updatePort.onDisconnect.addListener(resolve);
-				updatePort.onMessage.addListener((msg) => {
-					if(msg.action === 'success') {
-						this.Collapse();
-						this.SetStatus('tsastyle-updated', chrome.i18n.getMessage('updated'));
-						this.updateReady = false;
-						this.torrent.hash = msg.val;
-						this.torrent.poster = this.torrInfo.poster;
-						if(this.torrInfo.title) {
-							this.torrName.textContent = this.torrInfo.title;
-							this.torrHeader.title = this.torrInfo.title;
-						}
-					} else {
-						this.SetStatus('tsastyle-error', chrome.i18n.getMessage(msg.val.message) || msg.val.message, (movable)=>this.Update(movable));
+		this.Wait(torrUpdater.updateThreads) // ограничение одновременных запросов на TorrServer, стоящие в очереди можно отменить абортом
+		.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })	
+		.then(()=> new Promise((resolve,reject)=>{ // уже начатое обновление отменить нельзя
+			this.updatePort = chrome.runtime.connect();
+			this.updatePort.onDisconnect.addListener(resolve);
+			this.updatePort.onMessage.addListener((msg) => {
+				if(msg.action === 'success') {
+					this.Collapse();
+					this.SetStatus('tsastyle-updated', chrome.i18n.getMessage('updated'));
+					this.updateReady = false;
+					this.torrent.hash = msg.val;
+					this.torrent.poster = this.torrInfo.poster;
+					if(this.torrInfo.title) {
+						this.torrName.textContent = this.torrInfo.title;
+						this.torrHeader.title = this.torrInfo.title;
 					}
-				});
-				updatePort.postMessage({
-					action: 'Replace',
-					options: this.options,
-					torrInfo: this.torrInfo,
-					linkUrl: this.linkUrl,
-					oldHash: this.torrent.hash,
-					flags: { save: true, play: false, isMagnet: true }
-				});
-			}
+				} else this.SetStatus('tsastyle-error', chrome.i18n.getMessage(msg.val.message) || msg.val.message, (movable)=>this.Update(movable));
+			});
+			this.updatePort.postMessage({
+				action: 'Replace',
+				options: this.options,
+				torrInfo: this.torrInfo,
+				linkUrl: this.linkUrl,
+				oldHash: this.torrent.hash,
+				flags: { save: true, play: false, isMagnet: true }
+			});
 		}))
 		.finally(() => this.Release(torrUpdater.updateThreads))
-		.catch((e) => {
-			this.SetStatus('tsastyle-updatable', StatusIconTitle, (movable)=>this.Update(movable));
-		});
+		.catch((e) => this.SetStatus('tsastyle-updatable', StatusIconTitle, (movable)=>this.Update(movable)));
 	}
 
 	SetStatus(status, text, onclick = null, oncontextmenu = null){
@@ -334,12 +329,12 @@ class tItem {
 				else {
 					const eventHandler = (event) => {
 						event.stopImmediatePropagation();	
-						document.removeEventListener('tsaUnlock'+(obj.label||''), eventHandler);
+						document.removeEventListener('tsa'+obj.label, eventHandler);
 						this.elm.removeEventListener('tsaAbort', eventHandler);
-						obj.threads--; 
+						obj.threads--;
 						resolve();
 					}
-					document.addEventListener('tsaUnlock'+(obj.label||''), eventHandler);
+					document.addEventListener('tsa'+obj.label, eventHandler);
 					this.elm.addEventListener('tsaAbort', eventHandler);
 					return;
 				}
@@ -352,7 +347,7 @@ class tItem {
 		if(typeof obj.threads === 'number') {
 			setTimeout(()=>{
 				obj.threads++;
-				document.dispatchEvent(new Event('tsaUnlock'+(obj.label||'')));
+				document.dispatchEvent(new Event('tsa'+obj.label));
 			}, obj.releaseDelay||0);
 		}	
 	}
@@ -360,8 +355,8 @@ class tItem {
 }
 
 const torrUpdater = {
-	globalThreads:{ threads: 64 }, // глобальное ограничение одновременных запросов на трекеры
-	updateThreads:{ threads: 4 },  // одновременных запросов на TorrServer для обновления торрентов
+	globalThreads:{ label: 'Global', threads: 64 }, // глобальное ограничение одновременных запросов на трекеры
+	updateThreads:{ label: 'Update', threads: 4 },  // одновременных запросов на TorrServer для обновления торрентов
 	tItems: [],
 	counters: {
 		'tsastyle-checkupdate': {div:tsa_elementCreate('div', {
