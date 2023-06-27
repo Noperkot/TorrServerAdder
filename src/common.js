@@ -1,7 +1,7 @@
 'use strict';
 
 function normTSaddr(url){
-	const regexp = /^((?<schema>.+?):\/\/)?((?<user>.+?)(:(?<pswd>.*?))?@)?(?<host>.*?)(:(?<port>\d+?))?(?<path>\/.*?)?(?<query>[?].*?)?$/;
+	const regexp = /^((?<schema>.+?):\/\/)?((?<user>.+?)(:(?<pswd>.*?))?@)?(?<host>[^@]*?)(:(?<port>\d+?))?(?<path>\/.*?)?(?<query>[?].*?)?$/;
 	const m = regexp.exec(url.replace(/\s/g, '')).groups;
 	return {
 		ok: (m.host) ? true : false,
