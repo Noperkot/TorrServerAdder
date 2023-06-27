@@ -53,30 +53,29 @@
 					</li>
 					<li>Catch a magnet links (by clicking on the link, the action specified in the add-on settings is performed). The catching can be temporarily disabled by pressing <b>Ctrl</b> key.</li>
 					<li>
-						<div><a name="trackers"></a>Together with the torrent, its poster and name are transmitted to the server if possible (only for <a href="#trackers" class="toggle_lnk">specific torrent trackers</a>).</div>
+						<div><a name="trackers"></a>Together with the torrent, its poster and name are transmitted to the server if possible (only for <a href="#" class="toggle_lnk">specific torrent trackers</a>).</div>
 						<blockquote id="poster_info">
 							<p>To send a poster you need to add a torrent from the <b>torrent page</b>. <b>TorrServer 1.1</b> TorrServer 1.1 accepts posters sent <b>only by MAGNET link</b>.</p>
 							<p>The poster will be visible from clients (TorrServe, Kodi TorrServer Client), and in the TorrServer MatriX(1.2) web interface.</p>
-							<p>
+							<dl id="trackers">
 								<dt>List of torrent-trackers that support the transfer of posters:</dt>
-								<p><dl id="trackers"></dl></p>
-								<div><b>*</b><i> updatable torrents support</i></div>
-								<p>The search for torrent updates is launched from the profiles menu (LMB on the extension icon), and is performed only for torrents that meet the following requirements:</p>
-								<ul>
-									<li>The torrent must be added using the extension "__MNF_name__" version at least 2.0.0</li>
-									<li>Torrent must be added from a supported tracker (*)</li>
-									<li>The torrent must be added from his personal page</li>
-									<li>When using TorrServer 1.1.x, the torrent must be added via <b>magnet link</b></li>
-									<li>Checking for updates to torrents added from KINOZAL.TV is possible only when authorized on the service. Otherwise, a home page error will be thrown.</li>
-								</ul>
-								<p>When updating the torrent, the transfer of the marks about the watched episodes is carried out only for the MatriX server. For some torrents, the transfer may not occur correctly. In this case, the marks can be placed manually.</p>
-								<p>On trackers covered by Cloudflare, when searching for updates, errors can sometimes occur (5xx or home page unavailable). In such cases, you can try:</p>
-								<ul>
-									<li>Restart the search for updates for all torrents by refreshing the browser page</li>
-									<li>Run search for erroneous torrents one by one</li>
-									<li>Open the torrent page for checking by the browser service, and then restart the general search for updates</li>
-								</ul>
-							</p>
+							</dl>
+							<p><b>*</b><i> updatable torrents support</i></p>
+							<p>The search for torrent updates is launched from the profiles menu (LMB on the extension icon), and is performed only for torrents that meet the following requirements:</p>
+							<ul>
+								<li>The torrent must be added using the extension "__MNF_name__" version at least 2.0.0</li>
+								<li>Torrent must be added from a supported tracker (*)</li>
+								<li>The torrent must be added from his personal page</li>
+								<li>When using TorrServer 1.1.x, the torrent must be added via <b>magnet link</b></li>
+								<li>Checking for updates to torrents added from KINOZAL.TV is possible only when authorized on the service. Otherwise, a home page error will be thrown.</li>
+							</ul>
+							<p>When updating the torrent, the transfer of the marks about the watched episodes is carried out only for the MatriX server. For some torrents, the transfer may not occur correctly. In this case, the marks can be placed manually.</p>
+							<p>On trackers covered by Cloudflare, when searching for updates, errors can sometimes occur (5xx or home page unavailable). In such cases, you can try:</p>
+							<ul>
+								<li>Restart the search for updates for all torrents by refreshing the browser page</li>
+								<li>Run search for erroneous torrents one by one</li>
+								<li>Open the torrent page for checking by the browser service, and then restart the general search for updates</li>
+							</ul>
 						</blockquote>
 					</li>
 					<li>Profile system. Ability to store multiple sets of settings. Switching profiles is performed from the menu called by left-clicking on the extension icon.</li>

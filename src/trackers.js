@@ -246,8 +246,6 @@ var tsa_trackers = [
 			}
 		},
 	},
-	
-	
 	{
 		// label: 'ULTRADOX',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?ultradox.*\/([0-9]+))-/i,

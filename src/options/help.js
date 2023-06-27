@@ -2,25 +2,25 @@
 document.addEventListener('DOMContentLoaded', ()=>{
 	document.querySelectorAll((isChrome()) ? '.for_chrome' : '.for_firefox')
 	.forEach((elm) => elm.className = 'vis');
-	let ul = document.getElementById("trackers");
+	let tlist = document.querySelector('#trackers');
 	for(let tracker of tsa_trackers){
 		if(!tracker.label) continue;
-		let li = document.createElement("dd");
-		li.append(elementCreate('b', { textContent: tracker.label })); 
-		if(tracker.magnet) li.append(elementCreate('sup', { textContent: '*' })); 
-		li.append(elementCreate('span', { textContent: ': ' }));
+		let item = document.createElement("dd");
+		item.append(elementCreate('b', { textContent: tracker.label })); 
+		if(tracker.magnet) item.append(elementCreate('sup', { textContent: '*' })); 
+		item.append(elementCreate('span', { textContent: ': ' }));
  		tracker.mirrors.forEach((mirror) => {
-			li.append(elementCreate('a', { 
+			item.append(elementCreate('a', { 
 				href: mirror, 
 				textContent: (new URL(mirror)).host, 
 				target: '_blank'
 			}));
 		});
-		ul.appendChild(li);
+		tlist.appendChild(item);
 	}
 	document.querySelectorAll('.toggle_lnk').forEach((elm) => elm.addEventListener("click", ()=>{
 		let div = document.getElementById("poster_info");
-		div.style.maxHeight = (div.style.maxHeight) ? null : '1500px';
+		div.style.maxHeight = (event.target.href.endsWith('#')) ? ((div.style.maxHeight) ? null : '1500px') : '1500px';
 		// event.preventDefault();
 		return false;
 	}));

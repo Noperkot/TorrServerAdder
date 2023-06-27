@@ -6,8 +6,8 @@ function normTSaddr(url){
 	return {
 		ok: (m.host) ? true : false,
 		url: (m.host) ? `${m.schema||'http'}:\/\/${m.host}:${m.port||((m.schema==='https')?'443':'8090')}` : '',
-		user: m.user,
-		pswd: m.pswd
+		user: decodeURIComponent(m.user),
+		pswd: decodeURIComponent(m.pswd)
 	};
 }
 
