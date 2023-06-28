@@ -3,16 +3,13 @@
 function normTSaddr(url){
 	const regexp = /^((?<schema>.+?):\/\/)?((?<user>.+?)(:(?<pswd>.*?))?@)?(?<host>[^@]*?)(:(?<port>\d+?))?(?<path>\/.*?)?(?<query>[?].*?)?$/;
 	const m = regexp.exec(url.replace(/\s/g, '')).groups;
-	try{
-		return{
-			ok: (m.host) ? true : false,
-			url: (m.host) ? `${m.schema||'http'}:\/\/${m.host}:${m.port||((m.schema==='https')?'443':'8090')}` : '',
-			user: decodeURIComponent(m.user),
-			pswd: decodeURIComponent(m.pswd),
-		};
-	} catch {
-		return{ ok: false };
-	}
+	const ret = {
+		ok: (m.host) ? true : false,
+		url: (m.host) ? `${m.schema||'http'}:\/\/${m.host}:${m.port||((m.schema==='https')?'443':'8090')}` : '',
+	};
+	try{ret.user = decodeURIComponent(m.user)}catch{}
+	try{ret.pswd = decodeURIComponent(m.pswd)}catch{}
+	return 	ret;
 }
 
 function setIcon(options) {
