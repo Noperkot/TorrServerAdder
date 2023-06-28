@@ -333,13 +333,11 @@ class tItem {
 				if(obj.threads > 0 || this.abortCtrl.signal.aborted) obj.threads--;
 				else {
 					const eventHandler = (e) => {
-						if(obj.threads > 0 || this.abortCtrl.signal.aborted){
-							e.stopImmediatePropagation();	
-							document.removeEventListener('tsa'+obj.label, eventHandler);
-							this.elm.removeEventListener('tsaAbort', eventHandler);
-							obj.threads--;
-							resolve();
-						}
+						e.stopImmediatePropagation();	
+						document.removeEventListener('tsa'+obj.label, eventHandler);
+						this.elm.removeEventListener('tsaAbort', eventHandler);
+						obj.threads--;
+						resolve();
 					}
 					document.addEventListener('tsa'+obj.label, eventHandler);
 					this.elm.addEventListener('tsaAbort', eventHandler);
@@ -352,10 +350,9 @@ class tItem {
 
 	Release(obj){
 		if(typeof obj.threads === 'number') {
-			setTimeout(()=>{
-				obj.threads++;				
-				document.dispatchEvent(new Event('tsa'+obj.label));		
-			}, obj.releaseDelay||0);
+			setTimeout(() => {
+				if(++obj.threads) document.dispatchEvent(new Event('tsa'+obj.label));		
+			}, obj.releaseDelay || 0);
 		}	
 	}
 	
@@ -363,7 +360,7 @@ class tItem {
 
 const torrUpdater = {
 	globalThreads:{ label: 'Global', threads: 64 }, // глобальное ограничение одновременных запросов на трекеры
-	updateThreads:{ label: 'Update', threads: 4 },  // одновременных запросов на TorrServer для обновления торрентов
+	updateThreads:{ label: 'Update', threads: 1, releaseDelay: 500 },  // одновременных запросов на TorrServer для обновления торрентов (в несколько потоков ТС забывает удалять старые торренты)
 	tItems: [],
 	counters: {
 		'tsastyle-checkupdate': {div:tsa_elementCreate('div', {
