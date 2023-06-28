@@ -151,11 +151,15 @@ class tItem {
 		if(!this.updateReady) return;
 		this.movable = movable === true;
 		let StatusIconTitle = this.StatusIcon.title; // сохраняем на случай отмены
-		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('update_in_progress'), null, this.Abort.bind(this));
+		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('in_the_update_queue'), null, this.Abort.bind(this));
 		this.abortCtrl = new AbortController();
 		this.Wait(torrUpdater.updateThreads) // ограничение одновременных запросов на TorrServer, стоящие в очереди можно отменить абортом
 		.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })	
 		.then(()=> new Promise((resolve,reject)=>{ // уже начатое обновление отменить нельзя
+			this.StatusIcon.title = chrome.i18n.getMessage('update_in_progress');
+			this.RemIcon.onclick = null;
+			this.RemIcon.style.opacity = 0.3;
+			this.RemIcon.style.cursor = "default";
 			this.updatePort = chrome.runtime.connect();
 			this.updatePort.onDisconnect.addListener(resolve);
 			this.updatePort.onMessage.addListener((msg) => {
@@ -180,7 +184,12 @@ class tItem {
 				flags: { save: true, play: false, isMagnet: true }
 			});
 		}))
-		.finally(() => this.Release(torrUpdater.updateThreads))
+		.finally(() => {
+			this.Release(torrUpdater.updateThreads);
+			this.RemIcon.onclick = this.Remove.bind(this);
+			this.RemIcon.style.opacity = 1;
+			this.RemIcon.style.cursor = "pointer";
+		})
 		.catch((e) => this.SetStatus('tsastyle-updatable', StatusIconTitle, (movable)=>this.Update(movable)));
 	}
 
@@ -201,17 +210,12 @@ class tItem {
 
 	Remove(){
 		let ovl = document.querySelector('.overlay');
+		this.Abort();
+		this.Collapse();		
 		ovl.querySelector('.btn-ok').onclick = () => {
 			ovl.style.display = 'none';
-			this.Abort();
-			this.Collapse();
-			this.RemIcon.onclick = null;
-			this.RemIcon.className = 'tsastyle-working';
+			this.elm.classList.add('invis');
 			let port = chrome.runtime.connect();
-			port.onDisconnect.addListener(()=>{
-				this.RemIcon.onclick = this.Remove.bind(this);
-				this.RemIcon.className = 'tsastyle-trash';
-			});
 			port.onMessage.addListener((msg) => {
 				if(msg.action === 'success') {
 					this.SetStatus();
@@ -220,6 +224,7 @@ class tItem {
 					this.updateReady = false;
 				}
 				else {
+					this.elm.classList.remove('invis');
 					tWorkerCli.stop()
 					.then(()=>tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className:'tsastyle-warning'}));
 				}
@@ -327,12 +332,14 @@ class tItem {
 			if(typeof obj.threads === 'number') {
 				if(obj.threads > 0 || this.abortCtrl.signal.aborted) obj.threads--;
 				else {
-					const eventHandler = (event) => {
-						event.stopImmediatePropagation();	
-						document.removeEventListener('tsa'+obj.label, eventHandler);
-						this.elm.removeEventListener('tsaAbort', eventHandler);
-						obj.threads--;
-						resolve();
+					const eventHandler = (e) => {
+						if(obj.threads > 0 || this.abortCtrl.signal.aborted){
+							e.stopImmediatePropagation();	
+							document.removeEventListener('tsa'+obj.label, eventHandler);
+							this.elm.removeEventListener('tsaAbort', eventHandler);
+							obj.threads--;
+							resolve();
+						}
 					}
 					document.addEventListener('tsa'+obj.label, eventHandler);
 					this.elm.addEventListener('tsaAbort', eventHandler);
@@ -346,8 +353,8 @@ class tItem {
 	Release(obj){
 		if(typeof obj.threads === 'number') {
 			setTimeout(()=>{
-				obj.threads++;
-				document.dispatchEvent(new Event('tsa'+obj.label));
+				obj.threads++;				
+				document.dispatchEvent(new Event('tsa'+obj.label));		
 			}, obj.releaseDelay||0);
 		}	
 	}

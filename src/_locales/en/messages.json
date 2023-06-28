@@ -191,6 +191,9 @@
 	"no_updates": {
 		"message": "No updates found"
 	},
+	"in_the_update_queue": {
+		"message": "In the update queue..."
+	},	
 	"update_in_progress": {
 		"message": "Update in progress..."
 	},
