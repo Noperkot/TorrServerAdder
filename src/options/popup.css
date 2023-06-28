@@ -74,18 +74,19 @@ header, footer {
 	flex-shrink: 0;
 }
 
-.tsastyle-search {
+.tsastyle-checkupdate {
 	background-color: #0146adc0;
 	min-width: 2rem;
 	margin-left: auto;
 }
 
-.tsastyle-search:before {
+.tsastyle-checkupdate:before {
 	width: 100%;
 	font-size: 150%;
 	padding-bottom: 0.125em;
 }
 
-.tsastyle-search:hover {
+.tsastyle-checkupdate:hover {
 	font-size: 110%;
+	/* transform: scale(1.2); */
 }

@@ -15,6 +15,8 @@ article {
 	vertical-align: middle;
 	text-align: left;
 	width: auto;
+	transform: none;
+	border-radius: 50vh;
 }
 #profile_editor_box {
 	display: none;
@@ -22,9 +24,8 @@ article {
 }
 .toolbox{
 	color: #9cd9b0;
-}
-.toolbox > *:not(select,input):hover {
-	filter: brightness(120%);
+	padding-left: 10px;
+	padding-right: 10px;
 }
 #marker {
 	position: relative;

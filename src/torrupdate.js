@@ -4,14 +4,13 @@ class tItem {
 
 	constructor(torrent,options){
 		if(torrent.stat < 2) return;
-
 		this.torrent = torrent;
 		this.options = options;
 		this.movable = true;
+		this.abortCtrl = {abort:()=>{}};
+		this.contentPort = this.updatePort = {disconnect:()=>{}};
 		if(!this.torrent.title) this.torrent.title = `hash:${this.torrent.hash}`
-
 		this.StatusIcon = tsa_elementCreate( 'div' );
-
 		this.PlayIcon = tsa_elementCreate( 'div', {
 			className: 'tsastyle-playicon',
 			title: chrome.i18n.getMessage('play_file'),
@@ -25,14 +24,22 @@ class tItem {
 				tWorkerCli.stop()
 				.then(()=>tWorkerCli.start(request));
 			},
+			oncontextmenu: (e)=>{
+				navigator.clipboard.writeText(this.torrent.hash);
+				e.stopPropagation();
+				return false;
+			},
 		} );
-
 		this.RemIcon = tsa_elementCreate( 'div', {
 			className: 'tsastyle-trash',
 			title: chrome.i18n.getMessage('remove_torrent'),
 			onclick: this.Remove.bind(this),
 		});
-
+		/* 		this.HashIcon = tsa_elementCreate( 'div', {
+			className: 'tsastyle-hash',
+			title: chrome.i18n.getMessage('copy_hash'),
+			onclick: ()=>navigator.clipboard.writeText(this.torrent.hash),
+		}); */
 		this.LinkIcon = tsa_elementCreate( 'a', { target: '_blank' });
 		try{
 			this.srcUrl = JSON.parse(this.torrent.data).TSA.srcUrl;
@@ -40,21 +47,23 @@ class tItem {
 			this.tracker = tsa_trackers.find((tracker)=>(tracker.magnet && tracker.regexp.test(this.srcUrl)));
 			this.LinkIcon.title = `${this.host}${chrome.i18n.getMessage('torrent_homepage')}`;
 			this.LinkIcon.href = this.srcUrl;
-			this.LinkIcon.className = 'tsastyle-link';
+			this.LinkIcon.className = 'tsastyle-home';
 		} catch {
 			this.LinkIcon.title = `[${chrome.i18n.getMessage('homepage_info_missing')}]`;
-			this.LinkIcon.className = 'tsastyle-unlinked';
+			this.LinkIcon.className = 'tsastyle-homeless';
 		}
-
 		this.torrName = tsa_elementCreate( 'div', {
 			className: 'tsastyle-expand',
 			textContent: this.torrent.title,
 		});
-
 		this.torrHeader = tsa_elementCreate( 'div', {
 			className: 'torrHeader',
 			title: `${formatSize(this.torrent.size)}${this.torrent.title}`,
-			onclick: this.expand.bind(this),
+			onclick: this.Expand.bind(this),
+			oncontextmenu: ()=>{
+				navigator.clipboard.writeText(this.torrName.textContent);
+				return false;
+			},
 			append: [
 				tsa_elementCreate( 'div', {
 					className: 'toolbox',
@@ -63,146 +72,176 @@ class tItem {
 						this.StatusIcon,
 						this.LinkIcon,
 						this.RemIcon,
+						// this.HashIcon,						
 						this.PlayIcon,
 					]
 				}),
 				this.torrName
 			]
 		});
-
 		this.elm = tsa_elementCreate( 'div', {
 			className: 'torrItem',
 			append: [ this.torrHeader ]
 		} );
-
-		if(this.tracker) this.setStatus('tsastyle-search', chrome.i18n.getMessage('check_for_update'), (movable)=>this.checkUpdate(movable));
-		else this.setStatus('tsastyle-nonupdatable', chrome.i18n.getMessage('non_updatable'));
+		if(this.tracker) this.SetStatus('tsastyle-checkupdate', chrome.i18n.getMessage('check_for_update'), (movable)=>this.Check(movable));
+		else this.SetStatus('tsastyle-nonupdatable', chrome.i18n.getMessage('non_updatable'));
+		if(this.options.autocheck !== null && (this.options.autocheck === '' || this.options.autocheck.includes(this.torrent.hash))) {
+			this.Check(true);
+		}
 	}
 
-	checkUpdate(movable){
+	Check(movable){
 		if(!this.tracker) return;
 		this.movable = movable === true;
-		this.setStatus('tsastyle-working', chrome.i18n.getMessage('searching_for_updates'));
-		new Promise(async (resolve,reject)=>{
-			await Lock(this.tracker);	// nnmclub будет обрабатываться в один поток
-			fetch(this.srcUrl)
-			.then(async (response) => {
-				if(response.ok) {
-					let charset = response.headers.get('content-type').match(/(?<=charset=)[^;]*/i) || this.tracker.charset || 'utf-8'; // ??? это работает, что странно... В charset помещается массив???
-					resolve((new TextDecoder(charset)).decode(await response.arrayBuffer()));
+		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('searching_for_updates'), null, this.Abort.bind(this));
+		let attempts = 5; // попыток получить страницу с трекера с таймаутом для каждой попытки.
+		const attempt = ()=>{
+			this.abortCtrl = new AbortController();	
+			this.Wait(this.tracker) // ограничение запросов на трекер
+			.then(() => this.Wait(torrUpdater.globalThreads)) // глобальное ограничение запросов
+			.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })
+			.then(() => new Promise((resolve,reject)=>{
+				if(attempts--) {
+					let timeout = (this.tracker.timeout || 3000) + Math.random() * 2000;
+					this.timeoutTimer = setTimeout(() => this.abortCtrl.abort('timeout'), timeout);
+					fetch(this.srcUrl, {signal: this.abortCtrl.signal})
+					.then(async (response) => {
+						if(response.ok) {
+							let charset = response.headers.get('content-type').match(/(?<=charset=)[^;]*/i) || this.tracker.charset || 'utf-8';
+							resolve((new TextDecoder(charset)).decode(await response.arrayBuffer()));
+						} else reject(new Error(`${chrome.i18n.getMessage('homepage_read_error')} (${response.status})`));
+					})
+					.catch((e) => reject(new Error(chrome.i18n.getMessage('homepage_not_available'))));						
+				} else reject(new Error(chrome.i18n.getMessage('timeout')));
+			}))
+			.then(async (text) => {
+				try{
+					let doc = new DOMParser().parseFromString(text, 'text/html');
+					doc.tsa_location = {href: this.srcUrl};
+					this.nowMagnet = await this.tracker.magnet(doc,this.abortCtrl.signal);
+					this.nowHash = magnetHash(this.nowMagnet);
+					this.updateReady = (this.torrent.hash !== this.nowHash);
+					if(this.updateReady){
+						let url = new URL(this.nowMagnet);
+						this.torrInfo = tsa_torrInfoCollector(this.tracker, doc, url);
+						this.linkUrl = url.href;
+						this.SetStatus('tsastyle-updatable', `${chrome.i18n.getMessage('update_available')}:\n${(this.torrInfo.title) ? this.torrInfo.title : nowHash}`, (movable)=>this.Update(movable));
+						if(this.options.autoupdate !== null) this.Update(false);
+					} else this.SetStatus('tsastyle-noupdate', chrome.i18n.getMessage('no_updates'));
+				} catch {
+					throw new Error(chrome.i18n.getMessage('homepage_layout_not_as_expected'));
 				}
-				else reject(new Error(`${chrome.i18n.getMessage('homepage_read_error')} (${response.status})`));
 			})
-			.catch((e) => reject(new Error(chrome.i18n.getMessage('homepage_not_available'))));
-		})
-		.then(async (text) => {
-			try{
-				let doc = new DOMParser().parseFromString(text, 'text/html');
-				doc.tsa_location = {href: this.srcUrl};
-				this.nowMagnet = await this.tracker.magnet(doc);
-				this.nowHash = magnetHash(this.nowMagnet);
-				this.updateReady = (this.torrent.hash !== this.nowHash);
-				if(this.updateReady){
-					let url = new URL(this.nowMagnet);
-					this.torrInfo = tsa_torrInfoCollector(this.tracker, doc, url);
-					this.linkUrl = url.href;
-					this.setStatus('tsastyle-updatable', `${chrome.i18n.getMessage('update_available')}:\n${(this.torrInfo.title) ? this.torrInfo.title : nowHash}`, (movable)=>this.Update(movable));
-					if(this.options.autoupdate) this.Update(false);
-				} else this.setStatus('tsastyle-noupdate', chrome.i18n.getMessage('no_updates'));
-			} catch {
-				throw new Error(chrome.i18n.getMessage('homepage_layout_not_as_expected'));
-			}
-		})
-		.catch((e) => this.setStatus('tsastyle-error', e.message, (movable)=>this.checkUpdate(movable)))
-		.finally(async () => await Unlock(this.tracker,400));//nnmclub не любит слишком частые обращения, тем более в несколько потоков
+			.finally(() => {
+				clearTimeout(this.timeoutTimer);
+				this.Release(torrUpdater.globalThreads);
+				this.Release(this.tracker);
+			})
+			.catch((e) => {
+				if(this.abortCtrl.signal.aborted) {
+					if(this.abortCtrl.signal.reason === 'timeout') attempt();
+					else this.SetStatus('tsastyle-checkupdate', chrome.i18n.getMessage('check_for_update'), (movable)=>this.Check(movable));
+				} else this.SetStatus('tsastyle-error', e.message, (movable)=>this.Check(movable));
+			});
+		}
+		attempt();
 	}
 
-	async Update(movable){
+	Update(movable){
 		if(!this.updateReady) return;
 		this.movable = movable === true;
-		this.setStatus('tsastyle-working', chrome.i18n.getMessage('update_in_progress'));
-		await Lock(torrUpdater); // обновления будут происходить в один поток, иначе при множественных запросах ТС глючит
-		if(!this.elm) return( Unlock(torrUpdater) ); // пока ждали очереди торрент был удален
-		let port = chrome.runtime.connect();
-		port.onDisconnect.addListener(async () => await Unlock(torrUpdater));
-		port.onMessage.addListener((msg) => {
-			if(msg.action === 'success') {
-				this.collapse();
-				this.setStatus('tsastyle-updated', chrome.i18n.getMessage('updated'));
-				this.updateReady = false;
-				this.torrent.hash = msg.val;
-				this.torrent.poster = this.torrInfo.poster;
-				if(this.torrInfo.title) {
-					this.torrName.textContent = this.torrInfo.title;
-					this.torrHeader.title = this.torrInfo.title;
-				}
-			} else {
-				this.setStatus('tsastyle-error', chrome.i18n.getMessage(msg.val.message) || msg.val.message, (movable)=>this.Update(movable));
-			}
-		});
-		port.postMessage({
-			action: 'Replace',
-			options: this.options,
-			torrInfo: this.torrInfo,
-			linkUrl: this.linkUrl,
-			oldHash: this.torrent.hash,
-			flags: { save: true, play: false, isMagnet: true }
-		});
+		let StatusIconTitle = this.StatusIcon.title; // сохраняем на случай отмены
+		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('in_the_update_queue'), null, this.Abort.bind(this));
+		this.abortCtrl = new AbortController();
+		this.Wait(torrUpdater.updateThreads) // ограничение одновременных запросов на TorrServer, стоящие в очереди можно отменить абортом
+		.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })	
+		.then(()=> new Promise((resolve,reject)=>{ // уже начатое обновление отменить нельзя
+			this.StatusIcon.title = chrome.i18n.getMessage('update_in_progress');
+			this.RemIcon.onclick = null;
+			this.RemIcon.style.opacity = 0.3;
+			this.RemIcon.style.cursor = "default";
+			this.updatePort = chrome.runtime.connect();
+			this.updatePort.onDisconnect.addListener(resolve);
+			this.updatePort.onMessage.addListener((msg) => {
+				if(msg.action === 'success') {
+					this.Collapse();
+					this.SetStatus('tsastyle-updated', chrome.i18n.getMessage('updated'));
+					this.updateReady = false;
+					this.torrent.hash = msg.val;
+					this.torrent.poster = this.torrInfo.poster;
+					if(this.torrInfo.title) {
+						this.torrName.textContent = this.torrInfo.title;
+						this.torrHeader.title = this.torrInfo.title;
+					}
+				} else this.SetStatus('tsastyle-error', chrome.i18n.getMessage(msg.val.message) || msg.val.message, (movable)=>this.Update(movable));
+			});
+			this.updatePort.postMessage({
+				action: 'Replace',
+				options: this.options,
+				torrInfo: this.torrInfo,
+				linkUrl: this.linkUrl,
+				oldHash: this.torrent.hash,
+				flags: { save: true, play: false, isMagnet: true }
+			});
+		}))
+		.finally(() => {
+			this.Release(torrUpdater.updateThreads);
+			this.RemIcon.onclick = this.Remove.bind(this);
+			this.RemIcon.style.opacity = 1;
+			this.RemIcon.style.cursor = "pointer";
+		})
+		.catch((e) => this.SetStatus('tsastyle-updatable', StatusIconTitle, (movable)=>this.Update(movable)));
 	}
 
-	setStatus(status, text, onclick = null){
+	SetStatus(status, text, onclick = null, oncontextmenu = null){
 		this.StatusIcon.className = status;
 		this.StatusIcon.title = `${this.host||''}${text}`;
 		this.StatusIcon.onclick = onclick;
-		document.dispatchEvent(new CustomEvent('StatusChanged', { detail: { item: this, oldStatus: this.status, newStatus: status } }));
+		this.StatusIcon.oncontextmenu = oncontextmenu;
+		document.dispatchEvent(new CustomEvent('tsaStatus', { detail: { item: this, oldStatus: this.status, newStatus: status } }));
 		this.status = status;
 	}
 
-	move(target, prepend){
-		if( !this.movable || this.elm.parentNode === target ) return;
+	Move(target, prepend){
+		if( !this.movable || !this.elm || this.elm.parentNode === target ) return;
 		this.elm.remove();
 		target[(prepend)?"prepend":"append"](this.elm);
 	}
 
 	Remove(){
 		let ovl = document.querySelector('.overlay');
+		this.Abort();
+		this.Collapse();		
 		ovl.querySelector('.btn-ok').onclick = () => {
 			ovl.style.display = 'none';
-			this.collapse();
-			this.RemIcon.onclick = null;
-			this.RemIcon.className = 'tsastyle-working';
+			this.elm.classList.add('invis');
 			let port = chrome.runtime.connect();
-			port.onDisconnect.addListener(()=>{
-				this.RemIcon.onclick = this.Remove.bind(this);
-				this.RemIcon.className = 'tsastyle-trash';
-			});
 			port.onMessage.addListener((msg) => {
 				if(msg.action === 'success') {
-					this.setStatus();
+					this.SetStatus();
 					this.elm.remove();
 					delete this.elm;
 					this.updateReady = false;
 				}
 				else {
+					this.elm.classList.remove('invis');
 					tWorkerCli.stop()
 					.then(()=>tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className:'tsastyle-warning'}));
 				}
 			});
 			let request = {
-				action: 'Replace',
+				action: 'Remove',
 				options: this.options,
-				torrInfo: this.torrInfo,
-				hash: this.torrent.hash, // при существующем hash торрент добавлен не будет, только удалится oldHash
-				oldHash: this.torrent.hash,
+				hash: this.torrent.hash,
 			};
 			port.postMessage(request);
 		};
 		ovl.style.display = 'block';
 	}
 
-	expand(){
+	Expand(){
 		this.torrName.className = 'tsastyle-working';
-		this.torrHeader.onclick = this.collapse.bind(this);
+		this.torrHeader.onclick = this.Collapse.bind(this);
 		let poster = tsa_elementCreate( 'div', { // предзагрузка постера
 			className: 'torrPoster',
 			append: [
@@ -214,7 +253,7 @@ class tItem {
 			]
 		});
 		this.contentPort = chrome.runtime.connect();
-		this.contentPort.onDisconnect.addListener(this.collapse.bind(this));
+		this.contentPort.onDisconnect.addListener(this.Collapse.bind(this));
 		this.contentPort.onMessage.addListener((msg) => {
 			this.contentPort.disconnect();
 			this.torrName.className = 'tsastyle-collapse';
@@ -272,40 +311,106 @@ class tItem {
 		this.contentPort.postMessage({action: 'getContent', hash: this.torrent.hash, options: this.options});
 	}
 
-	collapse(){
-		if(this.contentPort) this.contentPort.disconnect();
+	Collapse(){
+		this.contentPort.disconnect();
 		if(this.Content) {
 			this.Content.remove();
 			delete this.Content;
 		}
 		this.torrName.className = 'tsastyle-expand';
-		this.torrHeader.onclick = this.expand.bind(this);
+		this.torrHeader.onclick = this.Expand.bind(this);
 	}
+	
+	Abort(){
+		this.abortCtrl.abort('abort');
+		this.elm.dispatchEvent(new Event('tsaAbort'));
+		return false;
+	}
+
+	Wait( obj ){
+		return new Promise((resolve,reject) => {
+			if(typeof obj.threads === 'number') {
+				if(obj.threads > 0 || this.abortCtrl.signal.aborted) obj.threads--;
+				else {
+					const eventHandler = (e) => {
+						e.stopImmediatePropagation();	
+						document.removeEventListener('tsa'+obj.label, eventHandler);
+						this.elm.removeEventListener('tsaAbort', eventHandler);
+						obj.threads--;
+						resolve();
+					}
+					document.addEventListener('tsa'+obj.label, eventHandler);
+					this.elm.addEventListener('tsaAbort', eventHandler);
+					return;
+				}
+			}
+			resolve();
+		});
+	}
+
+	Release(obj){
+		if(typeof obj.threads === 'number') {
+			setTimeout(() => {
+				if(++obj.threads) document.dispatchEvent(new Event('tsa'+obj.label));		
+			}, obj.releaseDelay || 0);
+		}	
+	}
+	
 }
 
-let torrUpdater = {
+const torrUpdater = {
+	globalThreads:{ label: 'Global', threads: 64 }, // глобальное ограничение одновременных запросов на трекеры
+	updateThreads:{ label: 'Update', threads: 1, releaseDelay: 500 },  // одновременных запросов на TorrServer для обновления торрентов (в несколько потоков ТС забывает удалять старые торренты)
 	tItems: [],
-
 	counters: {
-		'tsastyle-search': {title:'total_updatable'},
-		'tsastyle-nonupdatable': {title:'total_non_updatable'},
-		'tsastyle-noupdate': {title:'total_no_updates'},
-		'tsastyle-error': {title:'total_errors'},
-		'tsastyle-updated': {title:'total_updated'},
-		'tsastyle-updatable': {title:'total_available_for_update'},
-		'tsastyle-working': {title:'total_in_processing'},
+		'tsastyle-checkupdate': {div:tsa_elementCreate('div', {
+				classList: ['tsastyle-checkupdate','invis','active'],
+				title: chrome.i18n.getMessage('total_updatable'),
+				textContent: ' : ',
+				onclick: ()=>torrUpdater.performItems('tsastyle-checkupdate',false),
+			}),val:0},
+		'tsastyle-nonupdatable': {div:tsa_elementCreate('div', {
+				classList: ['tsastyle-nonupdatable','invis'],
+				title: chrome.i18n.getMessage('total_non_updatable'),
+				textContent: ' : ',
+			}),val:0},
+		'tsastyle-noupdate': {div:tsa_elementCreate('div', {
+				classList: ['tsastyle-noupdate','invis'],
+				title: chrome.i18n.getMessage('total_no_updates'),
+				textContent: ' : ',
+			}),val:0},
+		'tsastyle-error': {div:tsa_elementCreate('div', {
+				classList: ['tsastyle-error','invis','active','pulse'],
+				title: chrome.i18n.getMessage('total_errors'),
+				textContent: ' : ',
+				onclick: ()=>torrUpdater.performItems('tsastyle-error',false),
+			}),val:0},
+		'tsastyle-updated': {div:tsa_elementCreate('div', {
+				classList: ['tsastyle-updated','invis'],
+				title: chrome.i18n.getMessage('total_updated'),
+				textContent: ' : ',
+			}),val:0},
+		'tsastyle-updatable': {div:tsa_elementCreate('div', {
+				classList: ['tsastyle-updatable','invis','active','pulse'],
+				title: chrome.i18n.getMessage('total_available_for_update'),
+				textContent: ' : ',
+				onclick: ()=>torrUpdater.performItems('tsastyle-updatable',false),
+			}),val:0},
+		'tsastyle-working': {div:tsa_elementCreate('div', {
+				classList: ['tsastyle-working','invis'/* ,'active' */],
+				title: chrome.i18n.getMessage('total_in_processing'),
+				textContent: ' : ',
+				oncontextmenu: ()=>torrUpdater.performItems('tsastyle-working',false),
+			}),val:0},
 	},
-
-	lock: false,
 
 	async start(){
 		let params = new URLSearchParams(window.location.search);
 		let ts = params.get('torrserver');
 		if(ts) this.options = {TS_address: ts};
 		else this.options =  await LoadOpt();
-		this.options.autocheck = params.get('autocheck') !== null;
-		this.options.autoupdate = params.get('autoupdate') !== null;
-
+		this.options.autocheck = params.get('autocheck');
+		this.options.autoupdate = params.get('autoupdate');
 		let ovl = document.querySelector('.overlay')
 		let cancelFn = () => ovl.style.display = 'none';
 		ovl.onclick = cancelFn;
@@ -319,15 +424,7 @@ let torrUpdater = {
 		serv.title = 'TorrServer';
 
 		let total = document.querySelector('.total');
-		for(let counter in this.counters) {
-			this.counters[counter].div = tsa_elementCreate('div', {
-				classList: [counter,'invis'],
-				title: chrome.i18n.getMessage(this.counters[counter].title),
-				textContent: ' : ',
-			});
-			this.counters[counter].val = 0;
-			total.append(this.counters[counter].div);
-		}
+		for(let counter in this.counters) total.append(this.counters[counter].div);
 
 		this.groups = {
 			top1: document.querySelector('main div:nth-child(1)'),
@@ -335,8 +432,10 @@ let torrUpdater = {
 			common: document.querySelector('main div:nth-child(3)'),
 		};
 
+		window.onbeforeunload = ()=>this.performItems('tsastyle-working');
+
 		let port = chrome.runtime.connect();
-		port.onMessage.addListener((msg) => {
+		port.onMessage.addListener(async (msg) => {
 			clearTimeout(this.showSpinnerTimer);
 			document.querySelector('main > .tsastyle-working').remove();
 			switch (msg.action) {
@@ -346,10 +445,7 @@ let torrUpdater = {
 							className: 'warning centered',
 							textContent: `—— ${chrome.i18n.getMessage('no_torrents_listed')} ——`,
 						}));
-					} else {
-						msg.val.forEach((torrent) => this.addItem(torrent) );
-						if(this.options.autocheck) this.checkAll();
-					}
+					} else  msg.val.forEach((torrent) => this.addItem(torrent));
 					break;
 				case 'error':
 					document.querySelector('main').append(tsa_elementCreate( 'div', {
@@ -364,19 +460,19 @@ let torrUpdater = {
 		}, 200);
 		port.postMessage({ action: 'List', options: this.options });
 
-		document.addEventListener('StatusChanged', (event) => {
+		document.addEventListener('tsaStatus', (event) => {
 			this.cntrInc(event.detail.newStatus, +1);
 			this.cntrInc(event.detail.oldStatus, -1);
 			switch(event.detail.newStatus){
 				case 'tsastyle-updated':
 				case 'tsastyle-updatable':
-					event.detail.item.move(this.groups.top1);
+					event.detail.item.Move(this.groups.top1);
 					break;
 				case 'tsastyle-error':
-					event.detail.item.move(this.groups.top2);
+					event.detail.item.Move(this.groups.top2);
 					break;
 				case 'tsastyle-noupdate':
-					event.detail.item.move(this.groups.common,true);
+					event.detail.item.Move(this.groups.common,true);
 					break;
 			}
 		});
@@ -385,25 +481,18 @@ let torrUpdater = {
  	addItem(torrent){
 		let item = new tItem(torrent,this.options);
 		this.tItems.push( item );
-		item.move(this.groups.common);
+		item.Move(this.groups.common);
 	},
 
-	checkAll(){
+	performItems(status, ret){
 		document.querySelector('main').scrollTo(0,0);
-		for( let item of this.tItems ) item.checkUpdate(true);
-	},
-
-	checkErrors(){
-		// this.groups.top2.scrollIntoView();
-		document.querySelector('main').scrollTo(0,0);
-		for( let item of this.tItems ) {
-			if(item.StatusIcon.className == 'tsastyle-error') item.StatusIcon.onclick(true);
-		}
-	},
-
-	async updateAll(){
-		document.querySelector('main').scrollTo(0,0);
-		for( let item of this.tItems ) item.Update(true);
+		this.tItems.forEach((item) => {
+			if(item.StatusIcon.className === status){
+				if(item.StatusIcon.onclick) item.StatusIcon.onclick(true);
+				else if(item.StatusIcon.oncontextmenu) item.StatusIcon.oncontextmenu(true);
+			}
+		});
+		return ret;
 	},
 
 	cntrInc(name,val){ // val - +1 -инкремент, -1 -декремент
@@ -411,40 +500,13 @@ let torrUpdater = {
 			let counter = this.counters[name];
 			counter.val += val;
 			counter.div.setAttribute('data', counter.val);
-			counter.div.classList[(counter.val)?'remove':'add']('invis');
-			this.setCntrFun('tsastyle-search', this.checkAll.bind(this));
-			this.setCntrFun('tsastyle-updatable', this.updateAll.bind(this));
-			this.setCntrFun('tsastyle-error', this.checkErrors.bind(this));
+			counter.div.classList[(counter.val)?'remove':'add']('invis');			
 		} catch {}
 	},
-
-	setCntrFun(name,f){
-		let counter = this.counters[name];
-		if(!this.counters['tsastyle-working'].val && counter.val){
-			counter.div.onclick = f;
-			counter.div.classList.add('active');
-		} else {
-			counter.div.onclick = null;
-			counter.div.classList.remove('active');
-		}
-	}
 
 };
 
 document.addEventListener('DOMContentLoaded', () => torrUpdater.start());
-
-
-async function Lock( obj ){
-	while(obj.lock) await new Promise((resolve) => setTimeout(resolve,200));
-	if(obj.lock === false) obj.lock = true;
-}
-
-async function Unlock( obj, delay){
-	if(obj.lock === true) {
-		await new Promise((resolve) => setTimeout(resolve,delay));
-		obj.lock = false;
-	}
-}
 
 function magnetHash( magnet ){
 	return magnet.match(/\burn:btih:([A-F\d]{40})\b/i)[1].toLowerCase();

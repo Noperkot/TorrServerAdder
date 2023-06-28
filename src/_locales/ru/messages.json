@@ -36,7 +36,7 @@
 		"message": "Воспроизвести без добавления"
 	},
 	"play_file": {
-		"message": "Смотреть"
+		"message": "Воспроизвести"
 	},
 	"the_link_is_not_a_torrent": {
 		"message": "Ссылка не является торрентом"
@@ -67,7 +67,7 @@
 	},
 	"catch_link_label": {
 		"message": "Перехват magnet ссылок"
-	},
+		},
 	"no_catching": {
 		"message": "Нет"
 	},
@@ -156,10 +156,10 @@
 		"message": "Торрент в базе"
 	},
 	"torrent_updates_title": {
-		"message": "Поиск обновлений"
+		"message": "Обновление торрентов"
 	},
 	"total_updatable": {
-		"message": "Обновляемых"
+		"message": "Искать обновления"
 	},
 	"total_non_updatable": {
 		"message": "Необновляемых"
@@ -168,10 +168,10 @@
 		"message": "Обновлений нет"
 	},
 	"total_errors": {
-		"message": "Ошибок"
+		"message": "Ошибок (повторить)"
 	},
 	"total_available_for_update": {
-		"message": "Доступно обновлений"
+		"message": "Доступно обновлений (обновить)"
 	},
 	"total_updated": {
 		"message": "Обновлено"
@@ -191,6 +191,9 @@
 	"no_updates": {
 		"message": "Обновлений нет"
 	},
+	"in_the_update_queue": {
+		"message": "В очереди на обновление..."
+	},	
 	"update_in_progress": {
 		"message": "Обновление..."
 	},
@@ -198,7 +201,7 @@
 		"message": "Обновлён"
 	},
 	"homepage_info_missing": {
-		"message": "отсутствует информация о домашней странице"
+		"message": "домашняя страница недоступна"
 	},
 	"homepage_not_available": {
 		"message": "Домашняя страница недоступна"
@@ -222,15 +225,18 @@
 		"message": "Медиафайлы отсутствуют"
 	},
 	"torrent_homepage": {
-		"message": "Домашняя страница торрента"
+		"message": "Домашняя страница"
 	},
 	"remove_torrent": {
-		"message": "Удалить торрент"
+		"message": "Удалить"
 	},
+	"copy_hash": {
+		"message": "Копировать хеш"
+	},	
 	"check_for_update": {
 		"message": "Искать обновления"
 	},
 	"no_torrents_listed": {
-		"message": "На сервере нет торрентов"
+		"message": "На сервере торрентов нет"
 	}
 }

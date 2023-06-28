@@ -156,10 +156,10 @@
 		"message": "Torrent in db"
 	},
 	"torrent_updates_title": {
-		"message": "Checking for updates"
+		"message": "Checking for torrent updates"
 	},
 	"total_updatable": {
-		"message": "Updatable"
+		"message": "Check for an update"
 	},
 	"total_non_updatable": {
 		"message": "Non-updatables"
@@ -168,10 +168,10 @@
 		"message": "No updates found"
 	},
 	"total_errors": {
-		"message": "Errors"
+		"message": "Errors (retry)"
 	},
 	"total_available_for_update": {
-		"message": "Available for update"
+		"message": "Available for update (update)"
 	},
 	"total_updated": {
 		"message": "Updated"
@@ -191,6 +191,9 @@
 	"no_updates": {
 		"message": "No updates found"
 	},
+	"in_the_update_queue": {
+		"message": "In the update queue..."
+	},	
 	"update_in_progress": {
 		"message": "Update in progress..."
 	},
@@ -226,6 +229,9 @@
 	},
 	"remove_torrent": {
 		"message": "Remove torrent"
+	},
+	"copy_hash": {
+		"message": "Copy a hash"
 	},
 	"check_for_update": {
 		"message": "Check for an update"
