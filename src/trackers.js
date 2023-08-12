@@ -20,7 +20,9 @@ var tsa_trackers = [
 		mirrors: [ 'https:\/\/rutracker.org', 'https:\/\/rutracker.net', 'https:\/\/rutracker.nl' ],
 		poster: (doc) => {
 			let elm = doc.querySelector('.postImgAligned');
-			return elm.getAttribute('src') || elm.title;
+			let img = elm.getAttribute('src') || elm.title;
+			if(['broken_image_1.svg','tr_oops.gif'].includes(img.split('/').pop())) throw new Error();
+			return img;
 		},
 		title:  (doc) => doc.querySelector('#soc-container').getAttribute('data-share_title'),
 		magnet: (doc) => doc.querySelector('.magnet-link').href,
