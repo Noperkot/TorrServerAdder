@@ -193,7 +193,7 @@
 	},
 	"in_the_update_queue": {
 		"message": "В очереди на обновление..."
-	},	
+	},
 	"update_in_progress": {
 		"message": "Обновление..."
 	},
@@ -232,7 +232,16 @@
 	},
 	"copy_hash": {
 		"message": "Копировать хеш"
-	},	
+	},
+	"copy_magnet": {
+		"message": "Копировать magnet"
+	},
+	"copy_title": {
+		"message": "Копировать название"
+	},
+	"copy_address": {
+		"message": "Копировать адрес"
+	},
 	"check_for_update": {
 		"message": "Искать обновления"
 	},

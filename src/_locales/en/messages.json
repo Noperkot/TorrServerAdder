@@ -193,7 +193,7 @@
 	},
 	"in_the_update_queue": {
 		"message": "In the update queue..."
-	},	
+	},
 	"update_in_progress": {
 		"message": "Update in progress..."
 	},
@@ -231,7 +231,16 @@
 		"message": "Remove torrent"
 	},
 	"copy_hash": {
-		"message": "Copy a hash"
+		"message": "Copy hash"
+	},
+	"copy_magnet": {
+		"message": "Copy magnet"
+	},
+	"copy_title": {
+		"message": "Copy title"
+	},
+	"copy_address": {
+		"message": "Copy address"
 	},
 	"check_for_update": {
 		"message": "Check for an update"

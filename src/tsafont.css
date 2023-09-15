@@ -63,6 +63,7 @@
 .tsastyle-settings:before		{ content: '\E804'; }
 .tsastyle-trash:before			{ content: '\F1F8'; }
 .tsastyle-edit:before			{ content: '\E803'; }
+.tsastyle-copy:before			{ content: '\F0C5'; }
 .tsastyle-check:before			{ content: '\E807'; }
 .tsastyle-cancel:before			{ content: '\E808'; }
 .tsastyle-circle:before			{ content: '\F111'; }
@@ -79,7 +80,6 @@
 .tsastyle-error:before			{ content: '\E801'; }
 .tsastyle-playicon:before		{ content: '\F144'; }
 .tsastyle-home:before			{ content: '\E80F'; }
-.tsastyle-homeless:before		{ content: '\E80F'; }
 .tsastyle-noicon:before			{ content: ''; }
 .tsastyle-search:before			{ content: '\E809'; }
 .tsastyle-hash:before			{ content: '\F029'; }

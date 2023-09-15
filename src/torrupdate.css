@@ -7,7 +7,7 @@ article{
 	/* color: #007400; */
 	--r-color: 0;
 	--g-color: 116;
-	--b-color: 0;	
+	--b-color: 0;
 }
 
 .tsastyle-updated,
@@ -36,7 +36,7 @@ article{
 	margin-top: 0.5em;
 	margin-bottom: 0.5em;
 	overflow: hidden;
-	}
+}
 
 .torrHeader:hover,
 .torrFlList > *:hover:not(.warning) {
@@ -56,13 +56,8 @@ article{
 	padding-right: 1em;
 }
 
-.toolbox :is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-updated,.tsastyle-homeless,.tsastyle-working):hover,
-.toolbox :is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-updated,.tsastyle-homeless,.tsastyle-working):active {
-	transform: none;
-}
-
-
-.torrHeader > :last-child {
+.torrHeader > div:last-child {
+	pointer-events:none;
 	max-width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -166,16 +161,19 @@ article{
 	width: 1.3em;
 }
 
-:is(.tsastyle-homeless,.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working):before{
-	opacity: 0.3;
+:is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working,.tsastyle-updated):is(:hover,:active) {
+	transform: none;
 }
 
-:is(.tsastyle-homeless,.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working,.tsastyle-updated){
+:is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working,.tsastyle-updated) {
 	cursor: default;
 }
 
+:is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working):before {
+	opacity: 0.3;
+}
+
 .overlay {
-	display: none;
 	position: fixed;
 	width: 100%;
 	top: 0;
@@ -186,22 +184,57 @@ article{
 	z-index: 10000;
 }
 
-.popup {
-	padding: 1em;
+.overlay > div {
+	position: absolute;
 	border: 1px solid #ccc;
 	border-radius: var(--base-radius);
+	overflow:hidden;
 	background: white;
 	box-shadow: 5px 5px 5px #000;
 	z-index: 10001;
+	white-space:nowrap;
+}
+
+.context_overlay > div > div {
+	display: block;
+    cursor: pointer;
+    list-style: none;
+	padding: 0.5em;
+}
+
+.context_overlay > div > div:before {
+	padding-right: 0.5em;
+	padding-bottom: 0.1em;
+	font-size: 100%;
+}
+
+.context_overlay > div > div:hover {
+    background-color: #ddd;
+}
+
+.context_overlay hr{
+	margin: 0;
+	padding: 0;
+	border: none;
+	height: 1px;
+	background-color: rgba(var(--r-color),var(--g-color),var(--b-color));
+	opacity: 0.3;
+}
+
+.remove_overlay > div {
+	padding: 1em;
 	font-size: 120%;
+ 	position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
-.popup > * {
+.remove_overlay > div > * {
 	text-align: center;
-	margin: 0.5em;
 }
 
-button{
+.remove_overlay button{
 	font-size: 90%;
 	min-width: 5em;
 	min-height: 2.5em;
@@ -210,25 +243,32 @@ button{
 	cursor: pointer;
 	border: 2px solid #00a572;
 	outline:none;
+	margin: 0.5em;
+	color: #00a572;
+	background-color: #fff;	
 }
 
-button:hover {
-	transform: scale(1.02);
-}
-
-button:active {
-	transform: scale(0.98);
-	box-shadow: none;
-}
-
-.popup .btn-ok{
+.remove_overlay button#remove_torrent{
 	color: #fff;
 	background-color: #00a572;
 }
 
-.popup .btn-cancel{
-	color: #00a572;
-	background-color: #fff;
+.remove_overlay button:hover {
+	transform: scale(1.02);
+}
+
+.remove_overlay button:active {
+	transform: scale(0.98);
+	box-shadow: none;
+}
+
+.disabled {
+	opacity: 0.3;
+	cursor: default;
+}
+
+.disabled:is(:hover,:active) {
+	transform: none;
 }
 
 .active{
@@ -250,12 +290,10 @@ button:active {
 	animation: shake 3s infinite;
 }
 
-
 .pulse:before{
 	border-radius: 0.5em;
 	animation: pulse 2s infinite;
 }
-
 
 .pulse1:before{ /* при анимации иконка размыта */
 	animation: pulse1 1s infinite;
@@ -285,7 +323,7 @@ main > .tsastyle-working {
 	50% { background-color: #eefff7; }
 }
  */
- 
+
 @keyframes shake {
 	1%	{ transform: translateY(2px) }
 	2%	{ transform: translateY(-2px) }

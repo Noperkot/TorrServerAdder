@@ -8,81 +8,124 @@ class tItem {
 		this.options = options;
 		this.movable = true;
 		this.abortCtrl = {abort:()=>{}};
-		this.contentPort = this.updatePort = {disconnect:()=>{}};
+		this.contentPort = {disconnect:()=>{}};
 		if(!this.torrent.title) this.torrent.title = `hash:${this.torrent.hash}`
 		this.StatusIcon = tsa_elementCreate( 'div' );
 		this.PlayIcon = tsa_elementCreate( 'div', {
 			className: 'tsastyle-playicon',
+			id: 'play',
 			title: chrome.i18n.getMessage('play_file'),
-			onclick: () => {
-				let request = {
-					action: 'Play',
-					hash: this.torrent.hash,
-					flags: {play:true, "save": true},
-					options: this.options,
-				};
-				tWorkerCli.stop()
-				.then(()=>tWorkerCli.start(request));
-			},
-			oncontextmenu: (e)=>{
-				navigator.clipboard.writeText(this.torrent.hash);
-				e.stopPropagation();
-				return false;
-			},
 		} );
 		this.RemIcon = tsa_elementCreate( 'div', {
+			id: 'remove_request',
 			className: 'tsastyle-trash',
 			title: chrome.i18n.getMessage('remove_torrent'),
-			onclick: this.Remove.bind(this),
 		});
-		/* 		this.HashIcon = tsa_elementCreate( 'div', {
-			className: 'tsastyle-hash',
-			title: chrome.i18n.getMessage('copy_hash'),
-			onclick: ()=>navigator.clipboard.writeText(this.torrent.hash),
-		}); */
-		this.LinkIcon = tsa_elementCreate( 'a', { target: '_blank' });
+
+		this.LinkIcon = tsa_elementCreate( 'a', {
+			className: 'tsastyle-home',
+			target: '_blank',
+			onclick: (e)=>{e.stopPropagation()}
+		});
+
 		try{
 			this.srcUrl = JSON.parse(this.torrent.data).TSA.srcUrl;
 			this.host = `[${(new URL(this.srcUrl)).host}]  `;//—
 			this.tracker = tsa_trackers.find((tracker)=>(tracker.magnet && tracker.regexp.test(this.srcUrl)));
 			this.LinkIcon.title = `${this.host}${chrome.i18n.getMessage('torrent_homepage')}`;
 			this.LinkIcon.href = this.srcUrl;
-			this.LinkIcon.className = 'tsastyle-home';
+
 		} catch {
+			this.LinkIcon.classList.add('disabled');
 			this.LinkIcon.title = `[${chrome.i18n.getMessage('homepage_info_missing')}]`;
-			this.LinkIcon.className = 'tsastyle-homeless';
 		}
+
 		this.torrName = tsa_elementCreate( 'div', {
 			className: 'tsastyle-expand',
 			textContent: this.torrent.title,
 		});
+
 		this.torrHeader = tsa_elementCreate( 'div', {
 			className: 'torrHeader',
+			id: 'expand',
 			title: `${formatSize(this.torrent.size)}${this.torrent.title}`,
-			onclick: this.Expand.bind(this),
-			oncontextmenu: ()=>{
-				navigator.clipboard.writeText(this.torrName.textContent);
+			oncontextmenu: (e) => {
+				const ovl = torrUpdater.context_popup;
+				const mnu = ovl.querySelector('div');
+				this.elm.append(ovl);
+				mnu.style.left = `${(e.pageX+mnu.offsetWidth>ovl.offsetWidth)?(ovl.offsetWidth-mnu.offsetWidth):e.pageX}px`;
+				mnu.style.top = `${(e.pageY+mnu.offsetHeight>ovl.offsetHeight)?(ovl.offsetHeight-mnu.offsetHeight):e.pageY}px`;
+				window[(this.srcUrl)?'enableEl':'disableEl'](mnu.querySelector('#copy_address'));
 				return false;
 			},
 			append: [
 				tsa_elementCreate( 'div', {
 					className: 'toolbox',
-					onclick: (e) => e.stopPropagation(),
+					oncontextmenu: (e) => {e.stopPropagation();return false;},
 					append: [
 						this.StatusIcon,
 						this.LinkIcon,
 						this.RemIcon,
-						// this.HashIcon,						
 						this.PlayIcon,
 					]
 				}),
-				this.torrName
+				this.torrName,
 			]
 		});
+
 		this.elm = tsa_elementCreate( 'div', {
 			className: 'torrItem',
+			onclick: (e)=>{
+				switch(e.target.id){
+
+					case 'expand':
+						this.Expand();
+						break
+
+					case 'collapse':
+						this.Collapse();
+						break
+
+					case 'remove_request':
+						this.elm.append(torrUpdater.remove_popup);
+						break
+
+					case 'remove_torrent':
+						this.Remove();
+						break
+
+					case 'play':
+						tWorkerCli.stop()
+						.then(()=>tWorkerCli.start({
+							action: 'Play',
+							hash: this.torrent.hash,
+							flags: {play:true, "save": true},
+							options: this.options,
+						}));
+						break
+
+					case 'copy_hash':
+						navigator.clipboard.writeText(this.torrent.hash);
+						break	
+						
+					case 'copy_magnet':
+						navigator.clipboard.writeText(`magnet:?xt=urn:btih:${this.torrent.hash}&dn=${encodeURIComponent(this.torrent.title)}`);
+						break	
+						
+					case 'copy_title':
+						navigator.clipboard.writeText(this.torrent.title);
+						break
+
+					case 'copy_address':
+						navigator.clipboard.writeText(this.srcUrl||'');
+						break
+
+				}
+				return false;
+			},
 			append: [ this.torrHeader ]
 		} );
+
 		if(this.tracker) this.SetStatus('tsastyle-checkupdate', chrome.i18n.getMessage('check_for_update'), (movable)=>this.Check(movable));
 		else this.SetStatus('tsastyle-nonupdatable', chrome.i18n.getMessage('non_updatable'));
 		if(this.options.autocheck !== null && (this.options.autocheck === '' || this.options.autocheck.includes(this.torrent.hash))) {
@@ -96,13 +139,13 @@ class tItem {
 		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('searching_for_updates'), null, this.Abort.bind(this));
 		let attempts = 5; // попыток получить страницу с трекера с таймаутом для каждой попытки.
 		const attempt = ()=>{
-			this.abortCtrl = new AbortController();	
-			this.Wait(this.tracker) // ограничение запросов на трекер
+			this.abortCtrl = new AbortController();
+			this.Wait(this.tracker) // ограничение одновременных запросов на трекер
 			.then(() => this.Wait(torrUpdater.globalThreads)) // глобальное ограничение запросов
 			.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })
 			.then(() => new Promise((resolve,reject)=>{
 				if(attempts--) {
-					let timeout = (this.tracker.timeout || 3000) + Math.random() * 2000;
+					let timeout = (this.tracker.timeout || 3000) + Math.random() * 2000; // плавающий таймаут для каждой попытки
 					this.timeoutTimer = setTimeout(() => this.abortCtrl.abort('timeout'), timeout);
 					fetch(this.srcUrl, {signal: this.abortCtrl.signal})
 					.then(async (response) => {
@@ -111,7 +154,7 @@ class tItem {
 							resolve((new TextDecoder(charset)).decode(await response.arrayBuffer()));
 						} else reject(new Error(`${chrome.i18n.getMessage('homepage_read_error')} (${response.status})`));
 					})
-					.catch((e) => reject(new Error(chrome.i18n.getMessage('homepage_not_available'))));						
+					.catch((e) => reject(new Error(chrome.i18n.getMessage('homepage_not_available'))));
 				} else reject(new Error(chrome.i18n.getMessage('timeout')));
 			}))
 			.then(async (text) => {
@@ -153,13 +196,11 @@ class tItem {
 		let StatusIconTitle = this.StatusIcon.title; // сохраняем на случай отмены
 		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('in_the_update_queue'), null, this.Abort.bind(this));
 		this.abortCtrl = new AbortController();
-		this.Wait(torrUpdater.updateThreads) // ограничение одновременных запросов на TorrServer, стоящие в очереди можно отменить абортом
-		.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })	
+		this.Wait(torrUpdater.updateThreads) // ограничение одновременных запросов на TorrServer. стоящие в очереди можно отменить абортом
+		.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })
 		.then(()=> new Promise((resolve,reject)=>{ // уже начатое обновление отменить нельзя
 			this.StatusIcon.title = chrome.i18n.getMessage('update_in_progress');
-			this.RemIcon.onclick = null;
-			this.RemIcon.style.opacity = 0.3;
-			this.RemIcon.style.cursor = "default";
+			disableEl(this.RemIcon, this.PlayIcon);
 			this.updatePort = chrome.runtime.connect();
 			this.updatePort.onDisconnect.addListener(resolve);
 			this.updatePort.onMessage.addListener((msg) => {
@@ -185,10 +226,9 @@ class tItem {
 			});
 		}))
 		.finally(() => {
+			enableEl(this.RemIcon, this.PlayIcon);
 			this.Release(torrUpdater.updateThreads);
-			this.RemIcon.onclick = this.Remove.bind(this);
-			this.RemIcon.style.opacity = 1;
-			this.RemIcon.style.cursor = "pointer";
+			delete this.updatePort;
 		})
 		.catch((e) => this.SetStatus('tsastyle-updatable', StatusIconTitle, (movable)=>this.Update(movable)));
 	}
@@ -209,39 +249,34 @@ class tItem {
 	}
 
 	Remove(){
-		let ovl = document.querySelector('.overlay');
-		this.Abort();
-		this.Collapse();		
-		ovl.querySelector('.btn-ok').onclick = () => {
-			ovl.style.display = 'none';
-			this.elm.classList.add('invis');
-			let port = chrome.runtime.connect();
-			port.onMessage.addListener((msg) => {
-				if(msg.action === 'success') {
-					this.SetStatus();
-					this.elm.remove();
-					delete this.elm;
-					this.updateReady = false;
-				}
-				else {
-					this.elm.classList.remove('invis');
-					tWorkerCli.stop()
-					.then(()=>tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className:'tsastyle-warning'}));
-				}
-			});
-			let request = {
-				action: 'Remove',
-				options: this.options,
-				hash: this.torrent.hash,
-			};
-			port.postMessage(request);
-		};
-		ovl.style.display = 'block';
+		if(this.updatePort) return;
+		this.Abort()
+		this.Collapse();
+		this.elm.classList.add('invis');
+		let port = chrome.runtime.connect();
+		port.onMessage.addListener((msg) => {
+			if(msg.action === 'success') {
+				this.SetStatus();
+				this.elm.remove();
+				delete this.elm;
+				this.updateReady = false;
+			}
+			else {
+				this.elm.classList.remove('invis');
+				tWorkerCli.stop()
+				.then(()=>tsa_MessageBox.notify(msg.val.message, msg.val.submessage, {className:'tsastyle-warning'}));
+			}
+		});
+		port.postMessage({
+			action: 'Remove',
+			options: this.options,
+			hash: this.torrent.hash,
+		});
 	}
 
 	Expand(){
 		this.torrName.className = 'tsastyle-working';
-		this.torrHeader.onclick = this.Collapse.bind(this);
+		this.torrHeader.id = 'collapse';
 		let poster = tsa_elementCreate( 'div', { // предзагрузка постера
 			className: 'torrPoster',
 			append: [
@@ -308,7 +343,11 @@ class tItem {
 			}
 			this.elm.append(this.Content);
 		});
-		this.contentPort.postMessage({action: 'getContent', hash: this.torrent.hash, options: this.options});
+		this.contentPort.postMessage({
+			action: 'getContent',
+			hash: this.torrent.hash,
+			options: this.options
+		});
 	}
 
 	Collapse(){
@@ -318,9 +357,9 @@ class tItem {
 			delete this.Content;
 		}
 		this.torrName.className = 'tsastyle-expand';
-		this.torrHeader.onclick = this.Expand.bind(this);
+		this.torrHeader.id = 'expand';
 	}
-	
+
 	Abort(){
 		this.abortCtrl.abort('abort');
 		this.elm.dispatchEvent(new Event('tsaAbort'));
@@ -333,7 +372,7 @@ class tItem {
 				if(obj.threads > 0 || this.abortCtrl.signal.aborted) obj.threads--;
 				else {
 					const eventHandler = (e) => {
-						e.stopImmediatePropagation();	
+						e.stopImmediatePropagation();
 						document.removeEventListener('tsa'+obj.label, eventHandler);
 						this.elm.removeEventListener('tsaAbort', eventHandler);
 						obj.threads--;
@@ -351,11 +390,11 @@ class tItem {
 	Release(obj){
 		if(typeof obj.threads === 'number') {
 			setTimeout(() => {
-				if(++obj.threads) document.dispatchEvent(new Event('tsa'+obj.label));		
+				if(++obj.threads) document.dispatchEvent(new Event('tsa'+obj.label));
 			}, obj.releaseDelay || 0);
-		}	
+		}
 	}
-	
+
 }
 
 const torrUpdater = {
@@ -411,11 +450,26 @@ const torrUpdater = {
 		else this.options =  await LoadOpt();
 		this.options.autocheck = params.get('autocheck');
 		this.options.autoupdate = params.get('autoupdate');
-		let ovl = document.querySelector('.overlay')
-		let cancelFn = () => ovl.style.display = 'none';
-		ovl.onclick = cancelFn;
-		ovl.querySelector('.btn-cancel').onclick = cancelFn;
-		ovl.querySelector('.popup').onclick = (e) => e.stopPropagation();
+
+
+		this.context_popup = createPopup('context_overlay', [
+			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_hash'), id: 'copy_hash' }),
+			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_magnet'), id: 'copy_magnet' }),
+			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_title'), id: 'copy_title' }),
+			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_address'), id: 'copy_address' }),
+			// tsa_elementCreate( 'hr' ),
+			// tsa_elementCreate( 'div', { className: 'tsastyle-trash', textContent: chrome.i18n.getMessage('remove_torrent'), id: 'remove_request' }),	
+		]);
+
+		this.remove_popup = createPopup('remove_overlay', [
+			tsa_elementCreate( 'div', { textContent: chrome.i18n.getMessage('remove_torrent')+'?'}),
+			tsa_elementCreate( 'div', { append:[
+				tsa_elementCreate( 'button', { textContent: chrome.i18n.getMessage('title_cancel') }),
+				tsa_elementCreate( 'button', { textContent: chrome.i18n.getMessage('title_ok'), id: 'remove_torrent' }),
+			]}),
+		]);
+
+		// window.oncontextmenu = (e) => false; // отключить дефолтное контекстное меню
 
 		let addr = normTSaddr(this.options.TS_address).url;
 		let serv = document.querySelector('header > a');
@@ -426,13 +480,14 @@ const torrUpdater = {
 		let total = document.querySelector('.total');
 		for(let counter in this.counters) total.append(this.counters[counter].div);
 
+		const main = document.querySelector('main');
 		this.groups = {
-			top1: document.querySelector('main div:nth-child(1)'),
-			top2: document.querySelector('main div:nth-child(2)'),
-			common: document.querySelector('main div:nth-child(3)'),
+			top1: main.querySelector('div:nth-child(1)'),
+			top2: main.querySelector('div:nth-child(2)'),
+			common: main.querySelector('div:nth-child(3)'),
 		};
 
-		window.onbeforeunload = ()=>this.performItems('tsastyle-working');
+		window.onbeforeunload = ()=>this.performItems('tsastyle-working'); // при закрытии/уходе со страницы остановить все обработки
 
 		let port = chrome.runtime.connect();
 		port.onMessage.addListener(async (msg) => {
@@ -441,14 +496,14 @@ const torrUpdater = {
 			switch (msg.action) {
 				case 'success':
 					if(Object.keys(msg.val).length === 0) {
-						document.querySelector('main').append(tsa_elementCreate( 'div', {
+						main.append(tsa_elementCreate( 'div', {
 							className: 'warning centered',
 							textContent: `—— ${chrome.i18n.getMessage('no_torrents_listed')} ——`,
 						}));
 					} else  msg.val.forEach((torrent) => this.addItem(torrent));
 					break;
 				case 'error':
-					document.querySelector('main').append(tsa_elementCreate( 'div', {
+					main.append(tsa_elementCreate( 'div', {
 						className: 'warning centered',
 						textContent: `—— ${msg.val.message}${(msg.val.submessage)?(' ('+msg.val.submessage+')'):''} ——`,
 					}));
@@ -456,7 +511,7 @@ const torrUpdater = {
 			}
 		});
 		this.showSpinnerTimer = setTimeout(() => {
-			document.querySelector('main > .tsastyle-working').style.display = 'block';	
+			document.querySelector('main > .tsastyle-working').style.display = 'block';
 		}, 200);
 		port.postMessage({ action: 'List', options: this.options });
 
@@ -500,7 +555,7 @@ const torrUpdater = {
 			let counter = this.counters[name];
 			counter.val += val;
 			counter.div.setAttribute('data', counter.val);
-			counter.div.classList[(counter.val)?'remove':'add']('invis');			
+			counter.div.classList[(counter.val)?'remove':'add']('invis');
 		} catch {}
 	},
 
@@ -533,4 +588,29 @@ function formatSize(val) {
 		val /= 1024;
 	}
 	return `[ ${val.toFixed((i>0)?2:0)} ${measurement[i]} ]  `;
+}
+
+function enableEl(...args){
+	args.forEach((el)=>{
+		el.classList.remove('disabled');
+		el.onclick = null;		
+	});
+}
+
+function disableEl(...args){
+	args.forEach((el)=>{
+		el.classList.add('disabled');
+		el.onclick = (e) => e.stopPropagation();
+	});
+}
+
+function createPopup(className, content){
+	let el = tsa_elementCreate( 'div', {
+		className: className + ' overlay',
+		onclick:(e)=>{ e.currentTarget.remove() },
+		oncontextmenu:(e)=>{ e.currentTarget.remove(); return false; },
+		append:[ tsa_elementCreate( 'div', { append: content } ) ],
+	});
+	window.addEventListener('blur', (e)=>{el.remove()});
+	return el;
 }
