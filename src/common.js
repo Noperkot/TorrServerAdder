@@ -5,7 +5,7 @@ function normTSaddr(url){
 	const m = regexp.exec(url.replace(/\s/g, '')).groups;
 	const ret = {
 		ok: (m.host) ? true : false,
-		url: (m.host) ? `${m.schema||'http'}:\/\/${m.host}:${m.port||((m.schema==='https')?'443':'8090')}${(!m.path||m.path==='/')?'':m.path}` : '',
+		url: (m.host) ? `${m.schema||'http'}:\/\/${m.host}:${m.port||((m.schema==='https')?'8091':'8090')}${(!m.path||m.path==='/')?'':m.path}` : '',
 	};
 	try{ret.user = decodeURIComponent(m.user)}catch{}
 	try{ret.pswd = decodeURIComponent(m.pswd)}catch{}
