@@ -195,7 +195,7 @@
 		"message": "В очереди на обновление..."
 	},
 	"update_in_progress": {
-		"message": "Обновление..."
+		"message": "Идет обновление..."
 	},
 	"updated": {
 		"message": "Обновлён"

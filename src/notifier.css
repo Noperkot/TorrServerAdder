@@ -28,9 +28,7 @@
 	bottom: 50px;
 	position: fixed;
 	min-width: 350px;
-	/* max-width: 550px; */
 	z-index: 2147483647;
-
 	border-radius: 10px;
 	border-width: 2px;
 	border-style: solid;
@@ -40,14 +38,11 @@
 	box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
 	display:flex;
 	flex-direction: row;
-	/* margin: 10px; */
 	font-size: 14px;
-	/* font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif; */
 	font-family: Arial, Helvetica, sans-serif;
 	opacity: 0;
 	transition-property: opacity;
 	transition: 0.2s linear;
-
 	color: var(--color);
 	background-color: var(--backgr);
 	border-color: var(--border);
@@ -67,7 +62,6 @@
 }
 
 #TSA_base .TSA_message_title{
-	/* font-size: larger; */
 	text-align: center;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
@@ -75,8 +69,6 @@
 #TSA_base .TSA_message_body{
 	text-align: center;
 	padding-top: 6px;
-	/* color: Gray; */
-	/* color: DimGray; */
 }
 
 #TSA_base .TSA_status_title{
@@ -170,4 +162,3 @@
 	--backgr: #d3ebf8;
 	--border: #9fd3ef;
 }
-

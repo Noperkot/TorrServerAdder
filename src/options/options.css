@@ -1,5 +1,8 @@
 article {
 	width: 50%;
+	--r-color: 0;
+	--g-color: 0;
+	--b-color: 0;
 }
 .table > div{
 	height: 4em;
@@ -12,20 +15,26 @@ article {
 	max-width: 250px;
 	text-overflow: ellipsis;
 	padding: 0.1rem 0.6rem 0.1rem 0.6rem;
-	vertical-align: middle;
 	text-align: left;
 	width: auto;
 	transform: none;
 	border-radius: 50vh;
 }
+#profile_selector {
+	margin-left: 5px;
+}
+#profile_editor {
+	margin-right: 5px;
+}
 #profile_editor_box {
-	display: none;
 	z-index: 2;
+}
+#profile_editor_box .tsastyle-cancel{
+	color: #d99b9b;
 }
 .toolbox{
 	color: #9cd9b0;
-	padding-left: 10px;
-	padding-right: 10px;
+	background-color: #20855b;
 }
 #marker {
 	position: relative;
@@ -40,7 +49,7 @@ article {
 	vertical-align: middle;
 }
 #marker > div > div{
-	vertical-align: middle;
+	position: absolute;
 	width: 60%;
 	height: 60%;
 	border-radius: 50%;
@@ -58,7 +67,6 @@ article {
 input[type=text], input[type=button], select {
 	width: 100%;
 	padding: 0.6rem;
-
 	-webkit-transition: all 0.30s ease-in-out;
 	color: #393939;
 	border-radius: var(--base-radius);
@@ -83,9 +91,9 @@ input[type=checkbox]{
 	height: 1.3em;
 	border-radius: var(--base-radius);
 	vertical-align: middle;
+	/* accent-color: #9cd9b0; */
 }
 .cover{
-	display: none;
 	position: absolute;
 	top:0;
 	left:0;

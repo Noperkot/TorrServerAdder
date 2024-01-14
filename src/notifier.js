@@ -90,7 +90,3 @@ function tsa_elementCreate( element, options ){
 	}
 	return obj;
 }
-
-
-
-

@@ -30,7 +30,7 @@ class tItem {
 
 		try{
 			this.srcUrl = JSON.parse(this.torrent.data).TSA.srcUrl;
-			this.host = `[${(new URL(this.srcUrl)).host}]  `;//—
+			this.host = `[${(new URL(this.srcUrl)).host}]  `;
 			this.tracker = tsa_trackers.find((tracker)=>(tracker.magnet && tracker.regexp.test(this.srcUrl)));
 			this.LinkIcon.title = `${this.host}${chrome.i18n.getMessage('torrent_homepage')}`;
 			this.LinkIcon.href = this.srcUrl;
@@ -106,12 +106,12 @@ class tItem {
 
 					case 'copy_hash':
 						navigator.clipboard.writeText(this.torrent.hash);
-						break	
-						
+						break
+
 					case 'copy_magnet':
 						navigator.clipboard.writeText(`magnet:?xt=urn:btih:${this.torrent.hash}&dn=${encodeURIComponent(this.torrent.title)}`);
-						break	
-						
+						break
+
 					case 'copy_title':
 						navigator.clipboard.writeText(this.torrent.title);
 						break
@@ -194,13 +194,13 @@ class tItem {
 		if(!this.updateReady) return;
 		this.movable = movable === true;
 		let StatusIconTitle = this.StatusIcon.title; // сохраняем на случай отмены
-		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('in_the_update_queue'), null, this.Abort.bind(this));
+		this.SetStatus('tsastyle-working update-processing', chrome.i18n.getMessage('in_the_update_queue'), null, this.Abort.bind(this));
 		this.abortCtrl = new AbortController();
 		this.Wait(torrUpdater.updateThreads) // ограничение одновременных запросов на TorrServer. стоящие в очереди можно отменить абортом
 		.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })
 		.then(()=> new Promise((resolve,reject)=>{ // уже начатое обновление отменить нельзя
-			this.StatusIcon.title = chrome.i18n.getMessage('update_in_progress');
-			disableEl(this.RemIcon, this.PlayIcon);
+			this.SetStatus('tsastyle-working update-processing', chrome.i18n.getMessage('update_in_progress'));
+			disableEl(this.RemIcon, this.PlayIcon, this.torrName);
 			this.updatePort = chrome.runtime.connect();
 			this.updatePort.onDisconnect.addListener(resolve);
 			this.updatePort.onMessage.addListener((msg) => {
@@ -226,7 +226,7 @@ class tItem {
 			});
 		}))
 		.finally(() => {
-			enableEl(this.RemIcon, this.PlayIcon);
+			enableEl(this.RemIcon, this.PlayIcon, this.torrName);
 			this.Release(torrUpdater.updateThreads);
 			delete this.updatePort;
 		})
@@ -238,6 +238,7 @@ class tItem {
 		this.StatusIcon.title = `${this.host||''}${text}`;
 		this.StatusIcon.onclick = onclick;
 		this.StatusIcon.oncontextmenu = oncontextmenu;
+		status = this.StatusIcon.classList[0];
 		document.dispatchEvent(new CustomEvent('tsaStatus', { detail: { item: this, oldStatus: this.status, newStatus: status } }));
 		this.status = status;
 	}
@@ -275,6 +276,7 @@ class tItem {
 	}
 
 	Expand(){
+		if(this.updatePort) return;
 		this.torrName.className = 'tsastyle-working';
 		this.torrHeader.id = 'collapse';
 		let poster = tsa_elementCreate( 'div', { // предзагрузка постера
@@ -330,14 +332,14 @@ class tItem {
 					} else {
 						flList.append(tsa_elementCreate( 'div', {
 							className: 'warning centered',
-							textContent: `—— ${chrome.i18n.getMessage('media_files_are_missing')} ——`,
+							textContent: chrome.i18n.getMessage('media_files_are_missing'),
 						}));
 					}
 					break;
 				case 'error':
 						flList.append(tsa_elementCreate( 'div', {
 							className: 'warning centered',
-							textContent: `—— ${msg.val.message}${(msg.val.submessage)?(' ('+msg.val.submessage+')'):''} ——`,
+							textContent: `${msg.val.message}${(msg.val.submessage)?(' ('+msg.val.submessage+')'):''}`,
 						}));
 					break;
 			}
@@ -451,14 +453,13 @@ const torrUpdater = {
 		this.options.autocheck = params.get('autocheck');
 		this.options.autoupdate = params.get('autoupdate');
 
-
 		this.context_popup = createPopup('context_overlay', [
 			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_hash'), id: 'copy_hash' }),
 			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_magnet'), id: 'copy_magnet' }),
 			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_title'), id: 'copy_title' }),
 			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_address'), id: 'copy_address' }),
 			// tsa_elementCreate( 'hr' ),
-			// tsa_elementCreate( 'div', { className: 'tsastyle-trash', textContent: chrome.i18n.getMessage('remove_torrent'), id: 'remove_request' }),	
+			// tsa_elementCreate( 'div', { className: 'tsastyle-trash', textContent: chrome.i18n.getMessage('remove_torrent'), id: 'remove_request' }),
 		]);
 
 		this.remove_popup = createPopup('remove_overlay', [
@@ -469,7 +470,8 @@ const torrUpdater = {
 			]}),
 		]);
 
-		// window.oncontextmenu = (e) => false; // отключить дефолтное контекстное меню
+		window.oncontextmenu = (e) => false; // отключить дефолтное контекстное меню
+		window.onbeforeunload = ()=>this.performItems('tsastyle-working'); // при закрытии/уходе со страницы остановить все обработки
 
 		let addr = normTSaddr(this.options.TS_address).url;
 		let serv = document.querySelector('header > a');
@@ -487,8 +489,6 @@ const torrUpdater = {
 			common: main.querySelector('div:nth-child(3)'),
 		};
 
-		window.onbeforeunload = ()=>this.performItems('tsastyle-working'); // при закрытии/уходе со страницы остановить все обработки
-
 		let port = chrome.runtime.connect();
 		port.onMessage.addListener(async (msg) => {
 			clearTimeout(this.showSpinnerTimer);
@@ -498,14 +498,14 @@ const torrUpdater = {
 					if(Object.keys(msg.val).length === 0) {
 						main.append(tsa_elementCreate( 'div', {
 							className: 'warning centered',
-							textContent: `—— ${chrome.i18n.getMessage('no_torrents_listed')} ——`,
+							textContent: chrome.i18n.getMessage('no_torrents_listed'),
 						}));
 					} else  msg.val.forEach((torrent) => this.addItem(torrent));
 					break;
 				case 'error':
 					main.append(tsa_elementCreate( 'div', {
 						className: 'warning centered',
-						textContent: `—— ${msg.val.message}${(msg.val.submessage)?(' ('+msg.val.submessage+')'):''} ——`,
+						textContent: `${msg.val.message}${(msg.val.submessage)?(' ('+msg.val.submessage+')'):''}`,
 					}));
 					break;
 			}
@@ -542,7 +542,7 @@ const torrUpdater = {
 	performItems(status, ret){
 		document.querySelector('main').scrollTo(0,0);
 		this.tItems.forEach((item) => {
-			if(item.StatusIcon.className === status){
+			if(item.StatusIcon.classList.contains(status)){
 				if(item.StatusIcon.onclick) item.StatusIcon.onclick(true);
 				else if(item.StatusIcon.oncontextmenu) item.StatusIcon.oncontextmenu(true);
 			}
@@ -593,7 +593,7 @@ function formatSize(val) {
 function enableEl(...args){
 	args.forEach((el)=>{
 		el.classList.remove('disabled');
-		el.onclick = null;		
+		el.onclick = null;
 	});
 }
 

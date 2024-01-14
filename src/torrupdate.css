@@ -11,7 +11,8 @@ article{
 }
 
 .tsastyle-updated,
-.tsastyle-updatable{
+.tsastyle-updatable,
+.update-processing{
 	/* color: #0146ad; */
 	--r-color: 1;
 	--g-color: 70;
@@ -27,7 +28,6 @@ article{
 
 [class*='tsastyle-']:before{
 	color: rgba(var(--r-color),var(--g-color),var(--b-color));
-	/* font-size: 140%; */
 }
 
 .torrItem{
@@ -107,12 +107,14 @@ article{
 	border-radius: var(--base-radius);
 	padding-left: 1em;
 	padding-right: 1em;
+	text-align: left;
 }
 
-.torrFlList > *:before {
+.torrFlList > :is(.tsastyle-viewed,.tsastyle-notviewed):before {
 	padding-bottom: 0.2em;
 	font-size: 80%;
 	padding-right: 0.3em;
+	width: 1em;
 }
 
 .total > [class*='tsastyle-']:before{
@@ -142,7 +144,6 @@ article{
 	min-width: 4.5em;
 	text-align: center;
 	background-color: #d4ece0;
-	/* background-color: rgba(var(--r-color), var(--g-color), var(--b-color), 1); */
 	box-shadow: 0 0 5px #555;
 	border-radius: var(--base-radius);
 	border: 2px solid #00a572;
@@ -154,14 +155,22 @@ article{
 	opacity: 0.3;
 }
 
-.torrHeader > :last-child:before{
-	color: inherit;
-	font-size: 1rem;
-	margin-bottom: 0.125em;
-	width: 1.3em;
+.warning:before, .warning:after {
+	content: '━━';
+	padding-left: 8px;
+	padding-right: 8px;
 }
 
-:is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working,.tsastyle-updated):is(:hover,:active) {
+.torrHeader > :last-child:before {
+	color: inherit;
+	font-size: 1rem;
+	width: 1.3em;
+	margin-left: 0.2em;
+	/* margin-bottom: 0.125em; */
+	vertical-align: baseline;
+}
+
+.toolbox :is(.tsastyle-nonupdatable,.tsastyle-noupdate,.tsastyle-working,.tsastyle-updated):is(:hover,:active) {
 	transform: none;
 }
 
@@ -200,6 +209,7 @@ article{
     cursor: pointer;
     list-style: none;
 	padding: 0.5em;
+	text-align: left;
 }
 
 .context_overlay > div > div:before {
@@ -245,7 +255,7 @@ article{
 	outline:none;
 	margin: 0.5em;
 	color: #00a572;
-	background-color: #fff;	
+	background-color: #fff;
 }
 
 .remove_overlay button#remove_torrent{
@@ -263,8 +273,8 @@ article{
 }
 
 .disabled {
+	cursor: default !important;
 	opacity: 0.3;
-	cursor: default;
 }
 
 .disabled:is(:hover,:active) {
@@ -335,4 +345,28 @@ main > .tsastyle-working {
 
 @keyframes rotate {
 	to { transform: rotateY(360deg); }
+}
+
+
+.toolbox  {
+	position: relative;
+	height: 28px;
+	padding-left: 0;
+	padding-right: 4px;
+	background-color: #85cba8;
+}
+
+.toolbox:before  {
+	content: '';
+    position: absolute;
+    left: -1px;
+	width:36px;
+	height:36px;
+}
+
+.toolbox > div:first-child {
+	width:36px;
+	font-size: 120%;
+	z-index:1;
+	padding-right: 2px;
 }

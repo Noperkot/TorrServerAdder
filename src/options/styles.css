@@ -48,7 +48,6 @@ main{
 
 header a, footer a{
 	color: var(--base-color);
-	/* text-decoration: none; */
 }
 
 a {
@@ -108,36 +107,33 @@ dd {
 	padding-left: 0.5em;
 }
 
-.invis{
-	display: none;
-}
-
 .toolbox{
-	display: inline-block;
-	border-radius: 50vh;
-	background-color: #ffffff20;
-	height: 100%;
-	padding: 0.3em;
-	margin-left: 0.3em;
-	margin-right: 0.3em;
+	display: inline-flex;
+	align-items: center;
+	height: 32px;
+	padding-left: 8px;
+	padding-right: 8px;
 	cursor: default;
 	white-space: nowrap;
 	user-select: none;
 }
 
+.toolbox, .toolbox:before{
+	border: 1px solid rgba(var(--r-color),var(--g-color),var(--b-color),0.2);
+	border-radius: 50vh;
+	background-color: inherit;
+}
+
 .toolbox:hover {
-	/* transform: translate(0, -1px); */
-	/* box-shadow: 0 2px 4px 0 #00000080; */
-	box-shadow: 0px 0px 3px 0px #00000080;
+	filter: drop-shadow(0 0 1px rgba(0,0,0,0.5));
 }
 
 .toolbox > * {
-	display: inline-block;
-	padding-bottom: 0.08em;
-	width: 1.8em;
 	text-align: center;
-	/* font-size: 140%; */
+	line-height: 1em;
 	cursor: pointer;
+	width: 1.6em;
+	text-decoration: none;
 }
 
 .toolbox > *:hover {
@@ -146,4 +142,8 @@ dd {
 
 .toolbox > *:active {
 	transform: scale(0.8);
+}
+
+.invis{
+	display: none;
 }

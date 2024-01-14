@@ -30,4 +30,3 @@ function cs_inject(tabID, cs){
 }
 
 window.addEventListener('load', Install);
-
