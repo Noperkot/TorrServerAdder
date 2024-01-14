@@ -199,13 +199,13 @@ class tItem {
 		this.Wait(torrUpdater.updateThreads) // ограничение одновременных запросов на TorrServer. стоящие в очереди можно отменить абортом
 		.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })
 		.then(()=> new Promise((resolve,reject)=>{ // уже начатое обновление отменить нельзя
+			this.Collapse();
 			this.SetStatus('tsastyle-working update-processing', chrome.i18n.getMessage('update_in_progress'));
 			disableEl(this.RemIcon, this.PlayIcon, this.torrName);
 			this.updatePort = chrome.runtime.connect();
 			this.updatePort.onDisconnect.addListener(resolve);
 			this.updatePort.onMessage.addListener((msg) => {
 				if(msg.action === 'success') {
-					this.Collapse();
 					this.SetStatus('tsastyle-updated', chrome.i18n.getMessage('updated'));
 					this.updateReady = false;
 					this.torrent.hash = msg.val;
