@@ -83,7 +83,7 @@ var tsa_trackers = [
 	{
 		label: 'LostFilm.TV',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?insearch.site.*\/index\.php.*h=([0-9a-f]{32}))/i,
-		mirrors: [ 'https:\/\/lostfilm.tv', 'https:\/\/lostfilm.today' ],
+		mirrors: [ 'https:\/\/lostfilm.tv', 'https:\/\/lostfilm.work', 'https:\/\/lostfilm.today' ],
 		poster: (doc) => {
 			let params = (new URL(doc.location)).searchParams;
 			let serid = params.get("c");
@@ -139,7 +139,7 @@ var tsa_trackers = [
 	},
 	{
 		label: 'PiratBit',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?(pb|piratbit)\..*\/topic\/([0-9]+))/i,
+		regexp: /^(?:http(s)?:\/\/(.*\.)?(pb|piratbit)\..*\/(t|topic)\/([0-9]+))/i,
 		mirrors: [ 'https:\/\/piratbit.org', 'https:\/\/pb.wtf', 'https:\/\/5050.piratbit.fun' ],
 		poster: (doc) => doc.querySelector('.postImgAligned').title,
 		title:  (doc) => doc.querySelector('.tt-text strong').textContent,
