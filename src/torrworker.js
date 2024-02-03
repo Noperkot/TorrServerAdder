@@ -63,7 +63,7 @@ class tWorkerSrv {
 			this.Init(request)
 			.then(() => this.tsVer())
 			.then(() => this.addTorrent())
-			.then(() => this.trasferViewed())	
+			.then(() => this.trasferViewed())
 			.then(() => this.remTorrent(this.request.oldHash))	// при массовом обновлении ТС иногда "забывает" удалить торрент (хоть и возвращает 200-й статус). Дублируем запрос на удаление еще пару раз.
 			.then(() => this.remTorrent(this.request.oldHash))	// -//-
 			.then(() => this.remTorrent(this.request.oldHash))	// -//-
@@ -71,7 +71,7 @@ class tWorkerSrv {
 			.catch((e) => this.pstMsg(e))
 			.finally(() => this.Disconnect());
 			break;
-			
+
 		case 'Remove':
 			this.preventDrop();
 			this.Init(request)
@@ -321,20 +321,20 @@ class tWorkerSrv {
 		});
 	}
 
-/* 
+/*
 	// версия Load использующая куки (в том числе с флагом HttpOnly) из хранилища
 	// требуется для чтения торрент-файла на очень немногих сайтах прикрытых cloudflare и только в режиме инкогнито
 	// требует "permissions": [ ... "cookies" ...] в manifest.json
 	// пусть пока полежит на черный день
 	// ??? "incognito": "split" в manifest.json ???
 	//
-	Load() {	// загрузчик торрент-файла 
+	Load() {	// загрузчик торрент-файла
 		return new Promise((resolve, reject) => {
 			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 				chrome.cookies.getAllCookieStores((cookieStores)=>{
 					for(let cookieStore of cookieStores){
 						if(cookieStore.tabIds.includes(tabs[0].id) ){
-							chrome.cookies.getAll({ 
+							chrome.cookies.getAll({
 								storeId: cookieStore.id,
 								url: this.request.linkUrl,
 							}, (cookies) => {

@@ -18,7 +18,7 @@ tsVersions['MatriX.'] = {
 			'ActivePeers': 'active_peers',
 			'TotalPeers': 'total_peers',
 			'PreloadSize': 'preload_size',
-			// 'LoadedSize': 'preloaded_bytes',			
+			// 'LoadedSize': 'preloaded_bytes',
 			'LoadedSize': 'bytes_read',
 			'TorrentSize': 'torrent_size',
 			'FileStats': 'file_stats',
@@ -129,7 +129,7 @@ tsVersions['MatriX.'] = {
 			.catch(reject);
 		});
 	},
-	
+
 	trasferViewed(){
 		return new Promise((resolve, reject) => {
 			this.Post('viewed',`{"action":"list","hash":"${this.request.oldHash}"}`)
@@ -145,7 +145,7 @@ tsVersions['MatriX.'] = {
 			.then(resolve)
 			.catch(reject);
 		})
-	},	
+	},
 };
 
 tsVersions['1.2.'] = tsVersions['MatriX.'];

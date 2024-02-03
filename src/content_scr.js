@@ -33,7 +33,7 @@ if (document.body) {
 			a_obj.removeEventListener('click', magnetClickListener);
 		}
 	}
-	
+
 	function modKeysListener(ev) {
 		modKeys.ctrlKey  = ev.ctrlKey;
 		modKeys.shiftKey = ev.shiftKey;

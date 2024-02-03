@@ -6,13 +6,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
 	for(let tracker of tsa_trackers){
 		if(!tracker.label) continue;
 		let item = document.createElement("dd");
-		item.append(elementCreate('b', { textContent: tracker.label })); 
-		if(tracker.magnet) item.append(elementCreate('sup', { textContent: '*' })); 
+		item.append(elementCreate('b', { textContent: tracker.label }));
+		if(tracker.magnet) item.append(elementCreate('sup', { textContent: '*' }));
 		item.append(elementCreate('span', { textContent: ': ' }));
  		tracker.mirrors.forEach((mirror) => {
-			item.append(elementCreate('a', { 
-				href: mirror, 
-				textContent: (new URL(mirror)).host, 
+			item.append(elementCreate('a', {
+				href: mirror,
+				textContent: (new URL(mirror)).host,
 				target: '_blank'
 			}));
 		});

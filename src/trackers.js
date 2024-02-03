@@ -19,8 +19,10 @@ var tsa_trackers = [
 		regexp: /^(?:http(s)?:\/\/(.*\.)?rutracker\..*\/forum\/viewtopic\.php\?t=([0-9]+))/i,
 		mirrors: [ 'https:\/\/rutracker.org', 'https:\/\/rutracker.net', 'https:\/\/rutracker.nl' ],
 		poster: (doc) => {
-			let elm = doc.querySelector('.postImgAligned');
-			return elm.getAttribute('src') || elm.title;
+			let elm = doc.querySelector('.post_body .postImgAligned');
+			let img = elm.getAttribute('src') || elm.title;
+			if(['broken_image_1.svg','tr_oops.gif'].includes(img.split('/').pop())) throw new Error();
+			return img;
 		},
 		title:  (doc) => doc.querySelector('#soc-container').getAttribute('data-share_title'),
 		magnet: (doc) => doc.querySelector('.magnet-link').href,
@@ -30,7 +32,7 @@ var tsa_trackers = [
 	{
 		label: 'КИНОЗАЛ.ТВ',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?.*kinozal.*\/details\.php.*id=([0-9]+))/i,
-		mirrors: [ 'https:\/\/kinozal.tv', 'https:\/\/kinozal.guru', 'https:\/\/kinozal.me' ],
+		mirrors: [ 'https:\/\/kinozal.tv', 'https:\/\/kinozal.guru', 'https:\/\/kinozal.me', 'https:\/\/kinozaltv.life' ],
 		poster: (doc) => doc.querySelector('.p200').getAttribute('src'),
 		title:  (doc) => doc.querySelector('.mn_wrap h1 a').textContent,
 		magnet: (doc, abort_signal) => {
@@ -81,7 +83,7 @@ var tsa_trackers = [
 	{
 		label: 'LostFilm.TV',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?insearch.site.*\/index\.php.*h=([0-9a-f]{32}))/i,
-		mirrors: [ 'https:\/\/lostfilm.tv', 'https:\/\/lostfilm.today' ],
+		mirrors: [ 'https:\/\/lostfilm.tv', 'https:\/\/lostfilm.work', 'https:\/\/lostfilm.today' ],
 		poster: (doc) => {
 			let params = (new URL(doc.location)).searchParams;
 			let serid = params.get("c");
@@ -106,9 +108,9 @@ var tsa_trackers = [
 		label: 'MegaPeer',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?megapeer.*\/torrent\/([0-9]+))/i,
 		mirrors: [ 'http:\/\/megapeer.ru', 'http:\/\/megapeer.vip' ],
-		poster: (doc) => doc.querySelector('#detali tr:nth-child(1) td:nth-child(2) img').getAttribute('src'),
+		poster: (doc) => doc.querySelector('#details tr:nth-child(1) td:nth-child(2) img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('h1').textContent,
-		magnet: (doc) => doc.querySelector('.download A[href^="magnet:"]').href,
+		magnet: (doc) => doc.querySelector('#download A[href^="magnet:"]').href,
 		threads: 8,
 		timeout: 5000,
 	},
@@ -116,10 +118,10 @@ var tsa_trackers = [
 		label: 'torrent.by',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?torrent.by\/([0-9]+))\//i,
 		mirrors: [ 'https:\/\/torrent.by' ],
-		poster: (doc) => (Array.from(doc.querySelectorAll('#details img')).find(el => el.closest('A') === null)||doc.querySelector('span img')).getAttribute('src'),
+		poster: (doc) => (Array.from(doc.querySelectorAll('.descr img')).find(el => el.closest('A') === null)||doc.querySelector('span img')).getAttribute('src'),
 		title:  (doc) => doc.querySelector('h1').textContent,
-		magnet: (doc) => doc.querySelector('#downloadbox A[href^="magnet:"]').href,
-		threads: 16,
+		// magnet: (doc) => doc.querySelector('#downloadbox A[href^="magnet:"]').href, // на torrent.by раздачи не обновляются??? просто удаляются старые и добавляются новые???
+		// threads: 16,
 	},
 	{
 		label: 'Fast-Torrent',
@@ -137,7 +139,7 @@ var tsa_trackers = [
 	},
 	{
 		label: 'PiratBit',
-		regexp: /^(?:http(s)?:\/\/(.*\.)?(pb|piratbit)\..*\/topic\/([0-9]+))/i,
+		regexp: /^(?:http(s)?:\/\/(.*\.)?(pb|piratbit)\..*\/(t|topic)\/([0-9]+))/i,
 		mirrors: [ 'https:\/\/piratbit.org', 'https:\/\/pb.wtf', 'https:\/\/5050.piratbit.fun' ],
 		poster: (doc) => doc.querySelector('.postImgAligned').title,
 		title:  (doc) => doc.querySelector('.tt-text strong').textContent,
@@ -152,7 +154,7 @@ var tsa_trackers = [
 		poster: (doc) => doc.querySelector('.preview img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('.social-likes.social-likes_single').getAttribute('data-title').replace('Скачать торрент - ',''),
 		magnet: (doc) => doc.querySelector('.torrent A[href^="magnet:"]').href,
-		charset: 'windows-1251',		
+		charset: 'windows-1251',
 		threads: 8,
 	},
 	{

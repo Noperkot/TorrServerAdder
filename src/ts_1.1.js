@@ -18,7 +18,7 @@ tsVersions['1.1.'] = {
 			'ActivePeers': 'ActivePeers',
 			'TotalPeers': 'TotalPeers',
 			'PreloadSize': 'PreloadSize',
-			// 'LoadedSize': 'PreloadedBytes',			
+			// 'LoadedSize': 'PreloadedBytes',
 			'LoadedSize': 'LoadedSize',
 			'TorrentSize': 'TorrentSize',
 			'FileStats': 'FileStats',

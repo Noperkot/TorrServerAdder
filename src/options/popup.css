@@ -31,6 +31,7 @@ header, footer {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	text-align: left;
 }
 
 .item  > :first-child {
@@ -43,8 +44,6 @@ header, footer {
 .item:before{
 	display: inline-block;
 	width: 2rem;
-	text-align: left;
-	text-align: center;
 	vertical-align: middle;
 	padding-bottom: 0.2em;
 	color: var(--profile-color);
@@ -88,5 +87,4 @@ header, footer {
 
 .tsastyle-checkupdate:hover {
 	font-size: 110%;
-	/* transform: scale(1.2); */
 }

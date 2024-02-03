@@ -16,7 +16,7 @@ function on_page_loaded() {
 	elm.saved_msg = document.getElementById("saved_msg");
 	elm.marker = document.querySelector('#marker > div > div');
 	elm.cover = document.querySelector('.cover');
-	// elm.cover.onclick = profile_editor_cancel;
+	elm.cover.onclick = profile_editor_cancel;
 
 	/** load profiles */
 	chrome.storage.local.get(['profiles','selected_profile'], (response)=>{
@@ -38,8 +38,7 @@ function on_page_loaded() {
 	});
 
 	if (isChrome()){ // show invis (for Chrome br.)
-		const divs = document.getElementsByClassName('invis');
-		for(let div of divs) div.className = 'options_item';
+		document.querySelectorAll('main .table .invis').forEach((div)=>{div.className = 'options_item'});
 	}
 
 	document.getElementById('save').addEventListener('click', ()=>{
@@ -153,17 +152,16 @@ function apply_form(profile_id){
 }
 
 function profile_editor_enable( profile_name, profile_id  ){
-	elm.cover.style.display = 'block';
-	elm.profile_selector_box.style.display = 'none';
-	elm.profile_editor_box.style.display = 'block';
+	elm.cover.classList.remove('invis');
+	elm.profile_selector_box.classList.add('invis');
+	elm.profile_editor_box.classList.remove('invis');
 	elm.profile_editor.focus();
-
 }
 
 function profile_editor_disable(){
-	elm.cover.style.display = 'none';
-	elm.profile_selector_box.style.display = 'block';
-	elm.profile_editor_box.style.display = 'none';
+	elm.cover.classList.add('invis');
+	elm.profile_selector_box.classList.remove('invis');
+	elm.profile_editor_box.classList.add('invis');
 }
 
 document.addEventListener('DOMContentLoaded', on_page_loaded);
