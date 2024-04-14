@@ -1,5 +1,7 @@
 'use strict';
 
+const categories = ['','movie','tv','music','other'];
+
 tsVersions['MatriX.'] = {
 
 	names: {
@@ -33,6 +35,7 @@ tsVersions['MatriX.'] = {
 				'link': this.request.linkUrl,
 				'title': this.request.torrInfo.title || '',
 				'poster': this.request.torrInfo.poster || '',
+				'category': ('category' in this.request) ? this.request.category : categories[ this.request.options.category_idx || 0 ],
 				'data': JSON.stringify({TSA: this.request.torrInfo.data}),
 				'save_to_db': this.request.flags.save
 			};
@@ -51,6 +54,7 @@ tsVersions['MatriX.'] = {
 				if (this.request.torrInfo.title) body.append('title', this.request.torrInfo.title);
 				if (this.request.torrInfo.poster) body.append('poster', this.request.torrInfo.poster);
 				if (this.request.flags.save) body.append('save', this.request.flags.save);
+				body.append('category', ('category' in this.request) ? this.request.category : categories[ this.request.options.category_idx || 0 ]);
 				body.append('data', JSON.stringify({TSA: this.request.torrInfo.data}));
 				body.append('file-0', blob);
 				return body;
@@ -73,6 +77,7 @@ tsVersions['MatriX.'] = {
 						hash: torrent.hash,
 						title: torrent.title,
 						poster: torrent.poster,
+						category: torrent.category || '',
 						data: torrent.data,
 						size: torrent.torrent_size,
 					});

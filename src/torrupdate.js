@@ -222,6 +222,7 @@ class tItem {
 				torrInfo: this.torrInfo,
 				linkUrl: this.linkUrl,
 				oldHash: this.torrent.hash,
+				category: this.torrent.category,
 				flags: { save: true, play: false, isMagnet: true }
 			});
 		}))

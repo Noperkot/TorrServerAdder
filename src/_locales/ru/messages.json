@@ -71,6 +71,24 @@
 	"no_catching": {
 		"message": "Нет"
 	},
+	"category_label": {
+		"message": "Категория торрента"
+	},
+	"category_title": {
+		"message": "Торренты будет добавлятся с выбранной категорией. Категории торрентов поддерживаются TorrServer-ом начиная с версии MatriX.131."
+	},
+	"movies_category": {
+		"message": "Фильмы"
+	},
+	"series_category": {
+		"message": "Сериалы"
+	},
+	"music_category": {
+		"message": "Музыка"
+	},
+	"other_category": {
+		"message": "Другое"
+	},
 	"help": {
 		"message": "Справка"
 	},
