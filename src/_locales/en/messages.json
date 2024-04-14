@@ -75,7 +75,7 @@
 		"message": "Torrent category"
 	},
 	"category_title": {
-		"message": "Torrents will be added with the selected category. Torrent categories are supported by TorrServer starting from the MatriX.131 version."
+		"message": "Torrents will be added with the selected category.\n(Torrent categories are supported by TorrServer starting from the MatriX.131 version)"
 	},
 	"movies_category": {
 		"message": "Movies"
