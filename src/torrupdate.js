@@ -128,9 +128,7 @@ class tItem {
 
 		if(this.tracker) this.SetStatus('tsastyle-checkupdate', chrome.i18n.getMessage('check_for_update'), (movable)=>this.Check(movable));
 		else this.SetStatus('tsastyle-nonupdatable', chrome.i18n.getMessage('non_updatable'));
-		if(this.options.autocheck !== null && (this.options.autocheck === '' || this.options.autocheck.includes(this.torrent.hash))) {
-			this.Check(true);
-		}
+		if(this.options.autocheck !== null) this.Check(true);
 	}
 
 	Check(movable){
