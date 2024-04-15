@@ -30,8 +30,8 @@
             ]
         }
     ],
-    "manifest_version": 2,
-    "browser_action": {
+    "manifest_version": 3,
+    "action": {
         "default_icon": {
             "128": "icons/icon128.png",
             "48": "icons/icon48.png",
@@ -40,28 +40,37 @@
         "default_popup": "options/popup.html"
     },
     "background": {
-        "scripts": [
-            "common.js",
-            "background.js",
-            "background_M2.js",
-            "torrworker.js",
-            "ts_1.1.js",
-            "ts_1.2.js"
-        ]
+        "service_worker": "background_M3.js"
     },
-    "permissions": [
+    "host_permissions": [
         "http://*/*",
-        "https://*/*",
+        "https://*/*"
+    ],
+    "permissions": [
         "contextMenus",
         "downloads",
         "storage",
         "tabs",
-        "webRequest",
-        "webRequestBlocking"
+        "declarativeNetRequest"
     ],
     "web_accessible_resources": [
-        "wa/*"
+        {
+            "resources": [
+                "wa/*"
+            ],
+            "matches": [
+                "*://*/*"
+            ]
+        }
     ],
-    "options_page": "options/options.html",
-    "minimum_chrome_version": "86"
+    "options_ui": {
+        "page": "options/options.html",
+        "open_in_tab": true
+    },
+    "applications": {
+        "gecko": {
+            "id": "84z74tXJKt8OUrTD@TSA",
+            "strict_min_version": "78.0"
+        }
+    }
 }
