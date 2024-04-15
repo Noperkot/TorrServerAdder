@@ -7,6 +7,7 @@ const colors = [ '#3cb44b','#f58231','#911eb4','#ffe119','#e6194b','#46f0f0','#f
 function on_page_loaded() {
 	elm.TS_address = document.getElementById("TS_address");
 	elm.catch_links = document.getElementById("catch_links");
+	elm.category = document.getElementById("category");
 	elm.clearing = document.getElementById("clearing");
 	elm.profile_color = document.getElementById("profile_color");
 	elm.profile_selector = document.getElementById('profile_selector');
@@ -29,6 +30,7 @@ function on_page_loaded() {
 					'TS_address': '',
 					'clearing': false,
 					'catch_links': 0,
+					'category_idx': 0,
 				}
 			},
 			'selected_profile': '1'
@@ -54,6 +56,7 @@ function on_page_loaded() {
 			'profile_name':		'Profile' + new_profile_id,
 			'TS_address':		'',
 			'catch_links':		0,
+			'category_idx':		0,
 			'clearing':			false,
 			'profile_color':	colors[ (new_profile_id - 1) % colors.length ]
 		});
@@ -136,6 +139,7 @@ function fill_form( options ) {
 	elm.profile_color.value = options.profile_color;
 	elm.TS_address.value = options.TS_address;
 	elm.catch_links.selectedIndex = options.catch_links;
+	elm.category.selectedIndex = options.category_idx;
 	elm.clearing.checked = options.clearing;
 	elm.marker.style.backgroundColor = options.profile_color;
 	elm.TS_address.focus();
@@ -147,6 +151,7 @@ function apply_form(profile_id){
 		'profile_color': elm.profile_color.value,
 		'TS_address': elm.TS_address.value,
 		'catch_links': elm.catch_links.selectedIndex,
+		'category_idx': elm.category.selectedIndex,
 		'clearing': elm.clearing.checked,
 	};
 }

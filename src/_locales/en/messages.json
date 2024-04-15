@@ -71,6 +71,24 @@
 	"no_catching": {
 		"message": "No"
 	},
+	"category_label": {
+		"message": "Torrent category"
+	},
+	"category_title": {
+		"message": "Torrents will be added with the selected category.\n(Torrent categories are supported by TorrServer starting from the MatriX.131 version)"
+	},
+	"movies_category": {
+		"message": "Movies"
+	},
+	"series_category": {
+		"message": "Series"
+	},
+	"music_category": {
+		"message": "Music"
+	},
+	"other_category": {
+		"message": "Other"
+	},
 	"help": {
 		"message": "Help"
 	},
