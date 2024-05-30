@@ -108,7 +108,7 @@ var tsa_trackers = [
 		label: 'MegaPeer',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?megapeer.*\/torrent\/([0-9]+))/i,
 		mirrors: [ 'http:\/\/megapeer.ru', 'http:\/\/megapeer.vip' ],
-		poster: (doc) => doc.querySelector('#details tr:nth-child(1) td:nth-child(2) img').getAttribute('src'),
+		poster: (doc) => doc.querySelector('#details tr:nth-child(1) td:nth-child(2) > img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('h1').textContent,
 		magnet: (doc) => doc.querySelector('#download A[href^="magnet:"]').href,
 		threads: 8,
