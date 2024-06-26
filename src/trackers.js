@@ -19,7 +19,7 @@ var tsa_trackers = [
 		regexp: /^(?:http(s)?:\/\/(.*\.)?rutracker\..*\/forum\/viewtopic\.php\?t=([0-9]+))/i,
 		mirrors: [ 'https:\/\/rutracker.org', 'https:\/\/rutracker.net', 'https:\/\/rutracker.nl' ],
 		poster: (doc) => {
-			let elm = doc.querySelector('.post_body .postImgAligned');
+			let elm = doc.querySelector('.post_body [class^="postImg"]');
 			let img = elm.getAttribute('src') || elm.title;
 			if(['broken_image_1.svg','tr_oops.gif'].includes(img.split('/').pop())) throw new Error();
 			return img;
