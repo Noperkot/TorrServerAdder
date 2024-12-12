@@ -18,11 +18,11 @@ var tsa_trackers = [
 		label: 'RuTracker',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?rutracker\..*\/forum\/viewtopic\.php\?t=([0-9]+))/i,
 		mirrors: [ 'https:\/\/rutracker.org', 'https:\/\/rutracker.net', 'https:\/\/rutracker.nl' ],
-		poster: (doc) => {
-			let elm = doc.querySelector('.post_body [class^="postImg"]');
-			let img = elm.getAttribute('src') || elm.title;
-			if(['broken_image_1.svg','tr_oops.gif'].includes(img.split('/').pop())) throw new Error();
-			return img;
+		poster: (doc) => { // проблемные постеры: https://rutracker.org/forum/viewtopic.php?t=3823062, https://rutracker.net/forum/viewtopic.php?t=5311311
+			let elm = doc.querySelector('.post_body .postImgAligned') || doc.querySelector('.post_body .postImg');
+			let url = elm.getAttribute('src') || elm.title;
+			if(['broken_image_1.svg','tr_oops.gif'].includes(url.split('/').pop())) throw new Error();
+			return url;
 		},
 		title:  (doc) => doc.querySelector('#soc-container').getAttribute('data-share_title'),
 		magnet: (doc) => doc.querySelector('.magnet-link').href,
