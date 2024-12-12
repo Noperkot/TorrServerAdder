@@ -73,8 +73,9 @@
 .tsastyle-noicon:before			{ content: ''; }
 .tsastyle-search:before			{ content: '\E809'; }
 .tsastyle-hash:before			{ content: '\F029'; }
-.tsastyle-viewed:before			{ content: '\E806'; }
-.tsastyle-notviewed:before		{ content: '';}
+.tsastyle-viewed:before			{ content: '\F111'; }
+.tsastyle-notviewed:before		{ content: '\F1DB';}
+.tsastyle-download:before		{ content: '\e80e'; }
 
 @keyframes tsa-spinner {
 	from { transform: rotate(0deg); }
