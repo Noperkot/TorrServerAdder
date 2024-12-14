@@ -96,14 +96,19 @@ tsVersions['1.1.'] = {
 				.then((jsn) => {
 					if(jsn.Files) {
 						let content = [];
-						jsn.Files.forEach((file)=>{
+						for (let id = 0; id < jsn.Files.length; id++) {
+							let file = jsn.Files[id];
+							let flName = file.Name.split('/').pop();
 							content.push({
 								path: file.Name,
+								name: flName,
+								// url: encodeURI(`${this.request.options.TS_address}/torrent/play?link=${this.request.hash}&file=${id}`),
+								url: encodeURI(`${this.request.options.TS_address}${file.Link}`),
 								size: file.Size,
 								viewed: file.Viewed,
-								id: file.Link, // тут /torrent/view/[hash]/...
+								id: id,
 							});
-						});
+						}
 						resolve(content);
 					} else setTimeout(f, 500);
 				})
@@ -125,4 +130,3 @@ tsVersions['1.1.'] = {
 	} */
 
 };
-

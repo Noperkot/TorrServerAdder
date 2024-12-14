@@ -254,11 +254,14 @@
 	"copy_magnet": {
 		"message": "Копировать magnet"
 	},
-	"copy_title": {
+	"copy_name": {
 		"message": "Копировать название"
 	},
-	"copy_address": {
+	"copy_url": {
 		"message": "Копировать адрес"
+	},
+	"download": {
+		"message": "Скачать"
 	},
 	"check_for_update": {
 		"message": "Искать обновления"
