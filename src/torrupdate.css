@@ -119,8 +119,8 @@ article{
 
 .torrFlList > :is(.tsastyle-viewed,.tsastyle-notviewed):before {
 	padding-bottom: 0.2em;
-	font-size: 80%;
-	padding-right: 0.3em;
+	font-size: 60%;
+	padding-right: 0.5em;
 	width: 1em;
 }
 
