@@ -125,11 +125,8 @@ class tWorkerSrv {
 
 	Drop(){
 		if(!this.request.hash || !this.request.flags || this.request.flags.save) return;
-		fetch(`${this.request.TS.address}/${this.tskit.names.path.drop}`, {
-			method: 'POST',
-			body: `{"action":"drop","hash":"${this.request.hash}"}`,				// в TS 1.1 "action" не нужен, но и не мешает
-			headers: this.request.TS.headers,
-		}).catch((e) => {});
+		this.Post( this.tskit.names.path.drop, `{"action":"drop","hash":"${this.request.hash}"}` )
+		.catch((e) => {});
 	}
 
 	Disconnect = () => {
@@ -159,7 +156,7 @@ class tWorkerSrv {
 				if(nUrl.ok) {
 					this.request.TS = {
 						address: nUrl.url,
-						headers: (nUrl.user) ? { 'Authorization': 'Basic ' + btoa(`${nUrl.user}:${nUrl.pswd||''}`) } : {}
+						headers: { ...(nUrl.bauth) && { 'Authorization': nUrl.bauth } },
 					}
 					resolve();
 					return;
@@ -171,10 +168,7 @@ class tWorkerSrv {
 
 	tsVer() {
 		return new Promise((resolve, reject) => {
-			fetch(`${this.request.TS.address}/echo`, {
-				signal: this.abortCtrl.signal,
-				headers: this.request.TS.headers,
-			})
+			fetch(`${this.request.TS.address}/echo`, { signal: this.abortCtrl.signal })
 			.then(async (response) => {
 				if (response.ok) {
 					const response_text = await response.text();
@@ -230,8 +224,8 @@ class tWorkerSrv {
 			fetch(url, {
 				method: 'POST',
 				body: body,
-				signal: this.abortCtrl.signal,
-				headers: this.request.TS.headers,
+				...(!this.abortCtrl.signal.aborted) && {signal: this.abortCtrl.signal},	// signal: this.abortCtrl.signal,
+				headers: Object.assign({...(typeof body == 'string') && {'Content-Type': 'application/json'}}, this.request.TS.headers ),
 			})
 			.then((response) => {
 				if (response.ok) resolve(response.text());
