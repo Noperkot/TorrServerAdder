@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					let header = document.querySelector('header');
 					let TS_link = header.querySelector('*:first-child');
 					TS_link.textContent = normAddr.url;
-					TS_link.onclick = () => openUrl(normAddr.url);
+					TS_link.onclick = () => openUrl(normAddr.orig);
 					let torrUpdate_link = header.querySelector('*:last-child');
 					torrUpdate_link.onclick = () => openUrl(chrome.runtime.getURL('/torrupdate.html?autocheck'), true);
 					torrUpdate_link.oncontextmenu = () => openUrl(chrome.runtime.getURL('/torrupdate.html?autocheck&autoupdate'), true);

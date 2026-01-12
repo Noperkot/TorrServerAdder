@@ -451,7 +451,6 @@ const torrUpdater = {
 		let ts = params.get('torrserver');
 		if(ts) this.options = {TS_address: ts};
 		else this.options =  await LoadOpt();
-		this.options.TS_address = normTSaddr(this.options.TS_address).url;
 		this.options.autocheck = params.get('autocheck');
 		this.options.autoupdate = params.get('autoupdate');
 		this.options.onlymedia = params.get('onlymedia');
@@ -477,7 +476,9 @@ const torrUpdater = {
 		window.onbeforeunload = ()=>this.performItems('tsastyle-working'); // при закрытии/уходе со страницы остановить все обработки
 
 		let serv = document.querySelector('header > a');
-		serv.textContent = serv.href = this.options.TS_address;
+		const nTS= normTSaddr(this.options.TS_address);
+		serv.textContent  = nTS.url;
+		serv.href = nTS.orig;
 		serv.title = 'TorrServer';
 
 		let total = document.querySelector('.total');

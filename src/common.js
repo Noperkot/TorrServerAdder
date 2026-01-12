@@ -3,12 +3,30 @@
 function normTSaddr(url){
 	const regexp = /^((?<schema>.+?):\/\/)?((?<user>.+?)(:(?<pswd>.*?))?@)?(?<host>[^@]*?)(:(?<port>\d+?))?(?<path>\/.*?)?(?<query>[?].*?)?$/;
 	const m = regexp.exec(url.replace(/\s/g, '')).groups;
+	let path = '';
+	let userpass = '';
+	let schema = '';
+	let bauth = '';
+	if(m.host){
+		schema = `${m.schema||'http'}:\/\/`;
+		path = `${m.host}:${m.port||((m.schema==='https')?'8091':'8090')}${(m.path)?m.path.replace(/\/$/,''):''}`;		
+		if(m.user){
+			if(m.pswd) userpass = ':' + m.pswd;
+			userpass = m.user + userpass;
+			bauth = 'Basic ' + btoa(decodeURIComponent(userpass));
+			userpass += '@';
+		}
+	}
 	const ret = {
 		ok: (m.host) ? true : false,
-		url: (m.host) ? `${m.schema||'http'}:\/\/${m.host}:${m.port||((m.schema==='https')?'8091':'8090')}${(m.path)?m.path.replace(/\/$/,''):''}` : '',
+		url:  decodeURIComponent(`${schema}${path}`),
+		orig: decodeURIComponent(`${schema}${userpass}${path}`),
+		user: m.user,
+		pswd: m.pswd,
+		bauth: bauth,
 	};
-	try{ret.user = decodeURIComponent(m.user)}catch{}
-	try{ret.pswd = decodeURIComponent(m.pswd)}catch{}
+	// try{ret.user = decodeURIComponent(m.user)}catch{} //????? зачем ????? (undefined возвращает как строку 'undefined')
+	// try{ret.pswd = decodeURIComponent(m.pswd)}catch{}
 	return 	ret;
 }
 
@@ -86,10 +104,10 @@ function isChrome(){
 }
 
 
-function LoadOpt() {
+function LoadOpt(prfl) {
 	return new Promise((resolve,reject) => {
 		chrome.storage.local.get(['profiles','selected_profile'],({profiles,selected_profile}) => {
-			resolve((profiles && selected_profile) ? profiles[selected_profile] : null);
+			try{ resolve(profiles[prfl||selected_profile]) } catch { resolve(null) }
 		});
 	});
 };
