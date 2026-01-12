@@ -46,7 +46,10 @@ function on_page_loaded() {
 	document.getElementById('save').addEventListener('click', ()=>{
 		apply_form(storage.selected_profile);
 		setIcon(storage.profiles[storage.selected_profile]);
-		chrome.storage.local.set( storage, () => tsa_MessageBox.notify(chrome.i18n.getMessage("saved_message")) );
+		chrome.storage.local.set( storage, () => {
+			tsa_MessageBox.notify(chrome.i18n.getMessage("saved_message"));
+			chrome.runtime.sendMessage({ 'action': 'profilesChanged' });
+		});
 	});
 
 	document.getElementById('add_profile_btn').addEventListener('click', ()=>{
