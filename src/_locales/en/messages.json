@@ -268,5 +268,19 @@
 	},
 	"no_torrents_listed": {
 		"message": "There are no torrents listed"
+	},
+	"httpStatus400": { "message": "Bad Request" },
+	"httpStatus401": { "message": "Unauthorized" },
+	"httpStatus403": { "message": "Forbidden" },
+	"httpStatus404": { "message": "Not Found" },
+	"httpStatus410": { "message": "Gone" },
+	"httpStatus429": { "message": "Too Many Requests" },
+	"httpStatus500": { "message": "Internal Server Error" },
+	"httpStatus502": { "message": "Bad Gateway" },
+	"httpStatus503": { "message": "Service Unavailable" },
+	"httpStatus504": { "message": "Gateway Timeout" },
+	"httpStatus505": { "message": "HTTP Version Not Supported" },
+	"cloudflare_verification_expired": { 
+		"message": "Cloudflare verification has expired" 
 	}
 }

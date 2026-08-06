@@ -1,5 +1,5 @@
 {
-    "version": "2.0.5.001",
+    "version": "2.0.6",
     "name": "TorrServer Adder",
     "short_name": "TSA",
     "description": "__MSG_extension_description__",
@@ -52,7 +52,8 @@
         "storage",
         "tabs",
         "declarativeNetRequest",
-        "scripting"
+        "scripting",
+        "cookies"
     ],
     "web_accessible_resources": [
         {

@@ -111,3 +111,101 @@ function LoadOpt(prfl) {
 		});
 	});
 };
+
+const requestHeadersM2 = {
+	add(url, extraHeaders) {
+		this.BeforeSendListener = (details) => {
+			for (let header in extraHeaders) {
+				for (let details_header in details.requestHeaders) {
+					if (details_header.name && details_header.name.toLowerCase() === header.toLowerCase()) {
+						details_header.value = extraHeaders[header];
+						extraHeaders[header]=undefined;
+						break;
+					}
+				}
+				if (extraHeaders[header]!==undefined) details.requestHeaders.push({ name: header, value: extraHeaders[header] });
+			}
+			return { requestHeaders: details.requestHeaders };
+		}
+		let extraInfoSpec = ["blocking", "requestHeaders"];
+		if (isChrome()) extraInfoSpec.push("extraHeaders");
+		chrome.webRequest.onBeforeSendHeaders.addListener(this.BeforeSendListener, {
+			urls: [url],
+			types: ["xmlhttprequest"],
+		}, extraInfoSpec);
+	},
+	remove() {
+		chrome.webRequest.onBeforeSendHeaders.removeListener(this.BeforeSendListener);
+	}
+}
+
+const requestHeadersM3 = {
+	add(url, extraHeaders) {
+		let requestHeaders = [];
+		for (const header in extraHeaders){
+			requestHeaders.push({
+				"header": header,
+				"operation": "set",
+				"value": extraHeaders[header]
+			});
+		}
+		chrome.declarativeNetRequest.updateSessionRules({
+			removeRuleIds: [1],
+			addRules: [{
+					"id": 1,
+					"priority": 1,
+					"action": {
+						"type": "modifyHeaders",
+						"requestHeaders": requestHeaders
+					},
+					"condition": {
+						"urlFilter": url,
+						"resourceTypes": ["xmlhttprequest"]
+					}
+				}
+			]
+		});
+	},
+	remove() {
+		chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [1] });
+	}
+}
+
+function getStoreId(){ // у окна инкогнито свое независимое хранилище с куками
+	return new Promise((resolve, reject) => {
+		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+			chrome.cookies.getAllCookieStores((cookieStores)=>{
+				for(let cookieStore of cookieStores){
+					if(cookieStore.tabIds.includes(tabs[0].id) ) {
+						resolve(cookieStore.id);
+						return;
+					}
+				}
+				reject();
+			})
+		})
+	})
+}
+
+// fetch, отправляющий в запросе куки из хранилища, в том числе с флагами HttpOnly. Нужен для обхода защиты cloudflare при добавлении торрент-файла и обновлении торрентов, в основном на rutracker.
+// в манифесте в секции "permissions" должно быть разрешение "cookies"
+function FETCH(url,options) { 
+ 	return new Promise(async (resolve, reject) => {
+		const details = {url: url, partitionKey: {}};
+		try { details.storeId = await getStoreId(); } catch {}
+		chrome.cookies.getAll(details, (cookies) => { //
+			const cookieStr = cookies.map(item=>`${item.name}=${item.value}`).join('; ');
+			const requestHeaders = (chrome.runtime.getManifest().manifest_version===3) ? requestHeadersM3 : requestHeadersM2;
+			requestHeaders.add( url, {  // Подставляем заголовки Referer и Cookie
+				...(cookieStr) && {'Cookie': cookieStr},
+				'Referer': url, // на всякий случай. встречались трекеры, которые без этого не отдавали торрент-файл
+				'Pragma': 'no-cache',
+				'Cache-Control': 'no-cache',	
+			});
+			fetch(url, options)
+			.then((response) => resolve(response))
+			.finally(() => requestHeaders.remove()) // чистим
+			.catch((e) => reject(e));
+		});	
+	});
+};

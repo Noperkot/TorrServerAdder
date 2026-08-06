@@ -128,6 +128,7 @@ class tItem {
 
 		if(this.tracker) this.SetStatus('tsastyle-checkupdate', chrome.i18n.getMessage('check_for_update'), (movable)=>this.Check(movable));
 		else this.SetStatus('tsastyle-nonupdatable', chrome.i18n.getMessage('non_updatable'));
+		// if(this.tracker && this.tracker.label && this.tracker.label === 'RuTracker') return;
 		if(this.options.autocheck !== null) this.Check(true);
 	}
 
@@ -135,7 +136,7 @@ class tItem {
 		if(!this.tracker) return;
 		this.movable = movable === true;
 		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('searching_for_updates'), null, this.Abort.bind(this));
-		let attempts = 5; // попыток получить страницу с трекера с таймаутом для каждой попытки.
+		let attempts = 3; // попыток получить страницу с трекера с таймаутом для каждой попытки.
 		const attempt = ()=>{
 			this.abortCtrl = new AbortController();
 			this.Wait(this.tracker) // ограничение одновременных запросов на трекер
@@ -143,14 +144,14 @@ class tItem {
 			.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })
 			.then(() => new Promise((resolve,reject)=>{
 				if(attempts--) {
-					let timeout = (this.tracker.timeout || 3000) + Math.random() * 2000; // плавающий таймаут для каждой попытки
+					let timeout = (this.tracker.timeout || 3000); // + Math.random() * 2000; // плавающий таймаут для каждой попытки
 					this.timeoutTimer = setTimeout(() => this.abortCtrl.abort('timeout'), timeout);
-					fetch(this.srcUrl, {signal: this.abortCtrl.signal})
+					FETCH(this.srcUrl, {signal: this.abortCtrl.signal, cache: 'no-store'})
 					.then(async (response) => {
 						if(response.ok) {
 							let charset = response.headers.get('content-type').match(/(?<=charset=)[^;]*/i) || this.tracker.charset || 'utf-8';
 							resolve((new TextDecoder(charset)).decode(await response.arrayBuffer()));
-						} else reject(new Error(`${chrome.i18n.getMessage('homepage_read_error')} (${response.status})`));
+						} else reject(new Error(`(${response.status}) ${chrome.i18n.getMessage(`httpStatus${response.status}`)||chrome.i18n.getMessage('homepage_read_error')}`));	// ${(response.status===403)?` (${chrome.i18n.getMessage('cloudflare_verification_expired')}???)`:''}
 					})
 					.catch((e) => reject(new Error(chrome.i18n.getMessage('homepage_not_available'))));
 				} else reject(new Error(chrome.i18n.getMessage('timeout')));

@@ -290,76 +290,28 @@ class tWorkerSrv {
 			}
 		});
 	}
-
+	
 	Load() {	// загрузчик торрент-файла
 		return new Promise((resolve, reject) => {
-			requestHeaders.add(this.request.linkUrl, {  // Подставляем заголовки Referer и Cookie (без них на некоторых сайтах не отдается торрент-файл)
-				'Referer': this.request.torrInfo.data.srcUrl,
-				// ...(this.request.cookie) && {'Cookie': this.request.cookie}, // в куки взятые в контент-скрипте не попадают те, что с атрибутом HttpOnly
-			});
-			fetch(this.request.linkUrl, { signal: this.abortCtrl.signal })
+			FETCH(this.request.linkUrl, { signal: this.abortCtrl.signal })
 			.then(response => {
-				if (!response.ok) throw new tsaError(response.statusText, response.status);
-				let CD = response.headers.get('Content-Disposition');
-				if (CD && /filename.*\.torrent/i.test(CD)) return response.blob();
-				let CT = response.headers.get('Content-Type');
-				if (CT) {
-					if (/application\/x-bittorrent/i.test(CT)) return response.blob();
-					if (/application\/octet-stream/i.test(CT) && response.url.endsWith('.torrent')) return response.blob();
-				}
-				reject(new tsaError("the_link_is_not_a_torrent"));
+				if (response.ok){
+					let CD = response.headers.get('Content-Disposition');
+					if (CD && /filename.*\.torrent/i.test(CD)) return response.blob();
+					let CT = response.headers.get('Content-Type');
+					if (CT) {
+						if (/application\/x-bittorrent/i.test(CT)) return response.blob();
+						if (/application\/octet-stream/i.test(CT) && response.url.endsWith('.torrent')) return response.blob();
+					}
+					reject(new tsaError("the_link_is_not_a_torrent"));
+				} else reject(new tsaError(
+					`(${response.status}) ${chrome.i18n.getMessage(`httpStatus${response.status}`)||chrome.i18n.getMessage('resource_is_unavailable')}`
+					// , (response.status===403) ? `(${chrome.i18n.getMessage('cloudflare_verification_expired')}???)` : ''
+				 ));
 			})
 			.then(resolve)
-			.finally(() => requestHeaders.remove())
-			.catch((e) => reject(new tsaError( "resource_is_unavailable")));
+			.catch((e) => reject(new tsaError( "resource_is_unavailable")));	
 		});
 	}
-
-/*
-	// версия Load использующая куки (в том числе с флагом HttpOnly) из хранилища
-	// требуется для чтения торрент-файла на очень немногих сайтах прикрытых cloudflare и только в режиме инкогнито
-	// требует "permissions": [ ... "cookies" ...] в manifest.json
-	// пусть пока полежит на черный день
-	// ??? "incognito": "split" в manifest.json ???
-	//
-	Load() {	// загрузчик торрент-файла
-		return new Promise((resolve, reject) => {
-			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-				chrome.cookies.getAllCookieStores((cookieStores)=>{
-					for(let cookieStore of cookieStores){
-						if(cookieStore.tabIds.includes(tabs[0].id) ){
-							chrome.cookies.getAll({
-								storeId: cookieStore.id,
-								url: this.request.linkUrl,
-							}, (cookies) => {
-								let cookieStr = cookies.reduce((accum, item) => accum + `${item.name}=${item.value}; `, "");
-								requestHeaders.add(this.request.linkUrl, {  // Подставляем заголовки Referer и Cookie (без них на некоторых сайтах не отдается торрент-файл)
-									'Referer': this.request.torrInfo.data.srcUrl,
-									...(cookieStr) && {'Cookie': cookieStr},
-								});
-								fetch(this.request.linkUrl, { signal: this.abortCtrl.signal })
-								.then(response => {
-									if (!response.ok) throw new tsaError(response.statusText, response.status);
-									let CD = response.headers.get('Content-Disposition');
-									if (CD && /filename.*\.torrent/i.test(CD)) return response.blob();
-									let CT = response.headers.get('Content-Type');
-									if (CT) {
-										if (/application\/x-bittorrent/i.test(CT)) return response.blob();
-										if (/application\/octet-stream/i.test(CT) && response.url.endsWith('.torrent')) return response.blob();
-									}
-									reject(new tsaError("the_link_is_not_a_torrent"));
-								})
-								.then(resolve)
-								.finally(() => requestHeaders.remove())
-								.catch((e) => reject(new tsaError( "resource_is_unavailable")));
-							});
-							break;
-						}
-					}
-				});
-			});
-		});
-	}
-*/
 
 }

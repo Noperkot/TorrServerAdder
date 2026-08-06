@@ -57,7 +57,8 @@
         "storage",
         "tabs",
         "webRequest",
-        "webRequestBlocking"
+        "webRequestBlocking",
+        "cookies"
     ],
     "web_accessible_resources": [
         "wa/*"
