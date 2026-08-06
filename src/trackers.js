@@ -9,7 +9,10 @@ var tsa_trackers = [
 		label: 'RUTOR',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?(rutor|([0-9]+)tor\.).*\/torrent\/([0-9]+))/i,
 		mirrors: [ 'http:\/\/rutor.info', 'http:\/\/rutor.is' ],
-		poster:  (doc) => Array.from(doc.querySelectorAll('#details tr:nth-child(1) td:nth-child(2) img')).find(el => el.closest('A') === null).getAttribute('src'),
+			// проблемные постеры:
+			// https://rutor.info/torrent/1039469/kot-v-sapogah-trilogija_nagagutsu-o-haita-neko-1969-1976-bdrip-720p-d-p - постер-ссылка
+			// https://rutor.info/torrent/1044379/aljona-slavina-angely-2025-mp3 - картинка перед постером
+		poster:  (doc) => Array.from(doc.querySelectorAll('#details tr:nth-child(1) td:nth-child(2) img')).find(el => el.closest('A') === null).getAttribute('src'), // ищем первую картинку-нессылку.
 		title:   (doc) => doc.querySelector('#all h1').textContent,
 		magnet:  (doc) => doc.querySelector('#download > a:nth-child(1)').href,
 		threads: 16,
@@ -18,7 +21,11 @@ var tsa_trackers = [
 		label: 'RuTracker',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?rutracker\..*\/forum\/viewtopic\.php\?t=([0-9]+))/i,
 		mirrors: [ 'https:\/\/rutracker.org', 'https:\/\/rutracker.net', 'https:\/\/rutracker.nl' ],
-		poster: (doc) => { // проблемные постеры: https://rutracker.org/forum/viewtopic.php?t=3823062, https://rutracker.net/forum/viewtopic.php?t=5311311
+			// проблемные постеры:
+			// https://rutracker.org/forum/viewtopic.php?t=3823062
+			// https://rutracker.net/forum/viewtopic.php?t=5311311
+			// https://rutracker.net/forum/viewtopic.php?t=4355562
+		poster: (doc) => {
 			let elm = doc.querySelector('.post_body .postImgAligned') || doc.querySelector('.post_body .postImg');
 			let url = elm.getAttribute('src') || elm.title;
 			if(['broken_image_1.svg','tr_oops.gif'].includes(url.split('/').pop())) throw new Error();
@@ -26,8 +33,9 @@ var tsa_trackers = [
 		},
 		title:  (doc) => doc.querySelector('#soc-container').getAttribute('data-share_title'),
 		magnet: (doc) => doc.querySelector('.magnet-link').href,
-		threads: 8,
-		timeout: 5000,
+		threads: 2, //8, // при множественных запросах cloudflare уходит в защиту
+		timeout: 500,
+		releaseDelay: 500, // слишком частые апросы cloudflare тоже не нравятся
 	},
 	{
 		label: 'КИНОЗАЛ.ТВ',
@@ -40,7 +48,7 @@ var tsa_trackers = [
 				let url = new URL((doc.location || doc.tsa_location).href);
 				url.pathname = 'get_srv_details.php';
 				url.searchParams.set( 'action', 2 );
-				fetch(url, {signal: abort_signal})
+				FETCH(url.toString(), {signal: abort_signal, cache: 'no-store'})
 				.then((response) => response.text())
 				.then((text)=>{
 					let hash = text.match(/[0-9,A-F]{40}/i);
@@ -107,7 +115,7 @@ var tsa_trackers = [
 	{
 		label: 'MegaPeer',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?megapeer.*\/torrent\/([0-9]+))/i,
-		mirrors: [ 'http:\/\/megapeer.ru', 'http:\/\/megapeer.vip' ],
+		mirrors: [ 'http:\/\/megapeer.ru', 'https:\/\/megapeer.vip' ],
 		poster: (doc) => doc.querySelector('#details tr:nth-child(1) td:nth-child(2) > img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('h1').textContent,
 		magnet: (doc) => doc.querySelector('#download A[href^="magnet:"]').href,
@@ -137,7 +145,7 @@ var tsa_trackers = [
 		poster: (doc) => doc.querySelector('.postImg img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('.post-b').textContent,
 	},
-	{
+/* 	{ 	// прикрыли и magnet и .torrent скриптами
 		label: 'PiratBit',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?(pb|piratbit)\..*\/(t|topic)\/([0-9]+))/i,
 		mirrors: [ 'https:\/\/piratbit.org', 'https:\/\/pb.wtf', 'https:\/\/5050.piratbit.fun' ],
@@ -146,7 +154,7 @@ var tsa_trackers = [
 		magnet: (doc) => doc.querySelector('.table-condensed A[href^="magnet:"]').href,
 		threads: 1,
 		releaseDelay: 100,
-	},
+	}, */
 	{
 		label: 'DugTor',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?(dugtor|gtorrent)\..*\/.*\/([0-9]+)-)/i,
@@ -184,13 +192,13 @@ var tsa_trackers = [
 			}
 		},
 	},
-	{
+/* 	{ // нет magnet-ссылки. При попытке скачать торрент-файл несмотря на отправку куков CF все-равно возвращает 403 Forbidden.
 		label: 'bitru.org',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?bitru.*\/details\.php.*id=([0-9]+))/i,
 		mirrors: [ 'https:\/\/bitru.org' ],
 		poster: (doc) => doc.querySelector('#thumb1 img').getAttribute('src'),
 		title:  (doc) => doc.querySelector('.title,.ellips span').textContent,
-	},
+	}, */
 	{
 		label: 'ANIDUB',
 		regexp: /^(?:http(s)?:\/\/(.*\.)?anidub\..*\/([0-9]+)-.*\.html)/i,
@@ -259,15 +267,15 @@ var tsa_trackers = [
 			return `${_rus_title} / ${_org_title}`;
 		},
 	},
-/* 	{
-		// label: 'torrserver.lan',	// тестовый трекер
-		regexp: /^(?:http(s)?:\/\/(.*\.)?torrserver.lan\/ttracker\/torrents\/torrent([0-9]+))/i,
-		mirrors: [ 'http:\/\/torrserver.lan' ],
+	{
+		// label: 'torrserver.lan',	// тестовый локальный трекер
+		regexp: /^(?:http(s)?:\/\/(.*\.)?torrserver(\.lan)?\/ttracker\/torrents\/)/i,
+		mirrors: [ 'http:\/\/torrserver.lan/ttracker' ],
 		poster: (doc) => doc.querySelector('.poster').getAttribute('src'),
 		title: (doc) => doc.querySelector('.title').textContent,
 		magnet: (doc) => doc.querySelector('.magnet').href,
 		threads: 16,
-	}, */
+	},
 ];
 
 

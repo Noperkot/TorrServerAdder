@@ -112,7 +112,7 @@ tsVersions['MatriX.'] = {
 								content.push({
 									path: file.path,
 									name: flName,
-									url: encodeURI(`${this.request.options.TS_address}/stream/${flName}?link=${this.request.hash}&index=${file.id}&play`),
+									url: encodeURI(`${this.request.TS.address}/stream/${flName}?link=${this.request.hash}&index=${file.id}&play`),
 									size: file.length,
 									viewed: viewedList.includes(file.id),
 									id: file.id,

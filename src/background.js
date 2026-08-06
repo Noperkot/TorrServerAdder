@@ -94,7 +94,7 @@ async function contextMenusListener(info, tab){
 			'action': 'Add',
 			'linkUrl': info.linkUrl,
 			'options': await LoadOpt(parseInt(info.menuItemId, 10)),
-			'flags': CONTEXT_MENU[info.parentMenuItemId || info.menuItemId],
+			'flags': CONTEXT_MENU[info.menuItemId] || CONTEXT_MENU[info.parentMenuItemId],
 		}, () => void chrome.runtime.lastError);
 	} catch {}
 }

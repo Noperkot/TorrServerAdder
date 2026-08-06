@@ -103,7 +103,7 @@ tsVersions['1.1.'] = {
 								path: file.Name,
 								name: flName,
 								// url: encodeURI(`${this.request.options.TS_address}/torrent/play?link=${this.request.hash}&file=${id}`),
-								url: encodeURI(`${this.request.options.TS_address}${file.Link}`),
+								url: encodeURI(`${this.request.TS.address}${file.Link}`),
 								size: file.Size,
 								viewed: file.Viewed,
 								id: id,
