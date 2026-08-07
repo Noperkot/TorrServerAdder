@@ -103,17 +103,24 @@ article{
 	white-space: nowrap;
 	overflow-x: hidden;
 	text-overflow: ellipsis;
-	cursor: default;
+	cursor: pointer;
 	border-radius: var(--base-radius);
 	padding-left: 1em;
 	padding-right: 1em;
 	text-align: left;
+	text-decoration: none;
+	color: black;
+	font-style: normal;
+}
+
+.torrFlList > *:hover:not(.warning) {
+	text-decoration: underline;
 }
 
 .torrFlList > :is(.tsastyle-viewed,.tsastyle-notviewed):before {
 	padding-bottom: 0.2em;
-	font-size: 80%;
-	padding-right: 0.3em;
+	font-size: 60%;
+	padding-right: 0.5em;
 	width: 1em;
 }
 
@@ -153,6 +160,7 @@ article{
 	color: #820000;
 	font-weight: bold;
 	opacity: 0.3;
+	cursor: default;
 }
 
 .warning:before, .warning:after {
@@ -204,7 +212,7 @@ article{
 	white-space:nowrap;
 }
 
-.context_overlay > div > div {
+.popup_overlay > div > div {
 	display: block;
     cursor: pointer;
     list-style: none;
@@ -212,17 +220,17 @@ article{
 	text-align: left;
 }
 
-.context_overlay > div > div:before {
+.popup_overlay > div > div:before {
 	padding-right: 0.5em;
 	padding-bottom: 0.1em;
 	font-size: 100%;
 }
 
-.context_overlay > div > div:hover {
+.popup_overlay > div > div:hover {
     background-color: #ddd;
 }
 
-.context_overlay hr{
+.popup_overlay hr{
 	margin: 0;
 	padding: 0;
 	border: none;

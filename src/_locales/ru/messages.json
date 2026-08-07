@@ -254,16 +254,33 @@
 	"copy_magnet": {
 		"message": "Копировать magnet"
 	},
-	"copy_title": {
+	"copy_name": {
 		"message": "Копировать название"
 	},
-	"copy_address": {
+	"copy_url": {
 		"message": "Копировать адрес"
+	},
+	"download": {
+		"message": "Скачать"
 	},
 	"check_for_update": {
 		"message": "Искать обновления"
 	},
 	"no_torrents_listed": {
 		"message": "На сервере торрентов нет"
+	},
+	"httpStatus400": { "message": "Некорректный запрос" },
+	"httpStatus401": { "message": "Требуется аутентификация" },
+	"httpStatus403": { "message": "Доступ запрещен" },
+	"httpStatus404": { "message": "Ресурс не найден" },
+	"httpStatus410": { "message": "Ресурс удален навсегда" },
+	"httpStatus429": { "message": "Слишком много запросов" },
+	"httpStatus500": { "message": "Внутренняя ошибка сервера" },
+	"httpStatus502": { "message": "Ошибки шлюза" },
+	"httpStatus503": { "message": "Сервис недоступен" },
+	"httpStatus504": { "message": "Таймаут шлюза" },
+	"httpStatus505": { "message": "Версия HTTP не поддерживается" },
+	"cloudflare_verification_expired": {
+		"message": "устарела верификация Cloudflare"
 	}
 }

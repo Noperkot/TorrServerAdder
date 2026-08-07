@@ -55,7 +55,7 @@ class tItem {
 				this.elm.append(ovl);
 				mnu.style.left = `${(e.pageX+mnu.offsetWidth>ovl.offsetWidth)?(ovl.offsetWidth-mnu.offsetWidth):e.pageX}px`;
 				mnu.style.top = `${(e.pageY+mnu.offsetHeight>ovl.offsetHeight)?(ovl.offsetHeight-mnu.offsetHeight):e.pageY}px`;
-				window[(this.srcUrl)?'enableEl':'disableEl'](mnu.querySelector('#copy_address'));
+				window[(this.srcUrl)?'enableEl':'disableEl'](mnu.querySelector('#copy_url'));
 				return false;
 			},
 			append: [
@@ -112,11 +112,11 @@ class tItem {
 						navigator.clipboard.writeText(`magnet:?xt=urn:btih:${this.torrent.hash}&dn=${encodeURIComponent(this.torrent.title)}`);
 						break
 
-					case 'copy_title':
+					case 'copy_name':
 						navigator.clipboard.writeText(this.torrent.title);
 						break
 
-					case 'copy_address':
+					case 'copy_url':
 						navigator.clipboard.writeText(this.srcUrl||'');
 						break
 
@@ -128,6 +128,7 @@ class tItem {
 
 		if(this.tracker) this.SetStatus('tsastyle-checkupdate', chrome.i18n.getMessage('check_for_update'), (movable)=>this.Check(movable));
 		else this.SetStatus('tsastyle-nonupdatable', chrome.i18n.getMessage('non_updatable'));
+		// if(this.tracker && this.tracker.label && this.tracker.label === 'RuTracker') return;
 		if(this.options.autocheck !== null) this.Check(true);
 	}
 
@@ -135,7 +136,7 @@ class tItem {
 		if(!this.tracker) return;
 		this.movable = movable === true;
 		this.SetStatus('tsastyle-working', chrome.i18n.getMessage('searching_for_updates'), null, this.Abort.bind(this));
-		let attempts = 5; // попыток получить страницу с трекера с таймаутом для каждой попытки.
+		let attempts = 3; // попыток получить страницу с трекера с таймаутом для каждой попытки.
 		const attempt = ()=>{
 			this.abortCtrl = new AbortController();
 			this.Wait(this.tracker) // ограничение одновременных запросов на трекер
@@ -143,14 +144,14 @@ class tItem {
 			.then(() => { if(this.abortCtrl.signal.aborted) throw new Error() })
 			.then(() => new Promise((resolve,reject)=>{
 				if(attempts--) {
-					let timeout = (this.tracker.timeout || 3000) + Math.random() * 2000; // плавающий таймаут для каждой попытки
+					let timeout = (this.tracker.timeout || 3000); // + Math.random() * 2000; // плавающий таймаут для каждой попытки
 					this.timeoutTimer = setTimeout(() => this.abortCtrl.abort('timeout'), timeout);
-					fetch(this.srcUrl, {signal: this.abortCtrl.signal})
+					FETCH(this.srcUrl, {signal: this.abortCtrl.signal, cache: 'no-store'})
 					.then(async (response) => {
 						if(response.ok) {
 							let charset = response.headers.get('content-type').match(/(?<=charset=)[^;]*/i) || this.tracker.charset || 'utf-8';
 							resolve((new TextDecoder(charset)).decode(await response.arrayBuffer()));
-						} else reject(new Error(`${chrome.i18n.getMessage('homepage_read_error')} (${response.status})`));
+						} else reject(new Error(`(${response.status}) ${chrome.i18n.getMessage(`httpStatus${response.status}`)||chrome.i18n.getMessage('homepage_read_error')}`));	// ${(response.status===403)?` (${chrome.i18n.getMessage('cloudflare_verification_expired')}???)`:''}
 					})
 					.catch((e) => reject(new Error(chrome.i18n.getMessage('homepage_not_available'))));
 				} else reject(new Error(chrome.i18n.getMessage('timeout')));
@@ -300,17 +301,19 @@ class tItem {
 			});
 			switch(msg.action){
 				case 'success':
-					let f = msg.val.filter((file) => isFilePlayable(file.path));
+					let f = msg.val;
+					if(this.options.onlymedia !== null) f = f.filter((file) => isFilePlayable(file.path));
 					if(f.length > 0){
 						let pos = f[0].path.length;
 						f.forEach((file) => pos = Math.min(pos, findFirstDiffPos(f[0].path, file.path)));
 						pos = f[0].path.lastIndexOf('/', pos) + 1;
 						f.forEach((file) => {
 							const flPath = file.path.slice(pos);
-							flList.append(tsa_elementCreate( 'div', {
+							flList.append(tsa_elementCreate( 'a', { // ссылка на файл для скачивания из контекстного меню браузера. Если сервер под виндой то расширение файла при сохранении может быть некорректным(.xml вместо .fb2, .txt вместо .rtf), под линем все нормально???
 								className: (file.viewed) ? 'tsastyle-viewed' : 'tsastyle-notviewed',
 								textContent: flPath,
 								title: `${formatSize(file.size)}${flPath}`,
+								href: file.url,
 								onclick: (e) => { // ??? надо бы еще снимать онклик на время запроса ???
 									let port = chrome.runtime.connect();
 									port.onMessage.addListener((vmsg) => {
@@ -451,12 +454,13 @@ const torrUpdater = {
 		else this.options =  await LoadOpt();
 		this.options.autocheck = params.get('autocheck');
 		this.options.autoupdate = params.get('autoupdate');
+		this.options.onlymedia = params.get('onlymedia');
 
-		this.context_popup = createPopup('context_overlay', [
+		this.context_popup = createPopup('popup_overlay', [
 			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_hash'), id: 'copy_hash' }),
 			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_magnet'), id: 'copy_magnet' }),
-			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_title'), id: 'copy_title' }),
-			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_address'), id: 'copy_address' }),
+			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_name'), id: 'copy_name' }),
+			tsa_elementCreate( 'div', { className: 'tsastyle-copy', textContent: chrome.i18n.getMessage('copy_url'), id: 'copy_url' }),
 			// tsa_elementCreate( 'hr' ),
 			// tsa_elementCreate( 'div', { className: 'tsastyle-trash', textContent: chrome.i18n.getMessage('remove_torrent'), id: 'remove_request' }),
 		]);
@@ -469,13 +473,13 @@ const torrUpdater = {
 			]}),
 		]);
 
-		window.oncontextmenu = (e) => false; // отключить дефолтное контекстное меню
+		// window.oncontextmenu = (e) => false; // отключить дефолтное контекстное меню
 		window.onbeforeunload = ()=>this.performItems('tsastyle-working'); // при закрытии/уходе со страницы остановить все обработки
 
-		let addr = normTSaddr(this.options.TS_address).url;
 		let serv = document.querySelector('header > a');
-		serv.textContent = addr;
-		serv.href = addr;
+		const nTS= normTSaddr(this.options.TS_address);
+		serv.textContent  = nTS.url;
+		serv.href = nTS.orig;
 		serv.title = 'TorrServer';
 
 		let total = document.querySelector('.total');

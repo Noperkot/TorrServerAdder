@@ -62,7 +62,7 @@
 .tsastyle-notes:before			{ content: '\E80B'; }
 .tsastyle-expand:before			{ content: '\E805'; }
 .tsastyle-collapse:before		{ content: '\E80A'; }
-.tsastyle-checkupdate:before	{ content: '\E809'; }
+.tsastyle-checkupdate:before	{ content: '\E80E'; }
 .tsastyle-updatable:before		{ content: '\E801'; }
 .tsastyle-nonupdatable:before	{ content: '\E80D'; }
 .tsastyle-noupdate:before		{ content: '\E807'; }
@@ -73,8 +73,12 @@
 .tsastyle-noicon:before			{ content: ''; }
 .tsastyle-search:before			{ content: '\E809'; }
 .tsastyle-hash:before			{ content: '\F029'; }
-.tsastyle-viewed:before			{ content: '\E806'; }
-.tsastyle-notviewed:before		{ content: '';}
+.tsastyle-viewed:before			{ content: '\F111'; }
+.tsastyle-notviewed:before		{ content: '\F1DB';}
+.tsastyle-download:before		{ content: '\E80e'; }
+.tsastyle-tslogo:before			{ content: '\E810'; }
+.tsastyle-export:before			{ content: '\E813'; }
+.tsastyle-import:before			{ content: '\E814'; }
 
 @keyframes tsa-spinner {
 	from { transform: rotate(0deg); }

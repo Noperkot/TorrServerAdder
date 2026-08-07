@@ -42,10 +42,8 @@ header, footer {
 }
 
 .item:before{
-	display: inline-block;
 	width: 2rem;
-	vertical-align: middle;
-	padding-bottom: 0.2em;
+	vertical-align: baseline;
 	color: var(--profile-color);
 }
 
@@ -63,28 +61,13 @@ header, footer {
 	border-radius: var(--base-radius);
 }
 
-.tsastyle-link {
-	display: none;
-	align-items: center;
-	overflow: hidden;
-}
-
-.tsastyle-link:before {
-	flex-shrink: 0;
-}
-
 .tsastyle-checkupdate {
 	background-color: #0146adc0;
 	min-width: 2rem;
-	margin-left: auto;
-}
-
-.tsastyle-checkupdate:before {
-	width: 100%;
-	font-size: 150%;
-	padding-bottom: 0.125em;
-}
-
-.tsastyle-checkupdate:hover {
+	float:right;
 	font-size: 110%;
+}
+
+.tsastyle-checkupdate:hover::before {
+	transform: scale(1.3);
 }

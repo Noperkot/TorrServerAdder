@@ -24,4 +24,6 @@ header, footer {
 	text-shadow: 1px 1px 2px black;
 }
 
-
+.invis{
+	display: none !important;
+}

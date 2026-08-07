@@ -16,7 +16,6 @@ chrome.runtime.onMessage.addListener(MessageListener);
 if (isChrome()) chrome.downloads.onChanged.addListener(DownloadsListener);
 /********************************************************************************/
 
-
 class tsaError extends Error {
 	constructor(message, submessage = undefined, className = undefined) {
 		super(message);
@@ -26,12 +25,38 @@ class tsaError extends Error {
 	}
 }
 
+function rebuildContextMenu(){
+	chrome.contextMenus.removeAll();	// удаляем старое контекстное меню
+	chrome.storage.local.get(['profiles'], ({ profiles }) => {
+		const keys = Object.keys(profiles);
+		for (let id in CONTEXT_MENU) {		// создаем новое
+			chrome.contextMenus.create({
+				id: id,
+				title: chrome.i18n.getMessage(id),
+				contexts: ["link"]
+			});
+			if(keys.length > 1){
+				for(let profile of keys){
+					chrome.contextMenus.create({
+						parentId: id,
+						title: profiles[profile].profile_name,
+						id: `${profile}_${id}`,
+						contexts: ["link"],
+					});
+				}
+			}
+		}
+	});
+}
+
 async function Install(){ // инициализация, выполняется один раз при старте(рестарте, установке, включении) расширения. вызывается из background_M2(3).js
 	// await chrome.storage.local.clear();
 
 	await chrome.storage.local.get(['profiles','selected_profile'], ({ profiles, selected_profile }) => {
-		if(profiles && selected_profile) setIcon(profiles[selected_profile]);
-		else {  // если хранилище не инициализировано(первый запуск) - ищем ТС на localhost и torrserver.lan
+		if(profiles && selected_profile){
+			setIcon(profiles[selected_profile]);
+			rebuildContextMenu();
+		} else {  // если хранилище не инициализировано(первый запуск) - ищем ТС на localhost и torrserver.lan
 			TS_search((host) => {
 				profiles = {
 					'1': {
@@ -43,20 +68,11 @@ async function Install(){ // инициализация, выполняется 
 					}
 				};
 				selected_profile = '1';
-				chrome.storage.local.set({profiles: profiles, selected_profile: selected_profile});
+				chrome.storage.local.set({profiles: profiles, selected_profile: selected_profile}, ()=>rebuildContextMenu() );
 				setIcon(profiles[selected_profile]);
 			});
 		}
 	});
-
-	chrome.contextMenus.removeAll();	// удаляем старое контекстное меню (на всякий)
-	for (let id in CONTEXT_MENU) {		// создаем новое
-		chrome.contextMenus.create({
-			id: id,
-			title: chrome.i18n.getMessage(id),
-			contexts: ["link"]
-		});
-	}
 
 	if(isChrome()){	// в хроме на все открытые вкладки внедряем стили и контент-скрипты (лиса это делает сама)
 		let manifest = chrome.runtime.getManifest();
@@ -77,8 +93,8 @@ async function contextMenusListener(info, tab){
 		chrome.tabs.sendMessage(tab.id, { // request additional info (poster, title)
 			'action': 'Add',
 			'linkUrl': info.linkUrl,
-			'options': await LoadOpt(),
-			'flags': CONTEXT_MENU[info.menuItemId],
+			'options': await LoadOpt(parseInt(info.menuItemId, 10)),
+			'flags': CONTEXT_MENU[info.menuItemId] || CONTEXT_MENU[info.parentMenuItemId],
 		}, () => void chrome.runtime.lastError);
 	} catch {}
 }
@@ -100,6 +116,8 @@ function MessageListener(request, sender, sendResponse){
 				}
 			});
 			return true;
+		case 'profilesChanged':
+			rebuildContextMenu();
 	}
 }
 

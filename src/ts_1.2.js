@@ -108,8 +108,11 @@ tsVersions['MatriX.'] = {
 						if(jsn.file_stats) {
 							let content = [];
 							jsn.file_stats.forEach((file)=>{
+								let flName = file.path.split('/').pop();
 								content.push({
 									path: file.path,
+									name: flName,
+									url: encodeURI(`${this.request.TS.address}/stream/${flName}?link=${this.request.hash}&index=${file.id}&play`),
 									size: file.length,
 									viewed: viewedList.includes(file.id),
 									id: file.id,

@@ -143,7 +143,3 @@ dd {
 .toolbox > *:active {
 	transform: scale(0.8);
 }
-
-.invis{
-	display: none;
-}
