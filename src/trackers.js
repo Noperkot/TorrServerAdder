@@ -48,7 +48,7 @@ var tsa_trackers = [
 				let url = new URL((doc.location || doc.tsa_location).href);
 				url.pathname = 'get_srv_details.php';
 				url.searchParams.set( 'action', 2 );
-				FETCH(url.toString(), {signal: abort_signal, cache: 'no-store'})
+				fetch(url.toString(), {signal: abort_signal, cache: 'no-store'})
 				.then((response) => response.text())
 				.then((text)=>{
 					let hash = text.match(/[0-9,A-F]{40}/i);
