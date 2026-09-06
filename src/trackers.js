@@ -33,9 +33,8 @@ var tsa_trackers = [
 		},
 		title:  (doc) => doc.querySelector('#soc-container').getAttribute('data-share_title'),
 		magnet: (doc) => doc.querySelector('.magnet-link').href,
-		threads: 2, //8, // при множественных запросах cloudflare уходит в защиту
-		timeout: 500,
-		releaseDelay: 500, // слишком частые апросы cloudflare тоже не нравятся
+		threads: 8,
+		timeout: 5000,
 	},
 	{
 		label: 'КИНОЗАЛ.ТВ',
@@ -48,14 +47,15 @@ var tsa_trackers = [
 				let url = new URL((doc.location || doc.tsa_location).href);
 				url.pathname = 'get_srv_details.php';
 				url.searchParams.set( 'action', 2 );
-				fetch(url.toString(), {signal: abort_signal, cache: 'no-store'})
-				.then((response) => response.text())
-				.then((text)=>{
-					let hash = text.match(/[0-9,A-F]{40}/i);
-					if(hash) resolve(`magnet:?xt=urn:btih:${hash}`);
-					else throw new Error();
-				})
-				.catch(reject);
+				chrome.runtime.sendMessage({ action: "FETCH", url: url.toString() }, (response) => {
+					if (response.error) {
+						reject(response.error);
+					} else {
+						let hash = response.data.match(/[0-9,A-F]{40}/i);
+						if(hash) resolve(`magnet:?xt=urn:btih:${hash}`);
+						else reject();
+					}
+				});
 			});
 		},
 		onPageLoaded() {
@@ -277,7 +277,6 @@ var tsa_trackers = [
 		threads: 16,
 	},
 ];
-
 
 function tsa_torrInfoCollector(tracker, doc, url){	// собираем со страницы doc информацию о торренте - постер, название
 	let torrInfo = {data:{srcUrl:(doc.location||doc.tsa_location).href}};

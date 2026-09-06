@@ -80,6 +80,20 @@ async function Install(){ // инициализация, выполняется 
 			tabs.forEach((tab) => cs_inject( tab.id, manifest.content_scripts[0]));
 		});
 	}
+
+	chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+		if (request.action === "FETCH") {
+			FETCH(request.url)
+			.then(res => {
+				if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+				return res.text();
+			})
+			.then(data => sendResponse({ data: data }))
+			.catch(err => sendResponse({ error: err.message }));
+			return true; // ответ асинхронный
+		}
+	});
+
 }
 
 	/** Port connection listener */
