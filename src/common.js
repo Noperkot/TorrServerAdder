@@ -113,34 +113,30 @@ function LoadOpt(prfl) {
 };
 
 const requestHeadersM2 = {
-	add(url, extraHeaders) {
-		this.BeforeSendListener = (details) => {
-			for (let header in extraHeaders) {
-				for (let details_header in details.requestHeaders) {
-					if (details_header.name && details_header.name.toLowerCase() === header.toLowerCase()) {
-						details_header.value = extraHeaders[header];
-						extraHeaders[header]=undefined;
-						break;
-					}
-				}
-				if (extraHeaders[header]!==undefined) details.requestHeaders.push({ name: header, value: extraHeaders[header] });
-			}
-			return { requestHeaders: details.requestHeaders };
-		}
+	BeforeSendListener: {},
+    async add(id, url, extraHeaders) {
+        this.BeforeSendListener[id] = (details) => {
+			let headers = (details.requestHeaders || []).filter( h => !(h.name.toLowerCase() in extraHeaders) ); // удаляем если такие уже существуют. имена заголовков передаваемых в extraHeaders должны быть в нижнем регистре!
+            for (const name in extraHeaders) { // добавляем свои
+                headers.push({ name: name, value: extraHeaders[name] });
+            }
+            return { requestHeaders: headers };
+        };
 		let extraInfoSpec = ["blocking", "requestHeaders"];
 		if (isChrome()) extraInfoSpec.push("extraHeaders");
-		chrome.webRequest.onBeforeSendHeaders.addListener(this.BeforeSendListener, {
+        chrome.webRequest.onBeforeSendHeaders.addListener( this.BeforeSendListener[id], { 
 			urls: [url],
-			types: ["xmlhttprequest"],
-		}, extraInfoSpec);
-	},
-	remove() {
-		chrome.webRequest.onBeforeSendHeaders.removeListener(this.BeforeSendListener);
-	}
-}
+			types: ["xmlhttprequest"]
+        }, extraInfoSpec );
+    },
+    async remove(id) {
+        chrome.webRequest.onBeforeSendHeaders.removeListener(this.BeforeSendListener[id]);
+		delete this.BeforeSendListener[id];
+    }
+};
 
 const requestHeadersM3 = {
-	add(url, extraHeaders) {
+	add(id, url, extraHeaders) {
 		let requestHeaders = [];
 		for (const header in extraHeaders){
 			requestHeaders.push({
@@ -149,25 +145,18 @@ const requestHeadersM3 = {
 				"value": extraHeaders[header]
 			});
 		}
-		chrome.declarativeNetRequest.updateSessionRules({
-			removeRuleIds: [1],
+		return chrome.declarativeNetRequest.updateSessionRules({
+			removeRuleIds: [id],
 			addRules: [{
-					"id": 1,
-					"priority": 1,
-					"action": {
-						"type": "modifyHeaders",
-						"requestHeaders": requestHeaders
-					},
-					"condition": {
-						"urlFilter": url,
-						"resourceTypes": ["xmlhttprequest"]
-					}
-				}
-			]
+				"id": id,
+				"priority": 1,
+				"action": { "type": "modifyHeaders", "requestHeaders": requestHeaders },
+				"condition": { "urlFilter": url, "resourceTypes": ["xmlhttprequest", "other"] }
+			}]
 		});
 	},
-	remove() {
-		chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [1] });
+	remove(id) {
+		return chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [id] });
 	}
 }
 
@@ -189,23 +178,25 @@ function getStoreId(){ // у окна инкогнито свое независ
 
 // fetch, отправляющий в запросе куки из хранилища, в том числе с флагами HttpOnly. Нужен для обхода защиты cloudflare при добавлении торрент-файла и обновлении торрентов, в основном на rutracker.
 // в манифесте в секции "permissions" должно быть разрешение "cookies"
-function FETCH(url,options) { 
- 	return new Promise(async (resolve, reject) => {
+function FETCH(url,options) {
+	return new Promise(async (resolve, reject) => {
+		const ruleId = Math.floor(Math.random() * 1000000) + 1; // случайный ID
 		const details = {url: url, partitionKey: {}};
 		try { details.storeId = await getStoreId(); } catch {}
-		chrome.cookies.getAll(details, (cookies) => { //
-			const cookieStr = cookies.map(item=>`${item.name}=${item.value}`).join('; ');
+		chrome.cookies.getAll(details, (cookies) => {
+			const cookieStr = cookies.map(item => `${item.name}=${item.value}`).join('; ');
 			const requestHeaders = (chrome.runtime.getManifest().manifest_version===3) ? requestHeadersM3 : requestHeadersM2;
-			requestHeaders.add( url, {  // Подставляем заголовки Referer и Cookie
-				...(cookieStr) && {'Cookie': cookieStr},
-				'Referer': url, // на всякий случай. встречались трекеры, которые без этого не отдавали торрент-файл
-				'Pragma': 'no-cache',
-				'Cache-Control': 'no-cache',	
-			});
-			fetch(url, options)
+			requestHeaders.add( ruleId, url, {  // Подставляем заголовки Referer и Cookie. Имена заголовков должны быть в нижнем регистре!!!(для requestHeadersM2)
+				...(cookieStr) && {'cookie': cookieStr},
+				'referer': url, // на всякий случай. встречались трекеры, которые без этого не отдавали торрент-файл
+				'pragma': 'no-cache',
+				'cache-control': 'no-cache',
+			})
+			// .then(() => new Promise((resolve) => setTimeout(resolve, 20))) // вроде как без задержки правило может не успеть примениться???
+			.then(() => fetch(url, options))
 			.then((response) => resolve(response))
-			.finally(() => requestHeaders.remove()) // чистим
-			.catch((e) => reject(e));
-		});	
+			.catch((e) => reject(e))
+			.finally(() => requestHeaders.remove(ruleId)); // чистим
+		});
 	});
 };
