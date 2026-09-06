@@ -14,6 +14,18 @@ chrome.contextMenus.onClicked.addListener(contextMenusListener);
 chrome.runtime.onConnect.addListener(ConnectListener);
 chrome.runtime.onMessage.addListener(MessageListener);
 if (isChrome()) chrome.downloads.onChanged.addListener(DownloadsListener);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if (request.action === "FETCH") {
+		FETCH(request.url)
+		.then(res => {
+			if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+			return res.text();
+		})
+		.then(data => sendResponse({ data: data }))
+		.catch(err => sendResponse({ error: err.message }));
+		return true; // ответ асинхронный
+	}
+});
 /********************************************************************************/
 
 class tsaError extends Error {
@@ -80,19 +92,6 @@ async function Install(){ // инициализация, выполняется 
 			tabs.forEach((tab) => cs_inject( tab.id, manifest.content_scripts[0]));
 		});
 	}
-
-	chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-		if (request.action === "FETCH") {
-			FETCH(request.url)
-			.then(res => {
-				if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-				return res.text();
-			})
-			.then(data => sendResponse({ data: data }))
-			.catch(err => sendResponse({ error: err.message }));
-			return true; // ответ асинхронный
-		}
-	});
 
 }
 
