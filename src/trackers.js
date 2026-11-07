@@ -59,18 +59,16 @@ var tsa_trackers = [
 			});
 		},
 		onPageLoaded() {
-			let download_cell = document.querySelector('.nw');
-			download_cell.querySelectorAll(':scope > .TSA_magnet').forEach((elm) => elm.remove());
 			this.magnet(document)
 			.then((magnet) => {
-				let torrent_lnk = download_cell.querySelector('a');
-				let magnet_lnk = torrent_lnk.cloneNode( true );
-				magnet_lnk.querySelector('img').src = chrome.runtime.getURL('wa/mgknz.gif');
-				magnet_lnk.href = magnet;
-				magnet_lnk.classList.add('TSA_magnet');
-				download_cell.appendChild(magnet_lnk);
-			})
-			.catch((e)=>{});
+				let download_cell = document.querySelector('.nw');
+				download_cell.querySelectorAll(':scope > .TSA_magnet').forEach((elm) => elm.remove());
+				download_cell.appendChild(tsa_elementCreate('a', {
+					'href': magnet,
+					'className': 'TSA_magnet',
+					'append': [ tsa_elementCreate('img', {'src': chrome.runtime.getURL('wa/mgknz.gif')}) ]
+				}));
+			}).catch((e)=>{});
 		},
 		threads: 16,
 		timeout: 5000,
