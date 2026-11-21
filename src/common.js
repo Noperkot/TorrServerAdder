@@ -103,6 +103,11 @@ function isChrome(){
 	return (typeof browser === "undefined");
 }
 
+function isObject(value) {
+	if (typeof value !== 'object' || value === null) return false;
+	const proto = Object.getPrototypeOf(value);
+	return proto === null || proto === Object.prototype;
+}
 
 function LoadOpt(prfl) {
 	return new Promise((resolve,reject) => {

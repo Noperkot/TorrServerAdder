@@ -1,5 +1,5 @@
 'use strict';
-importScripts("common.js", "background.js", "torrworker.js", "ts_1.1.js", "ts_1.2.js" );
+importScripts("common.js", "background.js", "torrworker.js", "ts_1.1.js", "ts_1.2.js", "ts_1.3.js" );
 
 function cs_inject(tabID, cs){
 	chrome.scripting.insertCSS({		// внедряем стили

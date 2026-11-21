@@ -1,5 +1,5 @@
 {
-    "version": "2.0.7",
+    "version": "2.0.8",
     "name": "TorrServer Adder",
     "short_name": "TSA",
     "description": "__MSG_extension_description__",
@@ -46,7 +46,8 @@
             "background_M2.js",
             "torrworker.js",
             "ts_1.1.js",
-            "ts_1.2.js"
+            "ts_1.2.js",
+            "ts_1.3.js"
         ]
     },
     "permissions": [

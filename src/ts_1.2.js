@@ -1,32 +1,6 @@
 'use strict';
 
-const categories = ['','movie','tv','music','other'];
-
 tsVersions['MatriX.'] = {
-
-	names: {
-		path: {
-			'stat': 'torrents',
-			'preload': 'stream?preload&index=1&link=',
-			'm3u': 'stream?m3u&link=',
-			'drop': 'torrents',
-			'rem': 'torrents',
-		},
-		stat: {
-			'TorrentStatus': 'stat',
-			'TorrentStatusString': 'stat_string',
-			'DownloadSpeed': 'download_speed',
-			'ConnectedSeeders': 'connected_seeders',
-			'ActivePeers': 'active_peers',
-			'TotalPeers': 'total_peers',
-			'PreloadSize': 'preload_size',
-			// 'LoadedSize': 'preloaded_bytes',
-			'LoadedSize': 'bytes_read',
-			'TorrentSize': 'torrent_size',
-			'FileStats': 'file_stats',
-			'Length': 'length',
-		},
-	},
 
 	add_magnet(){
 		return new Promise((resolve, reject) => {
@@ -66,10 +40,48 @@ tsVersions['MatriX.'] = {
 		});
 	},
 
+	del(){
+		return this.Post('torrents', `{"action":"rem","hash":"${this.request.oldHash||this.request.hash}"}`);
+	},
+
+	drop(){
+		return this.Post('torrents',{body:`{"action":"drop","hash":"${this.request.hash}"}`,signal:(new AbortController()).signal}); // дроп должен быть нечувствителен к общему аборту(signal), поэтому отдельный AbortController. что с чисткой?
+	},
+
+	stat(){
+		return new Promise((resolve, reject) => {
+			this.Post('torrents', `{"action":"get","hash":"${this.request.hash}"}`)
+			.then(JSON.parse)
+			.then((jsn) => ({
+					'TorrentStatus':		jsn['stat']||0,
+					'TorrentStatusString':	jsn['stat_string']||'',
+					'DownloadSpeed':		jsn['download_speed']||0,
+					'ConnectedSeeders':		jsn['connected_seeders']||0,
+					'ActivePeers':			jsn['active_peers']||0,
+					'TotalPeers':			jsn['total_peers']||0,
+					'PreloadSize':			jsn['preload_size']||0,
+					'LoadedSize':			jsn['bytes_read']||0,
+					'TorrentSize':			jsn['torrent_size']||0,
+					'FileStats':			jsn['file_stats']||0,
+					'Length':				jsn['length']||0,
+			}))
+			.then(resolve)
+			.catch(reject);
+		});
+	},
+
+	preload() {
+		return this.Post(`stream?preload&index=1&link=${this.request.hash}`,{'method':'HEAD'});
+	},
+
+	m3u() {
+		return `${this.request.TS.address}/stream?m3u&link=${this.request.hash}`;
+	},
+
 	torrents_list(){
 		return new Promise((resolve, reject) => {
 			this.Post('torrents','{"action": "list"}')
-			.then((response) => JSON.parse(response))
+			.then(JSON.parse)
 			.then((jsn) => {
 				let tlist = [];
 				for( let torrent of jsn){
@@ -82,8 +94,9 @@ tsVersions['MatriX.'] = {
 						size: torrent.torrent_size,
 					});
 				}
-				resolve(tlist);
+				return tlist;
 			})
+			.then(resolve)
 			.catch(reject);
 		});
 	},
