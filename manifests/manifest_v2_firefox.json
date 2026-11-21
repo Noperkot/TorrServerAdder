@@ -46,7 +46,8 @@
             "background_M2.js",
             "torrworker.js",
             "ts_1.1.js",
-            "ts_1.2.js"
+            "ts_1.2.js",
+            "ts_1.3.js"
         ]
     },
     "permissions": [

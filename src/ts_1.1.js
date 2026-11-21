@@ -2,30 +2,6 @@
 
 tsVersions['1.1.'] = {
 
-	names: {
-		path: {
-			'stat': 'torrent/stat',
-			'preload': 'torrent/play?preload=true&file=0&link=',
-			'm3u': 'torrent/play?m3u=true&link=',
-			'drop': 'torrent/drop',
-			'rem': 'torrent/rem',
-		},
-		stat: {
-			'TorrentStatus': 'TorrentStatus',
-			'TorrentStatusString': 'TorrentStatusString',
-			'DownloadSpeed': 'DownloadSpeed',
-			'ConnectedSeeders': 'ConnectedSeeders',
-			'ActivePeers': 'ActivePeers',
-			'TotalPeers': 'TotalPeers',
-			'PreloadSize': 'PreloadSize',
-			// 'LoadedSize': 'PreloadedBytes',
-			'LoadedSize': 'LoadedSize',
-			'TorrentSize': 'TorrentSize',
-			'FileStats': 'FileStats',
-			'Length': 'Length',
-		},
-	},
-
 	add_magnet(){
 		return new Promise((resolve, reject) => {
 			const body = {
@@ -67,10 +43,48 @@ tsVersions['1.1.'] = {
 		});
 	},
 
+	del(){
+		return this.Post('torrent/rem', `{"hash":"${this.request.oldHash||this.request.hash}"}`);
+	},
+
+	drop(){
+		return this.Post('torrent/drop',{body:`{"hash":"${this.request.hash}"}`,signal:(new AbortController()).signal}); // дроп должен быть нечувствителен к общему аборту(signal), поэтому отдельный AbortController
+	},
+
+	stat(){
+		return new Promise((resolve, reject) => {
+			this.Post('torrent/stat', `{"hash":"${this.request.hash}"}`)
+			.then(JSON.parse)
+			.then((jsn) => ({
+					'TorrentStatus':		jsn['TorrentStatus']||0,
+					'TorrentStatusString':	jsn['TorrentStatusString']||'',
+					'DownloadSpeed':		jsn['DownloadSpeed']||0,
+					'ConnectedSeeders':		jsn['ConnectedSeeders']||0,
+					'ActivePeers':			jsn['ActivePeers']||0,
+					'TotalPeers':			jsn['TotalPeers']||0,
+					'PreloadSize':			jsn['PreloadSize']||0,
+					'LoadedSize':			jsn['LoadedSize']||0,
+					'TorrentSize':			jsn['TorrentSize']||0,
+					'FileStats':			jsn['FileStats']||0,
+					'Length':				jsn['Length']||0,
+			}))
+			.then(resolve)
+			.catch(reject);
+		});
+	},
+
+	preload() {
+		return this.Post(`torrent/play?preload=true&file=0&link=${this.request.hash}`,{'method':'HEAD'});
+	},
+
+	m3u() {
+		return `${this.request.TS.address}/torrent/play?m3u=true&link=${this.request.hash}`;
+	},
+
 	torrents_list(){
 		return new Promise((resolve, reject) => {
 			this.Post('torrent/list')
-			.then((response) => JSON.parse(response))
+			.then(JSON.parse)
 			.then((jsn) => {
 				let tlist = [];
 				for( let torrent of jsn){
@@ -82,8 +96,9 @@ tsVersions['1.1.'] = {
 						size: torrent.Length,
 					});
 				}
-				resolve(tlist);
+				return tlist;
 			})
+			.then(resolve)
 			.catch(reject);
 		});
 	},

@@ -64,9 +64,9 @@ class tWorkerSrv {
 			.then(() => this.tsVer())
 			.then(() => this.addTorrent())
 			.then(() => this.trasferViewed())
-			.then(() => this.remTorrent(this.request.oldHash))	// при массовом обновлении ТС иногда "забывает" удалить торрент (хоть и возвращает 200-й статус). Дублируем запрос на удаление еще пару раз.
-			.then(() => this.remTorrent(this.request.oldHash))	// -//-
-			.then(() => this.remTorrent(this.request.oldHash))	// -//-
+			.then(() => this.remTorrent())	// при массовом обновлении ТС иногда "забывает" удалить торрент (хоть и возвращает 200-й статус). Дублируем запрос на удаление еще пару раз.
+			.then(() => this.remTorrent())	// -//-
+			.then(() => this.remTorrent())	// -//-
 			.then(() => this.pstMsg('success', this.request.hash))
 			.catch((e) => this.pstMsg(e))
 			.finally(() => this.Disconnect());
@@ -76,7 +76,7 @@ class tWorkerSrv {
 			this.preventDrop();
 			this.Init(request)
 			.then(() => this.tsVer())
-			.then(() => this.remTorrent(this.request.hash))
+			.then(() => this.remTorrent())
 			.then(() => this.pstMsg('success', this.request.hash))
 			.catch((e) => this.pstMsg(e))
 			.finally(() => this.Disconnect());
@@ -125,7 +125,7 @@ class tWorkerSrv {
 
 	Drop(){
 		if(!this.request.hash || !this.request.flags || this.request.flags.save) return;
-		this.Post( this.tskit.names.path.drop, `{"action":"drop","hash":"${this.request.hash}"}` )
+		this.tskit.drop.bind(this)()
 		.catch((e) => {});
 	}
 
@@ -166,9 +166,9 @@ class tWorkerSrv {
 		});
 	}
 
-	tsVer() {
+	tsVer() { // временный костыль пока в Silo не сделают /echo
 		return new Promise((resolve, reject) => {
-			fetch(`${this.request.TS.address}/echo`, { signal: this.abortCtrl.signal })
+			fetch(`${this.request.TS.address}/echo`, { signal: this.abortCtrl.signal }) // Matrix, 1.1
 			.then(async (response) => {
 				if (response.ok) {
 					const response_text = await response.text();
@@ -182,7 +182,26 @@ class tWorkerSrv {
 					}
 					reject(new tsaError("Unsupported_version_of_TorrServer", text));
 				}
-				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));
+				// else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));
+				else {
+					fetch(`${this.request.TS.address}/api/system/version`, { signal: this.abortCtrl.signal }) // Silo
+					.then(async (response) => {
+						if (response.ok) {
+							const response_text = JSON.parse(await response.text()).version;
+							for (let ver in tsVersions) {
+								if (response_text.startsWith(ver)) {
+									this.request.TS.ver = ver;
+									this.tskit = tsVersions[ver];
+									resolve(ver);
+									return;
+								}
+							}
+							reject(new tsaError("Unsupported_version_of_TorrServer", text));
+						}
+						else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));
+					})
+					.catch((e) => reject(new tsaError('TorrServer_is_not_responding', this.request.TS.address )));
+				}
 			})
 			.catch((e) => reject(new tsaError('TorrServer_is_not_responding', this.request.TS.address )));
 		});
@@ -198,12 +217,8 @@ class tWorkerSrv {
 		});
 	}
 
-	remTorrent(hash){
-		return new Promise((resolve, reject) => {
-			this.Post(this.tskit.names.path.rem, `{"action":"rem","hash":"${hash}"}`)
-			.then(resolve)
-			.catch(reject);
-		});
+	remTorrent(){
+		return this.tskit.del.bind(this)();
 	}
 
 	trasferViewed(){
@@ -218,15 +233,17 @@ class tWorkerSrv {
 		});
 	}
 
-	Post(path, body) {
+	Post(path, arg) {
 		return new Promise((resolve, reject) => {
-			const url = `${this.request.TS.address}/${path}`;
-			fetch(url, {
-				method: 'POST',
-				body: body,
-				...(!this.abortCtrl.signal.aborted) && {signal: this.abortCtrl.signal},	// signal: this.abortCtrl.signal,
-				headers: Object.assign({...(typeof body == 'string') && {'Content-Type': 'application/json'}}, this.request.TS.headers ),
-			})
+			if(!isObject(arg)) arg={body:arg};
+			const opt = {
+				method: arg.method||'POST',
+				body: arg.body,
+				signal: arg.signal||this.abortCtrl.signal,
+				headers: this.request.TS.headers,
+			};
+			if(typeof opt.body == 'string') opt.headers['Content-Type']='application/json; charset=utf-8';
+			fetch(`${this.request.TS.address}/${path}`, opt)
 			.then((response) => {
 				if (response.ok) resolve(response.text());
 				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));
@@ -236,42 +253,27 @@ class tWorkerSrv {
 	}
 
 	Preload() {
-		return new Promise((resolve, reject) => {
-			fetch(`${this.request.TS.address}/${this.tskit.names.path.preload}${this.request.hash}`, {
-				'method': 'HEAD',
-				'signal': this.abortCtrl.signal,
-				'headers': this.request.TS.headers,
-			})
-			.then((response) => {
-				if (response.ok) resolve();
-				else reject(new tsaError('request_rejected', `${response.status} ${response.statusText}`));//
-			})
-			.catch((e) => reject(new tsaError('TorrServer_is_not_responding',this.request.TS.address)));
-		});
+		return this.tskit.preload.bind(this)();
 	}
 
 	Stat() {
 		return new Promise((resolve, reject) => {
-			this.Post(this.tskit.names.path.stat, `{"action":"get","hash":"${this.request.hash}"}`) // в TS 1.1 "action" не нужен, но и не мешает
-			.then((response) => JSON.parse(response))
-			.then((jsn) => {
-				let stat = {};
-				for (let fieldName in this.tskit.names.stat) {
-					stat[fieldName] = jsn[this.tskit.names.stat[fieldName]] || 0;
-				}
-				try{
-					let first_file_size = jsn[this.tskit.names.stat['FileStats']][0][this.tskit.names.stat['Length']];
+			this.tskit.stat.bind(this)()
+			.then((stat) => {
+				try{ // ???
+					let first_file_size = stat.FileStats[0].Length;
 					if (first_file_size < stat.PreloadSize) stat.PreloadSize = first_file_size;
 				} catch {}
-				resolve(stat);
+				return stat;
 			})
+			.then(resolve)
 			.catch(reject);
 		});
 	}
 
 	Play() {	// загрузчик плейлиста
 		return new Promise((resolve, reject) => {
-			let url = `${this.request.TS.address}/${this.tskit.names.path.m3u}${this.request.hash}`;
+			const url = this.tskit.m3u.bind(this)();
 			if (isChrome()) { // Chrome (download playlist)
 				chrome.downloads.download({
 					url: url,
@@ -290,7 +292,7 @@ class tWorkerSrv {
 			}
 		});
 	}
-	
+
 	Load() {	// загрузчик торрент-файла
 		return new Promise((resolve, reject) => {
 			FETCH(this.request.linkUrl, { signal: this.abortCtrl.signal })
@@ -310,7 +312,7 @@ class tWorkerSrv {
 				 ));
 			})
 			.then(resolve)
-			.catch((e) => reject(new tsaError( "resource_is_unavailable")));	
+			.catch((e) => reject(new tsaError( "resource_is_unavailable")));
 		});
 	}
 
